@@ -32,11 +32,10 @@ Thumbs.db
 desktop.ini
 
 # Composer files
-/composer.lock
+
 
 # NPM/Yarn files
-package-lock.json
-yarn.lock
+
 
 # Laravel Mix / Vite / Webpack
 /public/hot
