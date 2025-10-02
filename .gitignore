@@ -1,0 +1,53 @@
+# Vendor
+/vendor/
+
+# Node modules
+/node_modules/
+
+# Environment file
+.env
+.env.backup
+.env.local
+.env.*.local
+
+# Laravel specific
+/storage/*.key
+/storage/app/public
+/storage/debugbar
+/storage/framework/cache/data
+/storage/framework/sessions
+/storage/framework/views
+/storage/logs/*.log
+
+# Cache & IDE files
+/.idea/
+/.vscode/
+/nbproject/
+/*.sublime-workspace
+/*.sublime-project
+
+# OS generated files
+.DS_Store
+Thumbs.db
+desktop.ini
+
+# Composer files
+/composer.lock
+
+# NPM/Yarn files
+package-lock.json
+yarn.lock
+
+# Laravel Mix / Vite / Webpack
+/public/hot
+/public/mix-manifest.json
+/public/build
+
+# Testing & coverage
+/.phpunit.result.cache
+/coverage/
+
+# Ignora eventuali file di backup
+*.bak
+*.tmp
+*.swp
