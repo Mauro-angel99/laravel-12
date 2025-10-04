@@ -15,11 +15,27 @@ class RolesAndPermissionsSeeder extends Seeder
      */
     public function run(): void
     {
-        $role = Role::firstOrCreate(['name' => 'admin']);
-        $permission = Permission::firstOrCreate(['name' => 'edit users']);
+        // Creazione dei ruoli
+        $adminRole = Role::firstOrCreate(['name' => 'admin']);
+        $userRole = Role::firstOrCreate(['name' => 'user']);
+        $authorRole = Role::firstOrCreate(['name' => 'author']);
 
-        $role->givePermissionTo($permission);
+        // Creazione dei permessi
+        $editUsersPermission = Permission::firstOrCreate(['name' => 'edit users']);
+        $createPostsPermission = Permission::firstOrCreate(['name' => 'create posts']);
+        $editPostsPermission = Permission::firstOrCreate(['name' => 'edit posts']);
+        $deletePostsPermission = Permission::firstOrCreate(['name' => 'delete posts']);
 
+        // Assegnazione permessi ai ruoli
+        $adminRole->givePermissionTo($editUsersPermission);
+        $adminRole->givePermissionTo($createPostsPermission);
+        $adminRole->givePermissionTo($editPostsPermission);
+        $adminRole->givePermissionTo($deletePostsPermission);
+
+        $authorRole->givePermissionTo($createPostsPermission);
+        $authorRole->givePermissionTo($editPostsPermission);
+
+        // Assegnazione ruolo admin al primo utente
         $user = User::find(1);
         if ($user) {
             $user->assignRole('admin');
