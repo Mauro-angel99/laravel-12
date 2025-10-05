@@ -5,7 +5,10 @@ use App\Http\Controllers\ProfileController;
 use Illuminate\Support\Facades\Route;
 
 Route::middleware(['auth', 'role:admin'])->group(function () {
-    Route::resource('admin/users', UserController::class);
+    Route::prefix('admin')->group(function () {
+        // Name routes as users.* while keeping URL under /admin/users
+        Route::resource('users', UserController::class)->names('users');
+    });
 });
 
 Route::get('/', function () {

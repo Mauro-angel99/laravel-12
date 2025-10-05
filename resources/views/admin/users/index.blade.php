@@ -24,6 +24,7 @@
                                 
                             </div>
                         </div>
+                        
                         <div class="flex gap-2">
                             <button 
                                 type="submit" 
@@ -48,6 +49,22 @@
                         </div>
                     </form>
                 </div>
+                <!-- Actions -->
+                <div class="mb-4 flex items-center justify-between">
+                    <div>
+                        <select name="per_page" id="per_page" onchange="this.form.submit()" class="mt-1 block w-32 rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm">
+                            @foreach([10,25,50,100] as $size)
+                            <option value="{{ $size }}" {{ (int) request('per_page', 10) === $size ? 'selected' : '' }}>{{ $size }}</option>
+                            @endforeach
+                        </select>
+                    </div>
+                    <div>
+                        <a href="{{ route('users.create') }}" class="inline-flex items-center px-4 py-2 bg-gray-800 border border-transparent rounded-md font-semibold text-xs text-white uppercase tracking-widest hover:bg-gray-700 focus:bg-gray-700 active:bg-gray-900 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2 transition ease-in-out duration-150">
+                            + Crea Utente
+                        </a>
+                    </div>
+                </div>
+
                 
                 <!-- Results info -->
                 @if(request('search'))
@@ -86,6 +103,9 @@
                             @endforeach
                         </tbody>
                     </table>
+                    <div class="mt-6">
+                        {{ $users->links() }}
+                    </div>
                     @else
                         <div class="text-center py-12">
                             <svg class="mx-auto h-12 w-12 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
