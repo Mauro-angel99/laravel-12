@@ -30,6 +30,21 @@ return [
     */
 
     'connections' => [
+        
+        'sqlsrv_gestionale' => [
+            'driver' => 'sqlsrv',
+            // 'server_name' => 'sqlsrv', // Per Laravel 10+, usa 'sqlsrv'
+            'host' => 'localhost', // L'istanza è sul tuo PC
+            'port' => '1433', // Porta standard di MSSQL 1433
+            'database' => 'CONCEPT', // Nome che hai dato in SSMS
+            'username' => 'sa', // Il tuo utente MSSQL (es. 'sa')
+            'password' => 'password2', // La password che hai impostato
+            'charset' => 'utf8',
+            'prefix' => '',
+            'prefix_indexes' => true,
+            'encrypt' => 'no', // O 'yes' se necessario, ma 'no' per locale
+            'trust_server_certificate' => true, // Importante per l'errore che avevi prima
+        ],
 
         'sqlite' => [
             'driver' => 'sqlite',

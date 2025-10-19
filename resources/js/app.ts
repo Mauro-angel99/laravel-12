@@ -5,6 +5,8 @@ import { resolvePageComponent } from 'laravel-vite-plugin/inertia-helpers';
 import type { DefineComponent } from 'vue';
 import { createApp, h } from 'vue';
 import { initializeTheme } from './composables/useAppearance';
+// @ts-expect-error: alpinejs has no bundled types
+import Alpine from 'alpinejs';
 
 const appName = import.meta.env.VITE_APP_NAME || 'Laravel';
 
@@ -27,3 +29,8 @@ createInertiaApp({
 
 // This will set light / dark mode on page load...
 initializeTheme();
+
+// Initialize Alpine so the Blade navbar dropdowns work on Inertia pages
+// @ts-expect-error: augmenting Window for Alpine
+window.Alpine = Alpine;
+Alpine.start();
