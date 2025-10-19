@@ -4,11 +4,11 @@
         <input
           type="text"
           v-model="search"
-          placeholder="Cerca Work Phase..."
+          placeholder="Cerca Fasi di Lavoro..."
           class="border px-3 py-2 rounded w-1/3"
         />
-        <button class="bg-blue-500 text-white px-4 py-2 rounded" @click="fetchWorkPhases">
-          Aggiorna
+        <button class="bg-blue-500 text-white px-4 py-2 rounded" @click="fetchWorkPhases(search)" :disabled="loading">
+          {{ loading ? 'Caricamento...' : 'Aggiorna' }}
         </button>
       </div>
   
@@ -17,19 +17,36 @@
           <tr>
             <th class="border px-3 py-2">#</th>
             <th class="border px-3 py-2">FLASS</th>
+            <th class="border px-3 py-2">IDOPR</th>
+            <th class="border px-3 py-2">FLSEQ</th>
+            <th class="border px-3 py-2">FLLAV</th>
             <th class="border px-3 py-2">FLDES</th>
+            <th class="border px-3 py-2">FLQTA</th>
+            <th class="border px-3 py-2">FLQTB</th>
+            <th class="border px-3 py-2">FLQTD</th>
+            <th class="border px-3 py-2">FLCON</th>
           </tr>
         </thead>
         <tbody>
-          <tr v-for="phase in filteredPhases" :key="phase.RECORD_ID" class="hover:bg-gray-50">
+          <tr v-if="loading">
+            <td colspan="10" class="text-center py-4">Caricamento...</td>
+          </tr>
+          <tr v-else v-for="phase in workPhases" :key="phase.RECORD_ID" class="hover:bg-gray-50">
             <td class="border px-3 py-2 text-center">
               <input type="checkbox" v-model="selected" :value="phase.RECORD_ID" />
             </td>
             <td class="border px-3 py-2">{{ phase.FLASS }}</td>
+            <td class="border px-3 py-2">{{ phase.IDOPR }}</td>
+            <td class="border px-3 py-2">{{ phase.FLSEQ }}</td>
+            <td class="border px-3 py-2">{{ phase.FLLAV }}</td>
             <td class="border px-3 py-2">{{ phase.FLDES }}</td>
+            <td class="border px-3 py-2">{{ phase.FLQTA }}</td>
+            <td class="border px-3 py-2">{{ phase.FLQTB }}</td>
+            <td class="border px-3 py-2">{{ phase.FLQTD }}</td>
+            <td class="border px-3 py-2">{{ phase.FLCON }}</td>
           </tr>
-          <tr v-if="!filteredPhases.length">
-            <td colspan="3" class="text-center">Nessuna Work Phase trovata</td>
+          <tr v-if="!loading && !workPhases.length">
+            <td colspan="10" class="text-center py-4">Nessuna Work Phase trovata</td>
           </tr>
         </tbody>
       </table>
@@ -44,28 +61,35 @@
   </template>
   
   <script setup>
-  import { ref, computed, onMounted } from 'vue'
+  import { ref, watch } from 'vue'
   import axios from 'axios'
   
   const workPhases = ref([])
   const search = ref('')
   const selected = ref([])
+  const loading = ref(false)
   
-  const fetchWorkPhases = async () => {
+  const fetchWorkPhases = async (searchTerm = '') => {
+    loading.value = true
     try {
-      const res = await axios.get('/api/work-phases')
+      const params = searchTerm ? { search: searchTerm } : {}
+      const res = await axios.get('/api/work-phases', { params })
       workPhases.value = res.data
     } catch (error) {
       console.error(error)
+    } finally {
+      loading.value = false
     }
   }
   
-  const filteredPhases = computed(() =>
-    workPhases.value.filter(phase =>
-      phase.FLDES.toLowerCase().includes(search.value.toLowerCase()) ||
-      phase.FLASS.toLowerCase().includes(search.value.toLowerCase())
-    )
-  )
+  // Watcher per la ricerca con debounce
+  let searchTimeout
+  watch(search, (newSearch) => {
+    clearTimeout(searchTimeout)
+    searchTimeout = setTimeout(() => {
+      fetchWorkPhases(newSearch)
+    }, 500) // Debounce di 500ms
+  })
   
   const confirmSelected = async () => {
     try {
@@ -79,7 +103,5 @@
       console.error(error)
     }
   }
-  
-  onMounted(fetchWorkPhases)
   </script>
   
