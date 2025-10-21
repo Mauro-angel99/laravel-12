@@ -157,7 +157,7 @@ list.head = (options?: RouteQueryOptions): RouteDefinition<'head'> => ({
     list.form = listForm
 /**
 * @see \App\Http\Controllers\WorkPhaseController::confirm
- * @see app/Http/Controllers/WorkPhaseController.php:41
+ * @see app/Http/Controllers/WorkPhaseController.php:74
  * @route '/api/work-phases/confirm'
  */
 export const confirm = (options?: RouteQueryOptions): RouteDefinition<'post'> => ({
@@ -172,7 +172,7 @@ confirm.definition = {
 
 /**
 * @see \App\Http\Controllers\WorkPhaseController::confirm
- * @see app/Http/Controllers/WorkPhaseController.php:41
+ * @see app/Http/Controllers/WorkPhaseController.php:74
  * @route '/api/work-phases/confirm'
  */
 confirm.url = (options?: RouteQueryOptions) => {
@@ -181,7 +181,7 @@ confirm.url = (options?: RouteQueryOptions) => {
 
 /**
 * @see \App\Http\Controllers\WorkPhaseController::confirm
- * @see app/Http/Controllers/WorkPhaseController.php:41
+ * @see app/Http/Controllers/WorkPhaseController.php:74
  * @route '/api/work-phases/confirm'
  */
 confirm.post = (options?: RouteQueryOptions): RouteDefinition<'post'> => ({
@@ -191,7 +191,7 @@ confirm.post = (options?: RouteQueryOptions): RouteDefinition<'post'> => ({
 
     /**
 * @see \App\Http\Controllers\WorkPhaseController::confirm
- * @see app/Http/Controllers/WorkPhaseController.php:41
+ * @see app/Http/Controllers/WorkPhaseController.php:74
  * @route '/api/work-phases/confirm'
  */
     const confirmForm = (options?: RouteQueryOptions): RouteFormDefinition<'post'> => ({
@@ -201,7 +201,7 @@ confirm.post = (options?: RouteQueryOptions): RouteDefinition<'post'> => ({
 
             /**
 * @see \App\Http\Controllers\WorkPhaseController::confirm
- * @see app/Http/Controllers/WorkPhaseController.php:41
+ * @see app/Http/Controllers/WorkPhaseController.php:74
  * @route '/api/work-phases/confirm'
  */
         confirmForm.post = (options?: RouteQueryOptions): RouteFormDefinition<'post'> => ({

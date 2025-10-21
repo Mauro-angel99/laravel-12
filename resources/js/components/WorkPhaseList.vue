@@ -1,15 +1,45 @@
 <template>
     <div>
-      <div class="mb-4 flex justify-between items-center">
-        <input
-          type="text"
-          v-model="search"
-          placeholder="Cerca Fasi di Lavoro..."
-          class="border px-3 py-2 rounded w-1/3"
-        />
-        <button class="bg-blue-500 text-white px-4 py-2 rounded" @click="fetchWorkPhases(search)" :disabled="loading">
-          {{ loading ? 'Caricamento...' : 'Aggiorna' }}
-        </button>
+      <div class="mb-4 space-y-4">
+        <!-- Filtri di ricerca -->
+        <div class="flex justify-between items-center">
+          <input
+            type="text"
+            v-model="search"
+            placeholder="Cerca Fasi di Lavoro..."
+            class="border px-3 py-2 rounded w-1/3"
+          />
+          <button class="bg-blue-500 text-white px-4 py-2 rounded" @click="applyFilters" :disabled="loading">
+            {{ loading ? 'Caricamento...' : 'Aggiorna' }}
+          </button>
+        </div>
+        
+        <!-- Filtri per data FLCON -->
+        <div class="flex items-center space-x-4 bg-gray-50 p-4 rounded">
+          <label class="text-sm font-medium text-gray-700">Filtro per Data FLCON:</label>
+          <div class="flex items-center space-x-2">
+            <label class="text-sm text-gray-600">Da:</label>
+            <input
+              type="date"
+              v-model="dateFrom"
+              class="border px-3 py-1 rounded text-sm"
+            />
+          </div>
+          <div class="flex items-center space-x-2">
+            <label class="text-sm text-gray-600">A:</label>
+            <input
+              type="date"
+              v-model="dateTo"
+              class="border px-3 py-1 rounded text-sm"
+            />
+          </div>
+          <button 
+            @click="clearDateFilters" 
+            class="text-sm text-gray-500 hover:text-gray-700 underline"
+          >
+            Cancella filtri data
+          </button>
+        </div>
       </div>
   
       <table class="w-full border-collapse bg-white shadow-sm rounded">
@@ -66,13 +96,19 @@
   
   const workPhases = ref([])
   const search = ref('')
+  const dateFrom = ref('')
+  const dateTo = ref('')
   const selected = ref([])
   const loading = ref(false)
   
-  const fetchWorkPhases = async (searchTerm = '') => {
+  const fetchWorkPhases = async (searchTerm = '', fromDate = '', toDate = '') => {
     loading.value = true
     try {
-      const params = searchTerm ? { search: searchTerm } : {}
+      const params = {}
+      if (searchTerm) params.search = searchTerm
+      if (fromDate) params.date_from = fromDate
+      if (toDate) params.date_to = toDate
+      
       const res = await axios.get('/api/work-phases', { params })
       workPhases.value = res.data
     } catch (error) {
@@ -82,13 +118,32 @@
     }
   }
   
+  const applyFilters = () => {
+    fetchWorkPhases(search.value, dateFrom.value, dateTo.value)
+  }
+  
+  const clearDateFilters = () => {
+    dateFrom.value = ''
+    dateTo.value = ''
+    applyFilters()
+  }
+  
   // Watcher per la ricerca con debounce
   let searchTimeout
   watch(search, (newSearch) => {
     clearTimeout(searchTimeout)
     searchTimeout = setTimeout(() => {
-      fetchWorkPhases(newSearch)
+      applyFilters()
     }, 500) // Debounce di 500ms
+  })
+  
+  // Watcher per le date con debounce
+  let dateTimeout
+  watch([dateFrom, dateTo], () => {
+    clearTimeout(dateTimeout)
+    dateTimeout = setTimeout(() => {
+      applyFilters()
+    }, 300) // Debounce di 300ms per le date
   })
   
   const confirmSelected = async () => {
