@@ -16,7 +16,7 @@
         
         <!-- Filtri per data FLCON -->
         <div class="flex items-center space-x-4 bg-gray-50 p-4 rounded">
-          <label class="text-sm font-medium text-gray-700">Filtro per Data FLCON:</label>
+          <label class="text-sm font-medium text-gray-700">Filtro per data di consegna:</label>
           <div class="flex items-center space-x-2">
             <label class="text-sm text-gray-600">Da:</label>
             <input
@@ -81,8 +81,52 @@
         </tbody>
       </table>
   
-      <div class="mt-4 flex justify-between items-center">
+      <!-- Informazioni paginazione -->
+      <div class="mt-4 flex justify-between items-center text-sm text-gray-600">
+        <div>
+          Mostrando {{ pagination.from }} - {{ pagination.to }} di {{ pagination.total }} record
+        </div>
         <div>Selezionati: {{ selected.length }}</div>
+      </div>
+      
+      <!-- Controlli paginazione -->
+      <div class="mt-2 flex justify-center items-center space-x-2">
+        <button 
+          @click="goToPage(1)" 
+          :disabled="currentPage === 1"
+          class="px-3 py-1 text-sm border rounded disabled:opacity-50 disabled:cursor-not-allowed hover:bg-gray-50"
+        >
+          Prima
+        </button>
+        <button 
+          @click="goToPage(currentPage - 1)" 
+          :disabled="currentPage === 1"
+          class="px-3 py-1 text-sm border rounded disabled:opacity-50 disabled:cursor-not-allowed hover:bg-gray-50"
+        >
+          Precedente
+        </button>
+        
+        <span class="px-3 py-1 text-sm">
+          Pagina {{ currentPage }} di {{ pagination.last_page }}
+        </span>
+        
+        <button 
+          @click="goToPage(currentPage + 1)" 
+          :disabled="currentPage === pagination.last_page"
+          class="px-3 py-1 text-sm border rounded disabled:opacity-50 disabled:cursor-not-allowed hover:bg-gray-50"
+        >
+          Successiva
+        </button>
+        <button 
+          @click="goToPage(pagination.last_page)" 
+          :disabled="currentPage === pagination.last_page"
+          class="px-3 py-1 text-sm border rounded disabled:opacity-50 disabled:cursor-not-allowed hover:bg-gray-50"
+        >
+          Ultima
+        </button>
+      </div>
+      
+      <div class="mt-4 flex justify-end">
         <button class="bg-green-500 text-white px-4 py-2 rounded" @click="confirmSelected">
           Conferma Selezionati
         </button>
@@ -100,17 +144,31 @@
   const dateTo = ref('')
   const selected = ref([])
   const loading = ref(false)
+  const currentPage = ref(1)
+  const pagination = ref({
+    current_page: 1,
+    per_page: 20,
+    total: 0,
+    last_page: 1,
+    from: 0,
+    to: 0,
+    has_more_pages: false
+  })
   
-  const fetchWorkPhases = async (searchTerm = '', fromDate = '', toDate = '') => {
+  const fetchWorkPhases = async (searchTerm = '', fromDate = '', toDate = '', page = 1) => {
     loading.value = true
     try {
-      const params = {}
+      const params = {
+        page: page
+      }
       if (searchTerm) params.search = searchTerm
       if (fromDate) params.date_from = fromDate
       if (toDate) params.date_to = toDate
       
       const res = await axios.get('/api/work-phases', { params })
-      workPhases.value = res.data
+      workPhases.value = res.data.data
+      pagination.value = res.data.pagination
+      currentPage.value = page
     } catch (error) {
       console.error(error)
     } finally {
@@ -119,13 +177,20 @@
   }
   
   const applyFilters = () => {
-    fetchWorkPhases(search.value, dateFrom.value, dateTo.value)
+    currentPage.value = 1 // Reset alla prima pagina quando si applicano filtri
+    fetchWorkPhases(search.value, dateFrom.value, dateTo.value, 1)
   }
   
   const clearDateFilters = () => {
     dateFrom.value = ''
     dateTo.value = ''
     applyFilters()
+  }
+  
+  const goToPage = (page) => {
+    if (page >= 1 && page <= pagination.value.last_page) {
+      fetchWorkPhases(search.value, dateFrom.value, dateTo.value, page)
+    }
   }
   
   // Watcher per la ricerca con debounce
