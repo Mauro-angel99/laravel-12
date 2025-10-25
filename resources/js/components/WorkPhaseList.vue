@@ -1,5 +1,5 @@
 <template>
-    <div>
+    <div class="bg-white shadow rounded-lg p-6">
       <div class="mb-4 space-y-4">
         <!-- Filtri di ricerca -->
         <div class="flex justify-between items-center">

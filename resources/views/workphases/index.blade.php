@@ -1,9 +1,15 @@
-@extends('layouts.app')
+<x-app-layout>
+    <x-slot name="header">
+        <h2 class="font-semibold text-xl text-gray-800 leading-tight">
+            {{ __('Fasi di Lavoro') }}
+        </h2>
+    </x-slot>
 
-@section('content')
-<div class="max-w-7xl mx-auto mt-8">
-    <h1 class="text-2xl font-semibold mb-4">Lista Fasi di Lavoro</h1>
-
-    <work-phase-list></work-phase-list>
-</div>
-@endsection
+    @section('content')
+    <div class="py-12">
+        <div class="max-w-7xl mx-auto sm:px-6 lg:px-8">
+            <work-phase-list></work-phase-list>
+        </div>
+    </div>
+    @endsection
+</x-app-layout>
