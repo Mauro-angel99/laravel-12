@@ -5,9 +5,9 @@
         </h2>
     </x-slot>
 
-    <div class="py-5">
-        <div class="max-w-7xl mx-auto sm:px-6 lg:px-8">
-            <div class="p-4 sm:p-8 bg-white shadow sm:rounded-lg">
+    <div class="py-1">
+        <div class="max-w-7xl mx-auto">
+            <div class="p-3 sm:p-3 bg-white shadow sm:rounded-lg">
                 <!-- Search Bar -->
                 <div class="mb-6">
                     <form method="GET" action="{{ route('users.index') }}" class="flex gap-4 items-end">
@@ -82,10 +82,10 @@
                         <table class="w-full">
                         <thead class="bg-gray-50">
                             <tr class="border-b border-gray-200">
-                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider border-r border-gray-200">Nome</th>
-                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider border-r border-gray-200">Email</th>
-                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider border-r border-gray-200">Ruolo</th>
-                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Azioni</th>
+                                <th class="px-6 py-4 text-left text-xs font-medium text-gray-500 uppercase tracking-wider border-r border-gray-200">Nome</th>
+                                <th class="px-6 py-4 text-left text-xs font-medium text-gray-500 uppercase tracking-wider border-r border-gray-200">Email</th>
+                                <th class="px-6 py-4 text-left text-xs font-medium text-gray-500 uppercase tracking-wider border-r border-gray-200">Ruolo</th>
+                                <th class="px-6 py-4 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Azioni</th>
                             </tr>
                         </thead>
                         <tbody class="bg-white">
