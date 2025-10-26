@@ -6,7 +6,7 @@
     </x-slot>
 
     <div class="py-1">
-        <div class="max-w-7xl mx-auto">
+        <div class="max-w-7xl mx-auto sm:px-0 lg:px-0 xl:px-8">
             <div class="p-3 sm:p-3 bg-white shadow sm:rounded-lg">
                 <!-- Search Bar -->
                 <div class="mb-6">
