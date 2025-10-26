@@ -30,7 +30,10 @@ class WorkPhaseController extends Controller
             $countConditions = [];
             
             // Query principale per i dati
-            $query = 'SELECT RECORD_ID, FLASS, IDOPR, FLSEQ, FLLAV, FLDES, FLQTA, FLQTB, FLQTD, FLCON FROM dbo.A01_ORD_FAS';
+            $query = 'SELECT f.RECORD_ID, f.FLASS, f.IDOPR, f.FLSEQ, f.FLLAV, f.FLDES, f.FLQTA, f.FLQTB, f.FLQTD, f.FLCON,
+                     c.MATERIALE, c.SPESSORE, c.LAV_SUCC, c.LAV_SUCC_ASS
+                     FROM dbo.A01_ORD_FAS f
+                     LEFT JOIN dbo.A01_ORD_FAS_CAM c ON f.RECORD_ID = c.ID_FASE';
             $params = [];
             $conditions = [];
             

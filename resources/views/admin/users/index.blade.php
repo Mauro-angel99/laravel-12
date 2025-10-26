@@ -5,7 +5,7 @@
         </h2>
     </x-slot>
 
-    <div class="py-12">
+    <div class="py-5">
         <div class="max-w-7xl mx-auto sm:px-6 lg:px-8">
             <div class="p-4 sm:p-8 bg-white shadow sm:rounded-lg">
                 <!-- Search Bar -->
@@ -90,7 +90,7 @@
                         </thead>
                         <tbody class="bg-white">
                             @foreach($users as $user)
-                                <tr class="hover:bg-gray-50">
+                                <tr class="hover:bg-gray-50 border-b border-gray-200">
                                     <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900 border-r border-gray-200">{{ $user->name }}</td>
                                     <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500 border-r border-gray-200">{{ $user->email }}</td>
                                     <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500 border-r border-gray-200">{{ $user->roles->pluck('name')->join(', ') }}</td>

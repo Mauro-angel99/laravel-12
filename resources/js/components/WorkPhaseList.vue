@@ -1,85 +1,152 @@
 <template>
     <div class="bg-white shadow rounded-lg p-6">
-      <div class="mb-4 space-y-4">
-        <!-- Filtri di ricerca -->
-        <div class="flex justify-between items-center">
-          <input
-            type="text"
-            v-model="search"
-            placeholder="Cerca Fasi di Lavoro..."
-            class="border px-3 py-2 rounded w-1/3"
-          />
-          <button class="bg-blue-500 text-white px-4 py-2 rounded" @click="applyFilters" :disabled="loading">
-            {{ loading ? 'Caricamento...' : 'Aggiorna' }}
-          </button>
+      <div class="mb-6">
+        <!-- Search Bar -->
+        <div class="flex gap-4 items-end">
+          <div class="flex-1">
+            <div class="relative">
+              <input 
+                type="text"
+                v-model="search"
+                placeholder="Cerca Fasi di Lavoro..."
+                class="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-md shadow-sm focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm"
+              />
+              <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                <svg class="h-5 w-5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path>
+                </svg>
+              </div>
+            </div>
+          </div>
+          
+          <div class="flex gap-2">
+            <button 
+              @click="applyFilters"
+              :disabled="loading"
+              class="inline-flex items-center px-4 py-2 bg-gray-800 border border-transparent rounded-md font-semibold text-xs text-white uppercase tracking-widest hover:bg-gray-700 focus:bg-gray-700 active:bg-gray-900 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2 transition ease-in-out duration-150"
+            >
+              <svg class="h-4 w-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path>
+              </svg>
+              {{ loading ? 'Caricamento...' : 'Cerca' }}
+            </button>
+            <button 
+              v-if="search || dateFrom || dateTo"
+              @click="clearAllFilters"
+              class="inline-flex items-center px-4 py-2 border border-gray-300 text-sm font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500"
+            >
+              <svg class="h-4 w-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
+              </svg>
+              Cancella
+            </button>
+          </div>
         </div>
-        
-        <!-- Filtri per data FLCON -->
-        <div class="flex items-center space-x-4 bg-gray-50 p-4 rounded">
-          <label class="text-sm font-medium text-gray-700">Filtro per data di consegna:</label>
-          <div class="flex items-center space-x-2">
-            <label class="text-sm text-gray-600">Da:</label>
-            <input
-              type="date"
-              v-model="dateFrom"
-              class="border px-3 py-1 rounded text-sm"
-            />
+
+        <!-- Date Filters -->
+        <div class="mt-4 flex gap-4 items-end">
+          <div class="flex-1">
+            <label class="block text-sm font-medium text-gray-700 mb-1">Data di consegna</label>
+            <div class="flex gap-4">
+              <div class="flex-1">
+                <label class="block text-xs text-gray-500 mb-1">Da</label>
+                <input
+                  type="date"
+                  v-model="dateFrom"
+                  class="w-full border-gray-300 rounded-md shadow-sm focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm"
+                />
+              </div>
+              <div class="flex-1">
+                <label class="block text-xs text-gray-500 mb-1">A</label>
+                <input
+                  type="date"
+                  v-model="dateTo"
+                  class="w-full border-gray-300 rounded-md shadow-sm focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm"
+                />
+              </div>
+            </div>
           </div>
-          <div class="flex items-center space-x-2">
-            <label class="text-sm text-gray-600">A:</label>
-            <input
-              type="date"
-              v-model="dateTo"
-              class="border px-3 py-1 rounded text-sm"
-            />
-          </div>
-          <button 
-            @click="clearDateFilters" 
-            class="text-sm text-gray-500 hover:text-gray-700 underline"
-          >
-            Cancella filtri data
-          </button>
+        </div>
+
+        <!-- Results info -->
+        <div v-if="search || dateFrom || dateTo" class="mt-4 text-sm text-gray-600">
+          <span v-if="pagination.total > 0">
+            Trovati {{ pagination.total }} record{{ pagination.total === 1 ? 'o' : 'i' }}
+            <template v-if="search"> per "{{ search }}"</template>
+          </span>
+          <span v-else>
+            Nessun record trovato
+            <template v-if="search"> per "{{ search }}"</template>
+          </span>
         </div>
       </div>
   
-      <table class="w-full border-collapse bg-white shadow-sm rounded">
-        <thead class="bg-gray-100">
-          <tr>
-            <th class="border px-3 py-2">#</th>
-            <th class="border px-3 py-2">FLASS</th>
-            <th class="border px-3 py-2">IDOPR</th>
-            <th class="border px-3 py-2">FLSEQ</th>
-            <th class="border px-3 py-2">FLLAV</th>
-            <th class="border px-3 py-2">FLDES</th>
-            <th class="border px-3 py-2">FLQTA</th>
-            <th class="border px-3 py-2">FLQTB</th>
-            <th class="border px-3 py-2">FLQTD</th>
-            <th class="border px-3 py-2">FLCON</th>
-          </tr>
-        </thead>
-        <tbody>
-          <tr v-if="loading">
-            <td colspan="10" class="text-center py-4">Caricamento...</td>
-          </tr>
-          <tr v-else v-for="phase in workPhases" :key="phase.RECORD_ID" class="hover:bg-gray-50">
-            <td class="border px-3 py-2 text-center">
-              <input type="checkbox" v-model="selected" :value="phase.RECORD_ID" />
-            </td>
-            <td class="border px-3 py-2">{{ phase.FLASS }}</td>
-            <td class="border px-3 py-2">{{ phase.IDOPR }}</td>
-            <td class="border px-3 py-2">{{ phase.FLSEQ }}</td>
-            <td class="border px-3 py-2">{{ phase.FLLAV }}</td>
-            <td class="border px-3 py-2">{{ phase.FLDES }}</td>
-            <td class="border px-3 py-2">{{ phase.FLQTA }}</td>
-            <td class="border px-3 py-2">{{ phase.FLQTB }}</td>
-            <td class="border px-3 py-2">{{ phase.FLQTD }}</td>
-            <td class="border px-3 py-2">{{ phase.FLCON }}</td>
-          </tr>
-          <tr v-if="!loading && !workPhases.length">
-            <td colspan="10" class="text-center py-4">Nessuna Work Phase trovata</td>
-          </tr>
-        </tbody>
-      </table>
+      <div class="overflow-x-auto">
+        <table class="w-full">
+          <thead class="bg-gray-50">
+            <tr class="border-b border-gray-200">
+              <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider border-r border-gray-200">#</th>
+              <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider border-r border-gray-200">FLASS</th>
+              <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider border-r border-gray-200">IDOPR</th>
+              <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider border-r border-gray-200">FLSEQ</th>
+              <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider border-r border-gray-200">FLLAV</th>
+              <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider border-r border-gray-200">FLDES</th>
+              <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider border-r border-gray-200">FLQTA</th>
+              <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider border-r border-gray-200">FLQTB</th>
+              <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider border-r border-gray-200">FLQTD</th>
+              <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider border-r border-gray-200">FLCON</th>
+              <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider border-r border-gray-200">MATERIALE</th>
+              <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider border-r border-gray-200">SPESSORE</th>
+              <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider border-r border-gray-200">LAV_SUCC</th>
+              <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">LAV_SUCC_ASS</th>
+            </tr>
+          </thead>
+          <tbody class="bg-white">
+            <tr v-if="loading">
+              <td colspan="14" class="px-6 py-4 text-center text-sm text-gray-500">
+                <div class="flex items-center justify-center">
+                  <svg class="animate-spin h-5 w-5 mr-3 text-gray-500" viewBox="0 0 24 24">
+                    <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4" fill="none"></circle>
+                    <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                  </svg>
+                  Caricamento...
+                </div>
+              </td>
+            </tr>
+            <tr v-else v-for="phase in workPhases" :key="phase.RECORD_ID" class="hover:bg-gray-50 border-b border-gray-200">
+              <td class="px-6 py-4 whitespace-nowrap text-sm text-center border-r border-gray-200">
+                <input type="checkbox" v-model="selected" :value="phase.RECORD_ID" class="rounded border-gray-300 text-indigo-600 focus:ring-indigo-500" />
+              </td>
+              <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500 border-r border-gray-200">{{ phase.FLASS }}</td>
+              <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500 border-r border-gray-200">{{ phase.IDOPR }}</td>
+              <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500 border-r border-gray-200">{{ phase.FLSEQ }}</td>
+              <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500 border-r border-gray-200">{{ phase.FLLAV }}</td>
+              <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500 border-r border-gray-200">{{ phase.FLDES }}</td>
+              <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500 border-r border-gray-200">{{ phase.FLQTA }}</td>
+              <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500 border-r border-gray-200">{{ phase.FLQTB }}</td>
+              <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500 border-r border-gray-200">{{ phase.FLQTD }}</td>
+              <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500 border-r border-gray-200">{{ phase.FLCON }}</td>
+              <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500 border-r border-gray-200">{{ phase.MATERIALE }}</td>
+              <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500 border-r border-gray-200">{{ phase.SPESSORE }}</td>
+              <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500 border-r border-gray-200">{{ phase.LAV_SUCC }}</td>
+              <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">{{ phase.LAV_SUCC_ASS }}</td>
+            </tr>
+            <tr v-if="!loading && !workPhases.length">
+              <td colspan="14" class="px-6 py-4 text-center">
+                <div class="text-center py-12">
+                  <svg class="mx-auto h-12 w-12 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2"></path>
+                  </svg>
+                  <h3 class="mt-2 text-sm font-medium text-gray-900">Nessuna Work Phase trovata</h3>
+                  <p class="mt-1 text-sm text-gray-500">
+                    {{ search ? 'Prova a modificare i termini di ricerca.' : 'Non ci sono fasi di lavoro disponibili.' }}
+                  </p>
+                </div>
+              </td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
   
       <!-- Informazioni paginazione -->
       <div class="mt-4 flex justify-between items-center text-sm text-gray-600">
@@ -181,12 +248,13 @@
     fetchWorkPhases(search.value, dateFrom.value, dateTo.value, 1)
   }
   
-  const clearDateFilters = () => {
+  const clearAllFilters = () => {
+    search.value = ''
     dateFrom.value = ''
     dateTo.value = ''
     applyFilters()
   }
-  
+
   const goToPage = (page) => {
     if (page >= 1 && page <= pagination.value.last_page) {
       fetchWorkPhases(search.value, dateFrom.value, dateTo.value, page)
