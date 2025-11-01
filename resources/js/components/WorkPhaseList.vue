@@ -97,8 +97,9 @@
               <th class="px-3 py-2 text-left text-xs font-medium text-gray-500 uppercase tracking-wider border-r border-gray-200">FLCON</th>
               <th class="px-3 py-2 text-left text-xs font-medium text-gray-500 uppercase tracking-wider border-r border-gray-200">MATERIALE</th>
               <th class="px-3 py-2 text-left text-xs font-medium text-gray-500 uppercase tracking-wider border-r border-gray-200">SPESSORE</th>
-              <th class="px-3 py-2 text-left text-xs font-medium text-gray-500 uppercase tracking-wider border-r border-gray-200">LAV_SUCC</th>
-              <th class="px-3 py-2 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">LAV_SUCC_ASS</th>
+              <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider border-r border-gray-200">LAV_SUCC</th>
+              <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider border-r border-gray-200">LAV_SUCC_ASS</th>
+              <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Azioni</th>
             </tr>
           </thead>
           <tbody class="bg-white">
@@ -125,11 +126,19 @@
               <td class="px-3 py-2 whitespace-nowrap text-sm text-gray-500 border-r border-gray-200">{{ phase.FLQTA }}</td>
               <td class="px-3 py-2 whitespace-nowrap text-sm text-gray-500 border-r border-gray-200">{{ phase.FLQTB }}</td>
               <td class="px-3 py-2 whitespace-nowrap text-sm text-gray-500 border-r border-gray-200">{{ phase.FLQTD }}</td>
-              <td class="px-3 py-2 whitespace-nowrap text-sm text-gray-500 border-r border-gray-200">{{ phase.FLCON }}</td>
-              <td class="px-3 py-2 whitespace-nowrap text-sm text-gray-500 border-r border-gray-200">{{ phase.MATERIALE }}</td>
+              <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500 border-r border-gray-200">{{ formatDate(phase.FLCON) }}</td>
+              <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500 border-r border-gray-200">{{ phase.MATERIALE }}</td>
               <td class="px-3 py-2 whitespace-nowrap text-sm text-gray-500 border-r border-gray-200">{{ phase.SPESSORE }}</td>
               <td class="px-3 py-2 whitespace-nowrap text-sm text-gray-500 border-r border-gray-200">{{ phase.LAV_SUCC }}</td>
-              <td class="px-3 py-2 whitespace-nowrap text-sm text-gray-500">{{ phase.LAV_SUCC_ASS }}</td>
+              <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">{{ phase.LAV_SUCC_ASS }}</td>
+              <td class="px-6 py-4 whitespace-nowrap text-sm font-medium">
+                <button 
+                  @click="openModal(phase)"
+                  class="text-indigo-600 hover:text-indigo-900 bg-indigo-100 hover:bg-indigo-200 px-3 py-1 rounded-md text-sm font-medium transition duration-150 ease-in-out"
+                >
+                  Dettagli
+                </button>
+              </td>
             </tr>
             <tr v-if="!loading && !workPhases.length">
               <td colspan="14" class="px-3 py-2 text-center">
@@ -199,6 +208,92 @@
         </button>
       </div>
     </div>
+
+    <!-- Modal -->
+    <div v-if="showModal" class="fixed inset-0 z-50 overflow-y-auto" aria-labelledby="modal-title" role="dialog" aria-modal="true">
+      <div class="flex items-end justify-center min-h-screen pt-4 px-4 pb-20 text-center sm:block sm:p-0">
+        <!-- Background overlay -->
+        <div class="fixed inset-0 bg-gray-500 bg-opacity-75 transition-opacity" aria-hidden="true" @click="closeModal"></div>
+
+        <!-- Modal panel -->
+        <div class="inline-block align-bottom bg-white rounded-lg text-left overflow-hidden shadow-xl transform transition-all sm:my-8 sm:align-middle sm:max-w-4xl sm:w-full">
+          <div class="bg-white px-4 pt-5 pb-4 sm:p-6 sm:pb-4">
+            <div class="sm:flex sm:items-start">
+              <div class="mt-3 text-center sm:mt-0 sm:text-left w-full">
+                <h3 class="text-lg leading-6 font-medium text-gray-900" id="modal-title">
+                  Dettagli Work Phase
+                </h3>
+                <div class="mt-4 space-y-4">
+                  <div class="grid grid-cols-2 gap-4">
+                    <div>
+                      <p class="text-sm font-medium text-gray-500">FLASS</p>
+                      <p class="mt-1">{{ selectedPhase?.FLASS }}</p>
+                    </div>
+                    <div>
+                      <p class="text-sm font-medium text-gray-500">IDOPR</p>
+                      <p class="mt-1">{{ selectedPhase?.IDOPR }}</p>
+                    </div>
+                    <div>
+                      <p class="text-sm font-medium text-gray-500">FLSEQ</p>
+                      <p class="mt-1">{{ selectedPhase?.FLSEQ }}</p>
+                    </div>
+                    <div>
+                      <p class="text-sm font-medium text-gray-500">FLLAV</p>
+                      <p class="mt-1">{{ selectedPhase?.FLLAV }}</p>
+                    </div>
+                    <div>
+                      <p class="text-sm font-medium text-gray-500">FLDES</p>
+                      <p class="mt-1">{{ selectedPhase?.FLDES }}</p>
+                    </div>
+                    <div>
+                      <p class="text-sm font-medium text-gray-500">FLQTA</p>
+                      <p class="mt-1">{{ selectedPhase?.FLQTA }}</p>
+                    </div>
+                    <div>
+                      <p class="text-sm font-medium text-gray-500">FLQTB</p>
+                      <p class="mt-1">{{ selectedPhase?.FLQTB }}</p>
+                    </div>
+                    <div>
+                      <p class="text-sm font-medium text-gray-500">FLQTD</p>
+                      <p class="mt-1">{{ selectedPhase?.FLQTD }}</p>
+                    </div>
+                    <div>
+                      <p class="text-sm font-medium text-gray-500">Data Consegna</p>
+                      <p class="mt-1">{{ formatDate(selectedPhase?.FLCON) }}</p>
+                    </div>
+                    <div>
+                      <p class="text-sm font-medium text-gray-500">MATERIALE</p>
+                      <p class="mt-1">{{ selectedPhase?.MATERIALE }}</p>
+                    </div>
+                    <div>
+                      <p class="text-sm font-medium text-gray-500">SPESSORE</p>
+                      <p class="mt-1">{{ selectedPhase?.SPESSORE }}</p>
+                    </div>
+                    <div>
+                      <p class="text-sm font-medium text-gray-500">LAV_SUCC</p>
+                      <p class="mt-1">{{ selectedPhase?.LAV_SUCC }}</p>
+                    </div>
+                    <div>
+                      <p class="text-sm font-medium text-gray-500">LAV_SUCC_ASS</p>
+                      <p class="mt-1">{{ selectedPhase?.LAV_SUCC_ASS }}</p>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+          <div class="bg-gray-50 px-4 py-3 sm:px-6 sm:flex sm:flex-row-reverse">
+            <button 
+              type="button" 
+              class="mt-3 w-full inline-flex justify-center rounded-md border border-gray-300 shadow-sm px-4 py-2 bg-white text-base font-medium text-gray-700 hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 sm:mt-0 sm:w-auto sm:text-sm"
+              @click="closeModal"
+            >
+              Chiudi
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
   </template>
   
   <script setup>
@@ -212,6 +307,8 @@
   const selected = ref([])
   const loading = ref(false)
   const currentPage = ref(1)
+  const showModal = ref(false)
+  const selectedPhase = ref(null)
   const pagination = ref({
     current_page: 1,
     per_page: 20,
@@ -279,6 +376,25 @@
     }, 300) // Debounce di 300ms per le date
   })
   
+  const formatDate = (dateString) => {
+    if (!dateString) return '';
+    const date = new Date(dateString);
+    const day = date.getDate().toString().padStart(2, '0');
+    const month = (date.getMonth() + 1).toString().padStart(2, '0');
+    const year = date.getFullYear();
+    return `${day}/${month}/${year}`;
+  }
+
+  const openModal = (phase) => {
+    selectedPhase.value = phase
+    showModal.value = true
+  }
+
+  const closeModal = () => {
+    showModal.value = false
+    selectedPhase.value = null
+  }
+
   const confirmSelected = async () => {
     try {
       const res = await axios.post('/api/work-phases/confirm', { selected: selected.value }, {

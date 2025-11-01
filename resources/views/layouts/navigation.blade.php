@@ -16,7 +16,7 @@
                         {{ __('Dashboard') }}
                     </x-nav-link>
                     <x-nav-link :href="route('workphases.index')" :active="request()->routeIs('workphases.index')">
-                        {{ __('Fasi di Lavoro') }}
+                        {{ __('Ass. Fasi di Lavoro') }}
                     </x-nav-link>
                     <x-nav-link :href="route('users.index')" :active="request()->routeIs('users.index')">
                         {{ __('Utenti') }}
