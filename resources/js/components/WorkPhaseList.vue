@@ -1,35 +1,49 @@
 <template>
     <div class="bg-white shadow rounded-lg p-3">
       <div class="mb-6">
-        <!-- Search Bar -->
-        <div class="flex gap-4 items-end">
-          <div class="flex-1">
-            <div class="relative">
-              <input 
-                type="text"
-                v-model="search"
-                placeholder="Cerca Fasi di Lavoro..."
-                class="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-md shadow-sm focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm"
-              />
-              <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-                <svg class="h-5 w-5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path>
-                </svg>
+        <!-- Search Bar and Filters -->
+        <div class="space-y-4">
+          <div class="flex gap-4 items-end">
+            <!-- Search input -->
+            <div class="flex-1">
+              <div class="relative">
+                <input 
+                  type="text"
+                  v-model="search"
+                  placeholder="Cerca Fasi di Lavoro..."
+                  class="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-md shadow-sm focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm"
+                />
+                <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                  <svg class="h-5 w-5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path>
+                  </svg>
+                </div>
+              </div>
+            </div>
+
+            <!-- Date range inputs -->
+            <div class="flex gap-4 flex-1">
+              <div class="flex-1">
+                <label class="block text-xs text-gray-500 mb-1">Data da</label>
+                <input
+                  type="date"
+                  v-model="dateFrom"
+                  class="w-full border-gray-300 rounded-md shadow-sm focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm"
+                />
+              </div>
+              <div class="flex-1">
+                <label class="block text-xs text-gray-500 mb-1">Data a</label>
+                <input
+                  type="date"
+                  v-model="dateTo"
+                  class="w-full border-gray-300 rounded-md shadow-sm focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm"
+                />
               </div>
             </div>
           </div>
-          
-          <div class="flex gap-2">
-            <button 
-              @click="applyFilters"
-              :disabled="loading"
-              class="inline-flex items-center px-4 py-2 bg-gray-800 border border-transparent rounded-md font-semibold text-xs text-white uppercase tracking-widest hover:bg-gray-700 focus:bg-gray-700 active:bg-gray-900 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2 transition ease-in-out duration-150"
-            >
-              <svg class="h-4 w-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path>
-              </svg>
-              {{ loading ? 'Caricamento...' : 'Cerca' }}
-            </button>
+
+          <!-- Action buttons -->
+          <div class="flex justify-end gap-2">
             <button 
               v-if="search || dateFrom || dateTo"
               @click="clearAllFilters"
@@ -40,31 +54,16 @@
               </svg>
               Cancella
             </button>
-          </div>
-        </div>
-
-        <!-- Date Filters -->
-        <div class="mt-4 flex gap-4 items-end">
-          <div class="flex-1">
-            <label class="block text-sm font-medium text-gray-700 mb-1">Data di consegna</label>
-            <div class="flex gap-4">
-              <div class="flex-1">
-                <label class="block text-xs text-gray-500 mb-1">Da</label>
-                <input
-                  type="date"
-                  v-model="dateFrom"
-                  class="w-full border-gray-300 rounded-md shadow-sm focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm"
-                />
-              </div>
-              <div class="flex-1">
-                <label class="block text-xs text-gray-500 mb-1">A</label>
-                <input
-                  type="date"
-                  v-model="dateTo"
-                  class="w-full border-gray-300 rounded-md shadow-sm focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm"
-                />
-              </div>
-            </div>
+            <button 
+              @click="applyFilters"
+              :disabled="loading"
+              class="inline-flex items-center px-4 py-2 bg-gray-800 border border-transparent rounded-md font-semibold text-xs text-white uppercase tracking-widest hover:bg-gray-700 focus:bg-gray-700 active:bg-gray-900 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2 transition ease-in-out duration-150"
+            >
+              <svg class="h-4 w-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path>
+              </svg>
+              {{ loading ? 'Caricamento...' : 'Cerca' }}
+            </button>
           </div>
         </div>
 
@@ -85,26 +84,21 @@
         <table class="w-full">
           <thead class="bg-gray-50">
             <tr class="border-b border-gray-200">
-              <th class="px-3 py-2 text-left text-xs font-medium text-gray-500 uppercase tracking-wider border-r border-gray-200">#</th>
-              <th class="px-3 py-2 text-left text-xs font-medium text-gray-500 uppercase tracking-wider border-r border-gray-200">FLASS</th>
-              <th class="px-3 py-2 text-left text-xs font-medium text-gray-500 uppercase tracking-wider border-r border-gray-200">IDOPR</th>
-              <th class="px-3 py-2 text-left text-xs font-medium text-gray-500 uppercase tracking-wider border-r border-gray-200">FLSEQ</th>
-              <th class="px-3 py-2 text-left text-xs font-medium text-gray-500 uppercase tracking-wider border-r border-gray-200">FLLAV</th>
-              <th class="px-3 py-2 text-left text-xs font-medium text-gray-500 uppercase tracking-wider border-r border-gray-200">FLDES</th>
-              <th class="px-3 py-2 text-left text-xs font-medium text-gray-500 uppercase tracking-wider border-r border-gray-200">FLQTA</th>
-              <th class="px-3 py-2 text-left text-xs font-medium text-gray-500 uppercase tracking-wider border-r border-gray-200">FLQTB</th>
-              <th class="px-3 py-2 text-left text-xs font-medium text-gray-500 uppercase tracking-wider border-r border-gray-200">FLQTD</th>
-              <th class="px-3 py-2 text-left text-xs font-medium text-gray-500 uppercase tracking-wider border-r border-gray-200">FLCON</th>
-              <th class="px-3 py-2 text-left text-xs font-medium text-gray-500 uppercase tracking-wider border-r border-gray-200">MATERIALE</th>
-              <th class="px-3 py-2 text-left text-xs font-medium text-gray-500 uppercase tracking-wider border-r border-gray-200">SPESSORE</th>
-              <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider border-r border-gray-200">LAV_SUCC</th>
-              <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider border-r border-gray-200">LAV_SUCC_ASS</th>
-              <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Azioni</th>
+              <th class="px-3 py-3 text-center text-xs font-medium text-gray-500 uppercase tracking-wider border-r border-gray-200">#</th>
+              <th class="px-3 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider border-r border-gray-200">FLASS</th>
+              <th class="px-3 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider border-r border-gray-200">IDOPR</th>
+              <th class="px-3 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider border-r border-gray-200">FLSEQ</th>
+              <th class="px-3 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider border-r border-gray-200">FLLAV</th>
+              <th class="px-3 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider border-r border-gray-200">FLDES</th>
+              <th class="px-3 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider border-r border-gray-200">FLCON</th>
+              <th class="px-3 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider border-r border-gray-200">MATERIALE</th>
+              <th class="px-3 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider border-r border-gray-200">SPESSORE</th>
+              <th class="px-6 py-3 text-center text-xs font-medium text-gray-500 uppercase tracking-wider">Azioni</th>
             </tr>
           </thead>
           <tbody class="bg-white">
             <tr v-if="loading">
-              <td colspan="14" class="px-3 py-2 text-center text-sm text-gray-500">
+              <td colspan="14" class="px-3 py-3 text-center text-sm text-gray-500">
                 <div class="flex items-center justify-center">
                   <svg class="animate-spin h-5 w-5 mr-3 text-gray-500" viewBox="0 0 24 24">
                     <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4" fill="none"></circle>
@@ -115,23 +109,18 @@
               </td>
             </tr>
             <tr v-else v-for="phase in workPhases" :key="phase.RECORD_ID" class="hover:bg-gray-50 border-b border-gray-200">
-              <td class="px-3 py-2 whitespace-nowrap text-sm text-center border-r border-gray-200">
+              <td class="px-3 py-3 whitespace-nowrap text-sm text-center border-r border-gray-200">
                 <input type="checkbox" v-model="selected" :value="phase.RECORD_ID" class="rounded border-gray-300 text-indigo-600 focus:ring-indigo-500" />
               </td>
-              <td class="px-3 py-2 whitespace-nowrap text-sm text-gray-500 border-r border-gray-200">{{ phase.FLASS }}</td>
-              <td class="px-3 py-2 whitespace-nowrap text-sm text-gray-500 border-r border-gray-200">{{ phase.IDOPR }}</td>
-              <td class="px-3 py-2 whitespace-nowrap text-sm text-gray-500 border-r border-gray-200">{{ phase.FLSEQ }}</td>
-              <td class="px-3 py-2 whitespace-nowrap text-sm text-gray-500 border-r border-gray-200">{{ phase.FLLAV }}</td>
-              <td class="px-3 py-2 whitespace-nowrap text-sm text-gray-500 border-r border-gray-200">{{ phase.FLDES }}</td>
-              <td class="px-3 py-2 whitespace-nowrap text-sm text-gray-500 border-r border-gray-200">{{ phase.FLQTA }}</td>
-              <td class="px-3 py-2 whitespace-nowrap text-sm text-gray-500 border-r border-gray-200">{{ phase.FLQTB }}</td>
-              <td class="px-3 py-2 whitespace-nowrap text-sm text-gray-500 border-r border-gray-200">{{ phase.FLQTD }}</td>
-              <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500 border-r border-gray-200">{{ formatDate(phase.FLCON) }}</td>
-              <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500 border-r border-gray-200">{{ phase.MATERIALE }}</td>
-              <td class="px-3 py-2 whitespace-nowrap text-sm text-gray-500 border-r border-gray-200">{{ phase.SPESSORE }}</td>
-              <td class="px-3 py-2 whitespace-nowrap text-sm text-gray-500 border-r border-gray-200">{{ phase.LAV_SUCC }}</td>
-              <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">{{ phase.LAV_SUCC_ASS }}</td>
-              <td class="px-6 py-4 whitespace-nowrap text-sm font-medium">
+              <td class="px-3 py-3 whitespace-nowrap text-sm text-gray-500 border-r border-gray-200">{{ phase.FLASS }}</td>
+              <td class="px-3 py-3 whitespace-nowrap text-sm text-gray-500 border-r border-gray-200">{{ phase.IDOPR }}</td>
+              <td class="px-3 py-3 whitespace-nowrap text-sm text-gray-500 border-r border-gray-200">{{ phase.FLSEQ }}</td>
+              <td class="px-3 py-3 whitespace-nowrap text-sm text-gray-500 border-r border-gray-200">{{ phase.FLLAV }}</td>
+              <td class="px-3 py-3 whitespace-nowrap text-sm text-gray-500 border-r border-gray-200">{{ phase.FLDES }}</td>
+              <td class="px-6 py-3 whitespace-nowrap text-sm text-gray-500 border-r border-gray-200">{{ formatDate(phase.FLCON) }}</td>
+              <td class="px-6 py-3 whitespace-nowrap text-sm text-gray-500 border-r border-gray-200">{{ phase.MATERIALE }}</td>
+              <td class="px-3 py-3 whitespace-nowrap text-sm text-gray-500 border-r border-gray-200">{{ phase.SPESSORE }}</td>
+              <td class="px-6 py-3 whitespace-nowrap text-center text-sm font-medium">
                 <button 
                   @click="openModal(phase)"
                   class="text-indigo-600 hover:text-indigo-900 bg-indigo-100 hover:bg-indigo-200 px-3 py-1 rounded-md text-sm font-medium transition duration-150 ease-in-out"
@@ -210,95 +199,17 @@
     </div>
 
     <!-- Modal -->
-    <div v-if="showModal" class="fixed inset-0 z-50 overflow-y-auto" aria-labelledby="modal-title" role="dialog" aria-modal="true">
-      <div class="flex items-end justify-center min-h-screen pt-4 px-4 pb-20 text-center sm:block sm:p-0">
-        <!-- Background overlay -->
-        <div class="fixed inset-0 bg-gray-500 bg-opacity-75 transition-opacity" aria-hidden="true" @click="closeModal"></div>
-
-        <!-- Modal panel -->
-        <div class="inline-block align-bottom bg-white rounded-lg text-left overflow-hidden shadow-xl transform transition-all sm:my-8 sm:align-middle sm:max-w-4xl sm:w-full">
-          <div class="bg-white px-4 pt-5 pb-4 sm:p-6 sm:pb-4">
-            <div class="sm:flex sm:items-start">
-              <div class="mt-3 text-center sm:mt-0 sm:text-left w-full">
-                <h3 class="text-lg leading-6 font-medium text-gray-900" id="modal-title">
-                  Dettagli Work Phase
-                </h3>
-                <div class="mt-4 space-y-4">
-                  <div class="grid grid-cols-2 gap-4">
-                    <div>
-                      <p class="text-sm font-medium text-gray-500">FLASS</p>
-                      <p class="mt-1">{{ selectedPhase?.FLASS }}</p>
-                    </div>
-                    <div>
-                      <p class="text-sm font-medium text-gray-500">IDOPR</p>
-                      <p class="mt-1">{{ selectedPhase?.IDOPR }}</p>
-                    </div>
-                    <div>
-                      <p class="text-sm font-medium text-gray-500">FLSEQ</p>
-                      <p class="mt-1">{{ selectedPhase?.FLSEQ }}</p>
-                    </div>
-                    <div>
-                      <p class="text-sm font-medium text-gray-500">FLLAV</p>
-                      <p class="mt-1">{{ selectedPhase?.FLLAV }}</p>
-                    </div>
-                    <div>
-                      <p class="text-sm font-medium text-gray-500">FLDES</p>
-                      <p class="mt-1">{{ selectedPhase?.FLDES }}</p>
-                    </div>
-                    <div>
-                      <p class="text-sm font-medium text-gray-500">FLQTA</p>
-                      <p class="mt-1">{{ selectedPhase?.FLQTA }}</p>
-                    </div>
-                    <div>
-                      <p class="text-sm font-medium text-gray-500">FLQTB</p>
-                      <p class="mt-1">{{ selectedPhase?.FLQTB }}</p>
-                    </div>
-                    <div>
-                      <p class="text-sm font-medium text-gray-500">FLQTD</p>
-                      <p class="mt-1">{{ selectedPhase?.FLQTD }}</p>
-                    </div>
-                    <div>
-                      <p class="text-sm font-medium text-gray-500">Data Consegna</p>
-                      <p class="mt-1">{{ formatDate(selectedPhase?.FLCON) }}</p>
-                    </div>
-                    <div>
-                      <p class="text-sm font-medium text-gray-500">MATERIALE</p>
-                      <p class="mt-1">{{ selectedPhase?.MATERIALE }}</p>
-                    </div>
-                    <div>
-                      <p class="text-sm font-medium text-gray-500">SPESSORE</p>
-                      <p class="mt-1">{{ selectedPhase?.SPESSORE }}</p>
-                    </div>
-                    <div>
-                      <p class="text-sm font-medium text-gray-500">LAV_SUCC</p>
-                      <p class="mt-1">{{ selectedPhase?.LAV_SUCC }}</p>
-                    </div>
-                    <div>
-                      <p class="text-sm font-medium text-gray-500">LAV_SUCC_ASS</p>
-                      <p class="mt-1">{{ selectedPhase?.LAV_SUCC_ASS }}</p>
-                    </div>
-                  </div>
-                </div>
-              </div>
-            </div>
-          </div>
-          <div class="bg-gray-50 px-4 py-3 sm:px-6 sm:flex sm:flex-row-reverse">
-            <button 
-              type="button" 
-              class="mt-3 w-full inline-flex justify-center rounded-md border border-gray-300 shadow-sm px-4 py-2 bg-white text-base font-medium text-gray-700 hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 sm:mt-0 sm:w-auto sm:text-sm"
-              @click="closeModal"
-            >
-              Chiudi
-            </button>
-          </div>
-        </div>
-      </div>
-    </div>
+    <WorkPhaseAssModal 
+      v-model:show="showModal"
+      v-model:modelValue="selected"
+      :phase="selectedPhase"
+    />
   </template>
   
   <script setup>
   import { ref, watch } from 'vue'
   import axios from 'axios'
+  import WorkPhaseAssModal from './WorkPhaseAssModal.vue'
   
   const workPhases = ref([])
   const search = ref('')
