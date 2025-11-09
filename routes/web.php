@@ -5,12 +5,18 @@ use App\Http\Controllers\ProfileController;
 use Illuminate\Support\Facades\Route;
 
 use App\Http\Controllers\WorkPhaseController;
+use App\Http\Controllers\UserController as ApiUserController;
 
 Route::middleware(['auth', 'role:admin'])->group(function () {
     Route::prefix('admin')->group(function () {
         // Name routes as users.* while keeping URL under /admin/users
         Route::resource('users', UserController::class)->names('users');
     });
+});
+
+// API routes
+Route::middleware(['auth'])->group(function () {
+    Route::get('/api/users', [ApiUserController::class, 'index']);
 });
 
 Route::get('/', function () {

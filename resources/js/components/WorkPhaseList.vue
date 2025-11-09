@@ -135,7 +135,7 @@
                   <svg class="mx-auto h-12 w-12 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2"></path>
                   </svg>
-                  <h3 class="mt-2 text-sm font-medium text-gray-900">Nessuna Work Phase trovata</h3>
+                  <h3 class="mt-2 text-sm font-medium text-gray-900">Nessuna fase di lavoro trovata</h3>
                   <p class="mt-1 text-sm text-gray-500">
                     {{ search ? 'Prova a modificare i termini di ricerca.' : 'Non ci sono fasi di lavoro disponibili.' }}
                   </p>
@@ -191,6 +191,35 @@
         </button>
       </div>
       
+      <!-- User selection and notes -->
+      <div class="mt-4 grid grid-cols-2 gap-4">
+        <div>
+          <label class="block text-sm font-medium text-gray-700 mb-1">
+            Seleziona Utente
+          </label>
+          <select
+            v-model="selectedUser"
+            class="mt-1 block w-full pl-3 pr-10 py-2 text-base border-gray-300 focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm rounded-md"
+          >
+            <option value="">Seleziona un utente</option>
+            <option v-for="user in users" :key="user.id" :value="user.id">
+              {{ user.name }}
+            </option>
+          </select>
+        </div>
+        <div>
+          <label class="block text-sm font-medium text-gray-700 mb-1">
+            Note
+          </label>
+          <textarea
+            v-model="notes"
+            rows="3"
+            class="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm"
+            placeholder="Inserisci le note..."
+          ></textarea>
+        </div>
+      </div>
+
       <div class="mt-4 flex justify-end">
         <button class="bg-green-500 text-white px-4 py-2 rounded" @click="confirmSelected">
           Conferma Selezionati
@@ -220,6 +249,9 @@
   const currentPage = ref(1)
   const showModal = ref(false)
   const selectedPhase = ref(null)
+  const users = ref([])
+  const selectedUser = ref('')
+  const notes = ref('')
   const pagination = ref({
     current_page: 1,
     per_page: 20,
@@ -306,14 +338,33 @@
     selectedPhase.value = null
   }
 
+  const fetchUsers = async () => {
+    try {
+      const response = await axios.get('/api/users')
+      users.value = response.data
+    } catch (error) {
+      console.error('Errore nel caricamento degli utenti:', error)
+    }
+  }
+
+  // Carica gli utenti all'inizializzazione del componente
+  fetchUsers()
+
   const confirmSelected = async () => {
     try {
-      const res = await axios.post('/api/work-phases/confirm', { selected: selected.value }, {
+      const res = await axios.post('/api/work-phases/confirm', {
+        selected: selected.value,
+        user_id: selectedUser.value,
+        notes: notes.value
+      }, {
         headers: {
           'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').content
         }
       })
       alert(res.data.message)
+      // Reset dei campi dopo la conferma
+      selectedUser.value = ''
+      notes.value = ''
     } catch (error) {
       console.error(error)
     }
