@@ -1,7 +1,7 @@
 import { queryParams, type RouteQueryOptions, type RouteDefinition, type RouteFormDefinition } from './../../wayfinder'
 /**
 * @see \App\Http\Controllers\WorkPhaseController::index
- * @see app/Http/Controllers/WorkPhaseController.php:11
+ * @see app/Http/Controllers/WorkPhaseController.php:12
  * @route '/work-phases'
  */
 export const index = (options?: RouteQueryOptions): RouteDefinition<'get'> => ({
@@ -16,7 +16,7 @@ index.definition = {
 
 /**
 * @see \App\Http\Controllers\WorkPhaseController::index
- * @see app/Http/Controllers/WorkPhaseController.php:11
+ * @see app/Http/Controllers/WorkPhaseController.php:12
  * @route '/work-phases'
  */
 index.url = (options?: RouteQueryOptions) => {
@@ -25,7 +25,7 @@ index.url = (options?: RouteQueryOptions) => {
 
 /**
 * @see \App\Http\Controllers\WorkPhaseController::index
- * @see app/Http/Controllers/WorkPhaseController.php:11
+ * @see app/Http/Controllers/WorkPhaseController.php:12
  * @route '/work-phases'
  */
 index.get = (options?: RouteQueryOptions): RouteDefinition<'get'> => ({
@@ -34,7 +34,7 @@ index.get = (options?: RouteQueryOptions): RouteDefinition<'get'> => ({
 })
 /**
 * @see \App\Http\Controllers\WorkPhaseController::index
- * @see app/Http/Controllers/WorkPhaseController.php:11
+ * @see app/Http/Controllers/WorkPhaseController.php:12
  * @route '/work-phases'
  */
 index.head = (options?: RouteQueryOptions): RouteDefinition<'head'> => ({
@@ -44,7 +44,7 @@ index.head = (options?: RouteQueryOptions): RouteDefinition<'head'> => ({
 
     /**
 * @see \App\Http\Controllers\WorkPhaseController::index
- * @see app/Http/Controllers/WorkPhaseController.php:11
+ * @see app/Http/Controllers/WorkPhaseController.php:12
  * @route '/work-phases'
  */
     const indexForm = (options?: RouteQueryOptions): RouteFormDefinition<'get'> => ({
@@ -54,7 +54,7 @@ index.head = (options?: RouteQueryOptions): RouteDefinition<'head'> => ({
 
             /**
 * @see \App\Http\Controllers\WorkPhaseController::index
- * @see app/Http/Controllers/WorkPhaseController.php:11
+ * @see app/Http/Controllers/WorkPhaseController.php:12
  * @route '/work-phases'
  */
         indexForm.get = (options?: RouteQueryOptions): RouteFormDefinition<'get'> => ({
@@ -63,7 +63,7 @@ index.head = (options?: RouteQueryOptions): RouteDefinition<'head'> => ({
         })
             /**
 * @see \App\Http\Controllers\WorkPhaseController::index
- * @see app/Http/Controllers/WorkPhaseController.php:11
+ * @see app/Http/Controllers/WorkPhaseController.php:12
  * @route '/work-phases'
  */
         indexForm.head = (options?: RouteQueryOptions): RouteFormDefinition<'get'> => ({
@@ -79,7 +79,7 @@ index.head = (options?: RouteQueryOptions): RouteDefinition<'head'> => ({
     index.form = indexForm
 /**
 * @see \App\Http\Controllers\WorkPhaseController::list
- * @see app/Http/Controllers/WorkPhaseController.php:17
+ * @see app/Http/Controllers/WorkPhaseController.php:18
  * @route '/api/work-phases'
  */
 export const list = (options?: RouteQueryOptions): RouteDefinition<'get'> => ({
@@ -94,7 +94,7 @@ list.definition = {
 
 /**
 * @see \App\Http\Controllers\WorkPhaseController::list
- * @see app/Http/Controllers/WorkPhaseController.php:17
+ * @see app/Http/Controllers/WorkPhaseController.php:18
  * @route '/api/work-phases'
  */
 list.url = (options?: RouteQueryOptions) => {
@@ -103,7 +103,7 @@ list.url = (options?: RouteQueryOptions) => {
 
 /**
 * @see \App\Http\Controllers\WorkPhaseController::list
- * @see app/Http/Controllers/WorkPhaseController.php:17
+ * @see app/Http/Controllers/WorkPhaseController.php:18
  * @route '/api/work-phases'
  */
 list.get = (options?: RouteQueryOptions): RouteDefinition<'get'> => ({
@@ -112,7 +112,7 @@ list.get = (options?: RouteQueryOptions): RouteDefinition<'get'> => ({
 })
 /**
 * @see \App\Http\Controllers\WorkPhaseController::list
- * @see app/Http/Controllers/WorkPhaseController.php:17
+ * @see app/Http/Controllers/WorkPhaseController.php:18
  * @route '/api/work-phases'
  */
 list.head = (options?: RouteQueryOptions): RouteDefinition<'head'> => ({
@@ -122,7 +122,7 @@ list.head = (options?: RouteQueryOptions): RouteDefinition<'head'> => ({
 
     /**
 * @see \App\Http\Controllers\WorkPhaseController::list
- * @see app/Http/Controllers/WorkPhaseController.php:17
+ * @see app/Http/Controllers/WorkPhaseController.php:18
  * @route '/api/work-phases'
  */
     const listForm = (options?: RouteQueryOptions): RouteFormDefinition<'get'> => ({
@@ -132,7 +132,7 @@ list.head = (options?: RouteQueryOptions): RouteDefinition<'head'> => ({
 
             /**
 * @see \App\Http\Controllers\WorkPhaseController::list
- * @see app/Http/Controllers/WorkPhaseController.php:17
+ * @see app/Http/Controllers/WorkPhaseController.php:18
  * @route '/api/work-phases'
  */
         listForm.get = (options?: RouteQueryOptions): RouteFormDefinition<'get'> => ({
@@ -141,7 +141,7 @@ list.head = (options?: RouteQueryOptions): RouteDefinition<'head'> => ({
         })
             /**
 * @see \App\Http\Controllers\WorkPhaseController::list
- * @see app/Http/Controllers/WorkPhaseController.php:17
+ * @see app/Http/Controllers/WorkPhaseController.php:18
  * @route '/api/work-phases'
  */
         listForm.head = (options?: RouteQueryOptions): RouteFormDefinition<'get'> => ({
@@ -156,64 +156,64 @@ list.head = (options?: RouteQueryOptions): RouteDefinition<'head'> => ({
     
     list.form = listForm
 /**
-* @see \App\Http\Controllers\WorkPhaseController::confirm
- * @see app/Http/Controllers/WorkPhaseController.php:121
- * @route '/api/work-phases/confirm'
+* @see \App\Http\Controllers\WorkPhaseController::assign
+ * @see app/Http/Controllers/WorkPhaseController.php:134
+ * @route '/api/work-phases/assign'
  */
-export const confirm = (options?: RouteQueryOptions): RouteDefinition<'post'> => ({
-    url: confirm.url(options),
+export const assign = (options?: RouteQueryOptions): RouteDefinition<'post'> => ({
+    url: assign.url(options),
     method: 'post',
 })
 
-confirm.definition = {
+assign.definition = {
     methods: ["post"],
-    url: '/api/work-phases/confirm',
+    url: '/api/work-phases/assign',
 } satisfies RouteDefinition<["post"]>
 
 /**
-* @see \App\Http\Controllers\WorkPhaseController::confirm
- * @see app/Http/Controllers/WorkPhaseController.php:121
- * @route '/api/work-phases/confirm'
+* @see \App\Http\Controllers\WorkPhaseController::assign
+ * @see app/Http/Controllers/WorkPhaseController.php:134
+ * @route '/api/work-phases/assign'
  */
-confirm.url = (options?: RouteQueryOptions) => {
-    return confirm.definition.url + queryParams(options)
+assign.url = (options?: RouteQueryOptions) => {
+    return assign.definition.url + queryParams(options)
 }
 
 /**
-* @see \App\Http\Controllers\WorkPhaseController::confirm
- * @see app/Http/Controllers/WorkPhaseController.php:121
- * @route '/api/work-phases/confirm'
+* @see \App\Http\Controllers\WorkPhaseController::assign
+ * @see app/Http/Controllers/WorkPhaseController.php:134
+ * @route '/api/work-phases/assign'
  */
-confirm.post = (options?: RouteQueryOptions): RouteDefinition<'post'> => ({
-    url: confirm.url(options),
+assign.post = (options?: RouteQueryOptions): RouteDefinition<'post'> => ({
+    url: assign.url(options),
     method: 'post',
 })
 
     /**
-* @see \App\Http\Controllers\WorkPhaseController::confirm
- * @see app/Http/Controllers/WorkPhaseController.php:121
- * @route '/api/work-phases/confirm'
+* @see \App\Http\Controllers\WorkPhaseController::assign
+ * @see app/Http/Controllers/WorkPhaseController.php:134
+ * @route '/api/work-phases/assign'
  */
-    const confirmForm = (options?: RouteQueryOptions): RouteFormDefinition<'post'> => ({
-        action: confirm.url(options),
+    const assignForm = (options?: RouteQueryOptions): RouteFormDefinition<'post'> => ({
+        action: assign.url(options),
         method: 'post',
     })
 
             /**
-* @see \App\Http\Controllers\WorkPhaseController::confirm
- * @see app/Http/Controllers/WorkPhaseController.php:121
- * @route '/api/work-phases/confirm'
+* @see \App\Http\Controllers\WorkPhaseController::assign
+ * @see app/Http/Controllers/WorkPhaseController.php:134
+ * @route '/api/work-phases/assign'
  */
-        confirmForm.post = (options?: RouteQueryOptions): RouteFormDefinition<'post'> => ({
-            action: confirm.url(options),
+        assignForm.post = (options?: RouteQueryOptions): RouteFormDefinition<'post'> => ({
+            action: assign.url(options),
             method: 'post',
         })
     
-    confirm.form = confirmForm
+    assign.form = assignForm
 const workphases = {
     index: Object.assign(index, index),
 list: Object.assign(list, list),
-confirm: Object.assign(confirm, confirm),
+assign: Object.assign(assign, assign),
 }
 
 export default workphases

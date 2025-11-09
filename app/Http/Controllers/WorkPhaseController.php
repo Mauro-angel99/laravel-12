@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
+use App\Models\WorkPhaseAssignment;
 
 class WorkPhaseController extends Controller
 {
@@ -127,6 +128,32 @@ class WorkPhaseController extends Controller
 
         return response()->json([
             'message' => count($selected) ? 'WorkPhases confermate con successo!' : 'Nessun WorkPhase selezionato.'
+        ]);
+    }
+
+    public function assign(Request $request)
+    {
+        $request->validate([
+            'selected' => 'required|array|min:1',
+            'selected.*' => 'integer',
+            'assigned_to' => 'required|exists:users,id',
+            'notes' => 'nullable|string|max:2000',
+        ]);
+
+        $created = [];
+        foreach ($request->selected as $phaseId) {
+            $created[] = WorkPhaseAssignment::create([
+                'work_phase_id' => $phaseId,
+                'assigned_to' => $request->assigned_to,
+                'assigned_by' => $request->user()->id,
+                'status' => 'pending',
+                'notes' => $request->notes,
+            ]);
+        }
+
+        return response()->json([
+            'message' => count($created) . ' fasi assegnate con successo!',
+            'data' => $created
         ]);
     }
 }

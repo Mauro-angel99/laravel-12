@@ -39,7 +39,8 @@ Route::get('/work-phases', [WorkPhaseController::class, 'index'])->name('workpha
 // API per Vue: restituisce dati JSON
 Route::get('/api/work-phases', [WorkPhaseController::class, 'list'])->name('workphases.list');
 
-// API per salvare i selezionati (se necessario)
-Route::post('/api/work-phases/confirm', [WorkPhaseController::class, 'confirm'])->name('workphases.confirm');
+// API per assegnare i selezionati
+Route::post('/api/work-phases/assign', [WorkPhaseController::class, 'assign'])->name('workphases.assign');
+
 
 require __DIR__.'/auth.php';

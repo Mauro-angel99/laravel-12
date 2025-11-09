@@ -145,6 +145,42 @@ watch([dateFrom, dateTo], () => {
     applyFilters()
   }, 300)
 })
+
+const confirmSelected = async () => {
+  if (!selected.value.length) {
+    alert('Seleziona almeno una fase di lavoro');
+    return;
+  }
+  if (!selectedUser.value) {
+    alert('Seleziona un utente a cui assegnare le fasi');
+    return;
+  }
+
+  try {
+    loading.value = true;
+    const res = await axios.post('/api/work-phases/assign', {
+      selected: selected.value,
+      assigned_to: selectedUser.value,
+      notes: notes.value
+    });
+    alert(res.data.message);
+
+    // Resetta selezioni
+    selected.value = [];
+    selectedUser.value = '';
+    notes.value = '';
+
+    // Ricarica la lista se vuoi
+    await fetchWorkPhases(search.value, dateFrom.value, dateTo.value, currentPage.value);
+
+  } catch (error) {
+    console.error(error);
+    alert('Errore durante l\'assegnazione delle fasi');
+  } finally {
+    loading.value = false;
+  }
+}
+
 </script>
 
 <template>
