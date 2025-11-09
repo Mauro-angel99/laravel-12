@@ -31,7 +31,7 @@ class WorkPhaseController extends Controller
             
             // Query principale per i dati (senza ORDER BY)
             $query = 'SELECT 
-                f.RECORD_ID AS RECORD_ID_F,
+                f.RECORD_ID,
                 f.FLASS,
                 f.IDOPR,
                 f.FLSEQ,
