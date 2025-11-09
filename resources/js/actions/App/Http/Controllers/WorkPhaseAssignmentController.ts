@@ -1,7 +1,7 @@
 import { queryParams, type RouteQueryOptions, type RouteDefinition, type RouteFormDefinition } from './../../../../wayfinder'
 /**
 * @see \App\Http\Controllers\WorkPhaseAssignmentController::index
- * @see app/Http/Controllers/WorkPhaseAssignmentController.php:14
+ * @see app/Http/Controllers/WorkPhaseAssignmentController.php:16
  * @route '/assigned-work-phases'
  */
 export const index = (options?: RouteQueryOptions): RouteDefinition<'get'> => ({
@@ -16,7 +16,7 @@ index.definition = {
 
 /**
 * @see \App\Http\Controllers\WorkPhaseAssignmentController::index
- * @see app/Http/Controllers/WorkPhaseAssignmentController.php:14
+ * @see app/Http/Controllers/WorkPhaseAssignmentController.php:16
  * @route '/assigned-work-phases'
  */
 index.url = (options?: RouteQueryOptions) => {
@@ -25,7 +25,7 @@ index.url = (options?: RouteQueryOptions) => {
 
 /**
 * @see \App\Http\Controllers\WorkPhaseAssignmentController::index
- * @see app/Http/Controllers/WorkPhaseAssignmentController.php:14
+ * @see app/Http/Controllers/WorkPhaseAssignmentController.php:16
  * @route '/assigned-work-phases'
  */
 index.get = (options?: RouteQueryOptions): RouteDefinition<'get'> => ({
@@ -34,7 +34,7 @@ index.get = (options?: RouteQueryOptions): RouteDefinition<'get'> => ({
 })
 /**
 * @see \App\Http\Controllers\WorkPhaseAssignmentController::index
- * @see app/Http/Controllers/WorkPhaseAssignmentController.php:14
+ * @see app/Http/Controllers/WorkPhaseAssignmentController.php:16
  * @route '/assigned-work-phases'
  */
 index.head = (options?: RouteQueryOptions): RouteDefinition<'head'> => ({
@@ -44,7 +44,7 @@ index.head = (options?: RouteQueryOptions): RouteDefinition<'head'> => ({
 
     /**
 * @see \App\Http\Controllers\WorkPhaseAssignmentController::index
- * @see app/Http/Controllers/WorkPhaseAssignmentController.php:14
+ * @see app/Http/Controllers/WorkPhaseAssignmentController.php:16
  * @route '/assigned-work-phases'
  */
     const indexForm = (options?: RouteQueryOptions): RouteFormDefinition<'get'> => ({
@@ -54,7 +54,7 @@ index.head = (options?: RouteQueryOptions): RouteDefinition<'head'> => ({
 
             /**
 * @see \App\Http\Controllers\WorkPhaseAssignmentController::index
- * @see app/Http/Controllers/WorkPhaseAssignmentController.php:14
+ * @see app/Http/Controllers/WorkPhaseAssignmentController.php:16
  * @route '/assigned-work-phases'
  */
         indexForm.get = (options?: RouteQueryOptions): RouteFormDefinition<'get'> => ({
@@ -63,7 +63,7 @@ index.head = (options?: RouteQueryOptions): RouteDefinition<'head'> => ({
         })
             /**
 * @see \App\Http\Controllers\WorkPhaseAssignmentController::index
- * @see app/Http/Controllers/WorkPhaseAssignmentController.php:14
+ * @see app/Http/Controllers/WorkPhaseAssignmentController.php:16
  * @route '/assigned-work-phases'
  */
         indexForm.head = (options?: RouteQueryOptions): RouteFormDefinition<'get'> => ({
@@ -79,7 +79,7 @@ index.head = (options?: RouteQueryOptions): RouteDefinition<'head'> => ({
     index.form = indexForm
 /**
 * @see \App\Http\Controllers\WorkPhaseAssignmentController::list
- * @see app/Http/Controllers/WorkPhaseAssignmentController.php:20
+ * @see app/Http/Controllers/WorkPhaseAssignmentController.php:22
  * @route '/api/assigned-work-phases'
  */
 export const list = (options?: RouteQueryOptions): RouteDefinition<'get'> => ({
@@ -94,7 +94,7 @@ list.definition = {
 
 /**
 * @see \App\Http\Controllers\WorkPhaseAssignmentController::list
- * @see app/Http/Controllers/WorkPhaseAssignmentController.php:20
+ * @see app/Http/Controllers/WorkPhaseAssignmentController.php:22
  * @route '/api/assigned-work-phases'
  */
 list.url = (options?: RouteQueryOptions) => {
@@ -103,7 +103,7 @@ list.url = (options?: RouteQueryOptions) => {
 
 /**
 * @see \App\Http\Controllers\WorkPhaseAssignmentController::list
- * @see app/Http/Controllers/WorkPhaseAssignmentController.php:20
+ * @see app/Http/Controllers/WorkPhaseAssignmentController.php:22
  * @route '/api/assigned-work-phases'
  */
 list.get = (options?: RouteQueryOptions): RouteDefinition<'get'> => ({
@@ -112,7 +112,7 @@ list.get = (options?: RouteQueryOptions): RouteDefinition<'get'> => ({
 })
 /**
 * @see \App\Http\Controllers\WorkPhaseAssignmentController::list
- * @see app/Http/Controllers/WorkPhaseAssignmentController.php:20
+ * @see app/Http/Controllers/WorkPhaseAssignmentController.php:22
  * @route '/api/assigned-work-phases'
  */
 list.head = (options?: RouteQueryOptions): RouteDefinition<'head'> => ({
@@ -122,7 +122,7 @@ list.head = (options?: RouteQueryOptions): RouteDefinition<'head'> => ({
 
     /**
 * @see \App\Http\Controllers\WorkPhaseAssignmentController::list
- * @see app/Http/Controllers/WorkPhaseAssignmentController.php:20
+ * @see app/Http/Controllers/WorkPhaseAssignmentController.php:22
  * @route '/api/assigned-work-phases'
  */
     const listForm = (options?: RouteQueryOptions): RouteFormDefinition<'get'> => ({
@@ -132,7 +132,7 @@ list.head = (options?: RouteQueryOptions): RouteDefinition<'head'> => ({
 
             /**
 * @see \App\Http\Controllers\WorkPhaseAssignmentController::list
- * @see app/Http/Controllers/WorkPhaseAssignmentController.php:20
+ * @see app/Http/Controllers/WorkPhaseAssignmentController.php:22
  * @route '/api/assigned-work-phases'
  */
         listForm.get = (options?: RouteQueryOptions): RouteFormDefinition<'get'> => ({
@@ -141,7 +141,7 @@ list.head = (options?: RouteQueryOptions): RouteDefinition<'head'> => ({
         })
             /**
 * @see \App\Http\Controllers\WorkPhaseAssignmentController::list
- * @see app/Http/Controllers/WorkPhaseAssignmentController.php:20
+ * @see app/Http/Controllers/WorkPhaseAssignmentController.php:22
  * @route '/api/assigned-work-phases'
  */
         listForm.head = (options?: RouteQueryOptions): RouteFormDefinition<'get'> => ({

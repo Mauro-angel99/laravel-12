@@ -4,6 +4,8 @@ namespace App\Http\Controllers;
 
 use App\Models\WorkPhaseAssignment;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\DB;
 
 class WorkPhaseAssignmentController extends Controller
 {
@@ -32,14 +34,30 @@ class WorkPhaseAssignmentController extends Controller
         }
 
         $total = $query->count();
-        $data = $query->with(['workPhase', 'assignedUser', 'assignedBy'])
+        $assignments = $query->with(['assignedUser', 'assignedBy'])
             ->offset($offset)
             ->limit($perPage)
             ->orderBy('created_at', 'desc')
             ->get();
 
+        // Carica manualmente i dati delle work phases dal database SQL Server
+        $workPhaseIds = $assignments->pluck('work_phase_id')->unique()->toArray();
+        
+        if (!empty($workPhaseIds)) {
+            $workPhases = DB::connection('sqlsrv_gestionale')
+                ->table('A01_ORD_FAS')
+                ->whereIn('RECORD_ID', $workPhaseIds)
+                ->get()
+                ->keyBy('RECORD_ID');
+            
+            // Aggiungi i dati delle work phases agli assignments
+            $assignments->each(function ($assignment) use ($workPhases) {
+                $assignment->work_phase = $workPhases->get($assignment->work_phase_id);
+            });
+        }
+
         return response()->json([
-            'data' => $data,
+            'data' => $assignments,
             'pagination' => [
                 'current_page' => $page,
                 'per_page' => $perPage,

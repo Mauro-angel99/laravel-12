@@ -18,6 +18,9 @@
                     <x-nav-link :href="route('workphases.index')" :active="request()->routeIs('workphases.index')">
                         {{ __('Ass. Fasi di Lavoro') }}
                     </x-nav-link>
+                    <x-nav-link :href="route('assigned-work-phases.index')" :active="request()->routeIs('assigned-work-phases.index')">
+                        {{ __('Fasi di Lavoro Assegnate') }}
+                    </x-nav-link>
                     <x-nav-link :href="route('users.index')" :active="request()->routeIs('users.index')">
                         {{ __('Utenti') }}
                     </x-nav-link>

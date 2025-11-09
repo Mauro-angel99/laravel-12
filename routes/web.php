@@ -49,11 +49,11 @@ Route::middleware(['auth', 'role:admin'])->group(function () {
 // Rotta per la vista (Vue)
 Route::middleware('auth')->group(function () {
     Route::get('/assigned-work-phases', [WorkPhaseAssignmentController::class, 'index'])
-        ->name('assignedWorkPhases.index');
+        ->name('assigned-work-phases.index');
 
     // API per restituire i dati JSON
     Route::get('/api/assigned-work-phases', [WorkPhaseAssignmentController::class, 'list'])
-        ->name('assignedWorkPhases.list');
+        ->name('assigned-work-phases.list');
 });
 
 
