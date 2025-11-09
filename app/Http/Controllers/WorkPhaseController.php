@@ -14,7 +14,6 @@ class WorkPhaseController extends Controller
         return view('workphases.index');
     }
 
-    // API: lista WorkPhases con ricerca, filtro date e paginazione
     public function list(Request $request)
     {
         $search = $request->input('search', '');
@@ -26,21 +25,35 @@ class WorkPhaseController extends Controller
         
         try {
             // Query per contare il totale dei record
-            $countQuery = 'SELECT COUNT(*) as total FROM dbo.A01_ORD_FAS';
+            $countQuery = 'SELECT COUNT(*) as total FROM dbo.A01_ORD_FAS f';
             $countParams = [];
             $countConditions = [];
             
-            // Query principale per i dati
-            $query = 'SELECT f.RECORD_ID, f.FLASS, f.IDOPR, f.FLSEQ, f.FLLAV, f.FLDES, f.FLQTA, f.FLQTB, f.FLQTD, f.FLCON,
-                     c.MATERIALE, c.SPESSORE, c.LAV_SUCC, c.LAV_SUCC_ASS
-                     FROM dbo.A01_ORD_FAS f
-                     LEFT JOIN dbo.A01_ORD_FAS_CAM c ON f.RECORD_ID = c.ID_FASE';
+            // Query principale per i dati (senza ORDER BY)
+            $query = 'SELECT 
+                f.RECORD_ID AS RECORD_ID_F,
+                f.FLASS,
+                f.IDOPR,
+                f.FLSEQ,
+                f.FLLAV,
+                f.FLDES,
+                f.FLQTA,
+                f.FLQTB,
+                f.FLQTD,
+                f.FLCON,
+                l.RECORD_ID AS RECORD_ID_L,
+                l.IDORD AS L_IDORD,
+                d.RECORD_ID AS RECORD_ID_D,
+                d.DROPR AS D_DROPR
+            FROM dbo.A01_ORD_FAS f
+            LEFT JOIN dbo.A01_ORD_COM_LAM l ON f.IDOPR = l.IDORD
+            LEFT JOIN dbo.A01_DOC_VER_ALL d ON f.FLASS = d.DROPR';
             $params = [];
             $conditions = [];
             
             // Filtro per ricerca testuale
             if (!empty($search)) {
-                $condition = '(FLDES LIKE ? OR FLASS LIKE ?)';
+                $condition = '(f.FLDES LIKE ? OR f.FLASS LIKE ?)';
                 $conditions[] = $condition;
                 $countConditions[] = $condition;
                 $searchParam = '%' . $search . '%';
@@ -50,53 +63,46 @@ class WorkPhaseController extends Controller
                 $countParams[] = $searchParam;
             }
             
-            // Filtro per data da - usa CONVERT per gestire il formato stringa
+            // Filtro per date
             if (!empty($dateFrom)) {
-                $condition = 'CONVERT(DATETIME, FLCON, 120) >= CONVERT(DATETIME, ?, 120)';
+                $condition = 'CONVERT(DATETIME, f.FLCON, 120) >= CONVERT(DATETIME, ?, 120)';
                 $conditions[] = $condition;
                 $countConditions[] = $condition;
                 $params[] = $dateFrom . ' 00:00:00.000';
                 $countParams[] = $dateFrom . ' 00:00:00.000';
             }
-            
-            // Filtro per data a - usa CONVERT per gestire il formato stringa
             if (!empty($dateTo)) {
-                $condition = 'CONVERT(DATETIME, FLCON, 120) <= CONVERT(DATETIME, ?, 120)';
+                $condition = 'CONVERT(DATETIME, f.FLCON, 120) <= CONVERT(DATETIME, ?, 120)';
                 $conditions[] = $condition;
                 $countConditions[] = $condition;
                 $params[] = $dateTo . ' 23:59:59.999';
                 $countParams[] = $dateTo . ' 23:59:59.999';
             }
             
-            // Aggiungi condizioni alle query
+            // Costruisci WHERE
             $whereClause = '';
             if (!empty($conditions)) {
                 $whereClause = ' WHERE ' . implode(' AND ', $conditions);
             }
             
-            // Esegui query per contare il totale
+            // Conta totale
             $countQuery .= $whereClause;
             $totalResult = DB::connection('sqlsrv_gestionale')
                 ->select($countQuery, $countParams);
             $total = $totalResult[0]->total;
             
-            // Aggiungi ordinamento e paginazione alla query principale
-            $query .= $whereClause . ' ORDER BY FLCON ASC, RECORD_ID DESC OFFSET ? ROWS FETCH NEXT ? ROWS ONLY';
+            // Aggiungi WHERE, ORDER BY e OFFSET/FETCH
+            $query .= $whereClause . ' ORDER BY f.FLCON ASC, f.RECORD_ID DESC OFFSET ? ROWS FETCH NEXT ? ROWS ONLY';
             $params[] = $offset;
             $params[] = $perPage;
             
-            // Debug: log della query per troubleshooting
-            \Log::info('WorkPhase Query: ' . $query);
-            \Log::info('WorkPhase Params: ' . json_encode($params));
-            
             $dati = DB::connection('sqlsrv_gestionale')
                 ->select($query, $params);
-                
-            // Calcola informazioni paginazione
+            
             $lastPage = ceil($total / $perPage);
             $from = $offset + 1;
             $to = min($offset + $perPage, $total);
-                
+            
         } catch (\Exception $e) {
             \Log::error('WorkPhase Error: ' . $e->getMessage());
             \Log::error('WorkPhase Query: ' . $query);
@@ -117,6 +123,7 @@ class WorkPhaseController extends Controller
             ]
         ]);
     }
+
 
     // API: conferma selezionati
     public function confirm(Request $request)

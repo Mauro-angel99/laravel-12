@@ -5,6 +5,7 @@ use App\Http\Controllers\ProfileController;
 use Illuminate\Support\Facades\Route;
 
 use App\Http\Controllers\WorkPhaseController;
+use App\Http\Controllers\WorkPhaseAssignmentController;
 use App\Http\Controllers\UserController as ApiUserController;
 
 Route::middleware(['auth', 'role:admin'])->group(function () {
@@ -33,14 +34,27 @@ Route::middleware('auth')->group(function () {
     Route::delete('/profile', [ProfileController::class, 'destroy'])->name('profile.destroy');
 });
 
-// Pagina principale con Vue
-Route::get('/work-phases', [WorkPhaseController::class, 'index'])->name('workphases.index');
 
-// API per Vue: restituisce dati JSON
-Route::get('/api/work-phases', [WorkPhaseController::class, 'list'])->name('workphases.list');
+Route::middleware(['auth', 'role:admin'])->group(function () {
+    // Pagina principale con Vue
+    Route::get('/work-phases', [WorkPhaseController::class, 'index'])->name('workphases.index');
 
-// API per assegnare i selezionati
-Route::post('/api/work-phases/assign', [WorkPhaseController::class, 'assign'])->name('workphases.assign');
+    // API per Vue: restituisce dati JSON
+    Route::get('/api/work-phases', [WorkPhaseController::class, 'list'])->name('workphases.list');
+
+    // API per assegnare i selezionati
+    Route::post('/api/work-phases/assign', [WorkPhaseController::class, 'assign'])->name('workphases.assign');
+});
+
+// Rotta per la vista (Vue)
+Route::middleware('auth')->group(function () {
+    Route::get('/assigned-work-phases', [WorkPhaseAssignmentController::class, 'index'])
+        ->name('assignedWorkPhases.index');
+
+    // API per restituire i dati JSON
+    Route::get('/api/assigned-work-phases', [WorkPhaseAssignmentController::class, 'list'])
+        ->name('assignedWorkPhases.list');
+});
 
 
 require __DIR__.'/auth.php';
