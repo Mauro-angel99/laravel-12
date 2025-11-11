@@ -29,7 +29,7 @@
                             <label for="role" class="block text-sm font-medium text-gray-700 mb-2">
                                 Ruolo
                             </label>
-                            <select name="role" id="role" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm">
+                            <select name="role" id="role" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-copam-blue focus:ring-copam-blue sm:text-sm">
                                 @foreach($roles as $role)
                                     <option value="{{ $role->name }}" {{ $user->hasRole($role->name) ? 'selected' : '' }}>
                                         {{ ucfirst($role->name) }}

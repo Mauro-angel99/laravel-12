@@ -17,10 +17,10 @@
                                     type="text" 
                                     name="search" 
                                     id="search" 
-                                    value="{{ request('search') }}"
-                                    placeholder="Cerca per nome, email o ruolo..."
-                                    class="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-md shadow-sm focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm"
-                                >
+                                    value="{{ request('search') }}" 
+                                    placeholder="Cerca utenti..." 
+                                    class="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-md shadow-sm focus:ring-copam-blue focus:border-copam-blue sm:text-sm"
+                                />
                                 
                             </div>
                         </div>
@@ -28,7 +28,7 @@
                         <div class="flex gap-2">
                             <button 
                                 type="submit" 
-                                class="inline-flex items-center px-4 py-2 bg-gray-800 border border-transparent rounded-md font-semibold text-xs text-white uppercase tracking-widest hover:bg-gray-700 focus:bg-gray-700 active:bg-gray-900 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2 transition ease-in-out duration-150"
+                                class="inline-flex items-center px-4 py-2 bg-copam-blue border border-transparent rounded-md font-semibold text-xs text-white uppercase tracking-widest hover:bg-copam-blue-hover focus:bg-copam-blue-hover active:bg-copam-blue-active focus:outline-none focus:ring-2 focus:ring-copam-blue focus:ring-offset-2 transition ease-in-out duration-150"
                             >
                                 <svg class="h-4 w-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path>
@@ -38,7 +38,7 @@
                             @if(request('search'))
                                 <a 
                                     href="{{ route('users.index') }}" 
-                                    class="inline-flex items-center px-4 py-2 border border-gray-300 text-sm font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500"
+                                    class="inline-flex items-center px-4 py-2 border border-gray-300 text-sm font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-copam-blue"
                                 >
                                     <svg class="h-4 w-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
@@ -52,14 +52,14 @@
                 <!-- Actions -->
                 <div class="mb-4 flex items-center justify-between">
                     <div>
-                        <select name="per_page" id="per_page" onchange="this.form.submit()" class="mt-1 block w-32 rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm">
+                        <select name="per_page" id="per_page" onchange="this.form.submit()" class="mt-1 block w-32 rounded-md border-gray-300 shadow-sm focus:border-copam-blue focus:ring-copam-blue sm:text-sm">
                             @foreach([10,25,50,100] as $size)
                             <option value="{{ $size }}" {{ (int) request('per_page', 10) === $size ? 'selected' : '' }}>{{ $size }}</option>
                             @endforeach
                         </select>
                     </div>
                     <div>
-                        <a href="{{ route('users.create') }}" class="inline-flex items-center px-4 py-2 bg-gray-800 border border-transparent rounded-md font-semibold text-xs text-white uppercase tracking-widest hover:bg-gray-700 focus:bg-gray-700 active:bg-gray-900 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2 transition ease-in-out duration-150">
+                        <a href="{{ route('users.create') }}" class="inline-flex items-center px-4 py-2 bg-copam-blue border border-transparent rounded-md font-semibold text-xs text-white uppercase tracking-widest hover:bg-copam-blue-hover focus:bg-copam-blue-hover active:bg-copam-blue-active focus:outline-none focus:ring-2 focus:ring-copam-blue focus:ring-offset-2 transition ease-in-out duration-150">
                             + Crea Utente
                         </a>
                     </div>
@@ -95,7 +95,7 @@
                                     <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500 border-r border-gray-200">{{ $user->email }}</td>
                                     <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500 border-r border-gray-200">{{ $user->roles->pluck('name')->join(', ') }}</td>
                                     <td class="px-6 py-4 whitespace-nowrap text-sm font-medium">
-                                        <a href="{{ route('users.edit', $user) }}" class="text-indigo-600 hover:text-indigo-900 bg-indigo-100 hover:bg-indigo-200 px-3 py-1 rounded-md text-sm font-medium transition duration-150 ease-in-out">
+                                        <a href="{{ route('users.edit', $user) }}" class="text-white hover:text-white bg-[rgba(4,69,133,1)] hover:bg-[rgba(3,55,106,1)] px-3 py-1 rounded-md text-sm font-medium transition duration-150 ease-in-out">
                                             Modifica
                                         </a>
                                     </td>
