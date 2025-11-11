@@ -30,6 +30,27 @@ const pagination = ref({
   has_more_pages: false
 })
 
+// Stato della modal di messaggio
+const messageModal = ref({
+  show: false,
+  type: 'success', // 'success' o 'error'
+  title: '',
+  message: ''
+})
+
+const showMessageModal = (type, title, message) => {
+  messageModal.value = {
+    show: true,
+    type,
+    title,
+    message
+  }
+}
+
+const closeMessageModal = () => {
+  messageModal.value.show = false
+}
+
 const fetchWorkPhases = async (searchTerm = '', fromDate = '', toDate = '', page = 1) => {
   loading.value = true
   try {
@@ -148,11 +169,11 @@ watch([dateFrom, dateTo], () => {
 
 const confirmSelected = async () => {
   if (!selected.value.length) {
-    alert('Seleziona almeno una fase di lavoro');
+    showMessageModal('error', 'Errore', 'Seleziona almeno una fase di lavoro');
     return;
   }
   if (!selectedUser.value) {
-    alert('Seleziona un utente a cui assegnare le fasi');
+    showMessageModal('error', 'Errore', 'Seleziona un utente a cui assegnare le fasi');
     return;
   }
 
@@ -163,7 +184,7 @@ const confirmSelected = async () => {
       assigned_to: selectedUser.value,
       notes: notes.value
     });
-    alert(res.data.message);
+    showMessageModal('success', 'Successo', res.data.message);
 
     // Resetta selezioni
     selected.value = [];
@@ -175,7 +196,8 @@ const confirmSelected = async () => {
 
   } catch (error) {
     console.error(error);
-    alert('Errore durante l\'assegnazione delle fasi');
+    const errorMessage = error.response?.data?.message || 'Errore durante l\'assegnazione delle fasi';
+    showMessageModal('error', 'Errore', errorMessage);
   } finally {
     loading.value = false;
   }
@@ -411,7 +433,7 @@ const confirmSelected = async () => {
 
     <div class="mt-4 flex justify-end">
       <button class="bg-green-500 text-white px-4 py-2 rounded" @click="confirmSelected">
-        Conferma Selezionati
+        Assegna
       </button>
     </div>
   </div>
@@ -422,4 +444,75 @@ const confirmSelected = async () => {
     v-model:modelValue="selected"
     :phase="selectedPhase"
   />
+
+  <!-- Modal Messaggio di Conferma/Errore -->
+  <Teleport to="body">
+    <div v-if="messageModal.show" class="fixed inset-0 z-50 overflow-y-auto">
+      <div class="flex items-center justify-center min-h-screen px-4 pt-4 pb-20 text-center sm:block sm:p-0">
+        <!-- Overlay -->
+        <div 
+          class="fixed inset-0 transition-opacity bg-gray-500 bg-opacity-75"
+          @click="closeMessageModal"
+        ></div>
+
+        <!-- Modal -->
+        <div class="inline-block align-bottom bg-white rounded-lg px-4 pt-5 pb-4 text-left overflow-hidden shadow-xl transform transition-all sm:my-8 sm:align-middle sm:max-w-lg sm:w-full sm:p-6">
+          <div class="sm:flex sm:items-start">
+            <!-- Icona -->
+            <div :class="[
+              'mx-auto flex-shrink-0 flex items-center justify-center h-12 w-12 rounded-full sm:mx-0 sm:h-10 sm:w-10',
+              messageModal.type === 'success' ? 'bg-green-100' : 'bg-red-100'
+            ]">
+              <svg 
+                v-if="messageModal.type === 'success'"
+                class="h-6 w-6 text-green-600" 
+                fill="none" 
+                stroke="currentColor" 
+                viewBox="0 0 24 24"
+              >
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path>
+              </svg>
+              <svg 
+                v-else
+                class="h-6 w-6 text-red-600" 
+                fill="none" 
+                stroke="currentColor" 
+                viewBox="0 0 24 24"
+              >
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
+              </svg>
+            </div>
+            
+            <!-- Contenuto -->
+            <div class="mt-3 text-center sm:mt-0 sm:ml-4 sm:text-left">
+              <h3 class="text-lg leading-6 font-medium text-gray-900">
+                {{ messageModal.title }}
+              </h3>
+              <div class="mt-2">
+                <p class="text-sm text-gray-500">
+                  {{ messageModal.message }}
+                </p>
+              </div>
+            </div>
+          </div>
+          
+          <!-- Pulsante -->
+          <div class="mt-5 sm:mt-4 sm:flex sm:flex-row-reverse">
+            <button 
+              type="button"
+              @click="closeMessageModal"
+              :class="[
+                'w-full inline-flex justify-center rounded-md border border-transparent shadow-sm px-4 py-2 text-base font-medium text-white focus:outline-none focus:ring-2 focus:ring-offset-2 sm:ml-3 sm:w-auto sm:text-sm',
+                messageModal.type === 'success' 
+                  ? 'bg-green-600 hover:bg-green-700 focus:ring-green-500' 
+                  : 'bg-red-600 hover:bg-red-700 focus:ring-red-500'
+              ]"
+            >
+              OK
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </Teleport>
 </template>
