@@ -17,6 +17,11 @@ class WorkPhaseController extends Controller
     public function list(Request $request)
     {
         $search = $request->input('search', '');
+        $fllav = $request->input('fllav', '');
+        $dtras = $request->input('dtras', '');
+        $dtric = $request->input('dtric', '');
+        $dtnum = $request->input('dtnum', '');
+        $idopr = $request->input('idopr', '');
         $dateFrom = $request->input('date_from', '');
         $dateTo = $request->input('date_to', '');
         $page = $request->input('page', 1);
@@ -25,7 +30,9 @@ class WorkPhaseController extends Controller
         
         try {
             // Query per contare il totale dei record
-            $countQuery = 'SELECT COUNT(*) as total FROM dbo.A01_ORD_FAS f';
+            $countQuery = 'SELECT COUNT(*) as total FROM dbo.A01_ORD_FAS f
+            LEFT JOIN dbo.A01_ORD_COM_LAM l ON f.IDOPR = l.IDORD
+            LEFT JOIN dbo.A01_DOC_VER_ALL d ON f.FLASS = d.DROPR';
             $countParams = [];
             $countConditions = [];
             
@@ -44,7 +51,10 @@ class WorkPhaseController extends Controller
                 l.RECORD_ID AS RECORD_ID_L,
                 l.IDORD AS L_IDORD,
                 d.RECORD_ID AS RECORD_ID_D,
-                d.DROPR AS D_DROPR
+                d.DROPR AS D_DROPR,
+                d.DTRAS,
+                d.DTRIC,
+                d.DTNUM
             FROM dbo.A01_ORD_FAS f
             LEFT JOIN dbo.A01_ORD_COM_LAM l ON f.IDOPR = l.IDORD
             LEFT JOIN dbo.A01_DOC_VER_ALL d ON f.FLASS = d.DROPR';
@@ -60,6 +70,56 @@ class WorkPhaseController extends Controller
                 $params[] = $searchParam;
                 $params[] = $searchParam;
                 $countParams[] = $searchParam;
+                $countParams[] = $searchParam;
+            }
+            
+            // Filtro per FLLAV (Codice Lav)
+            if (!empty($fllav)) {
+                $condition = 'f.FLLAV LIKE ?';
+                $conditions[] = $condition;
+                $countConditions[] = $condition;
+                $searchParam = '%' . $fllav . '%';
+                $params[] = $searchParam;
+                $countParams[] = $searchParam;
+            }
+            
+            // Filtro per DTRAS (Rag. Soc.)
+            if (!empty($dtras)) {
+                $condition = 'd.DTRAS LIKE ?';
+                $conditions[] = $condition;
+                $countConditions[] = $condition;
+                $searchParam = '%' . $dtras . '%';
+                $params[] = $searchParam;
+                $countParams[] = $searchParam;
+            }
+            
+            // Filtro per DTRIC (N. Ord. Cli.)
+            if (!empty($dtric)) {
+                $condition = 'd.DTRIC LIKE ?';
+                $conditions[] = $condition;
+                $countConditions[] = $condition;
+                $searchParam = '%' . $dtric . '%';
+                $params[] = $searchParam;
+                $countParams[] = $searchParam;
+            }
+            
+            // Filtro per DTNUM (N. Ns. Ord.)
+            if (!empty($dtnum)) {
+                $condition = 'd.DTNUM LIKE ?';
+                $conditions[] = $condition;
+                $countConditions[] = $condition;
+                $searchParam = '%' . $dtnum . '%';
+                $params[] = $searchParam;
+                $countParams[] = $searchParam;
+            }
+            
+            // Filtro per IDOPR (Ord. Prod.)
+            if (!empty($idopr)) {
+                $condition = 'f.IDOPR LIKE ?';
+                $conditions[] = $condition;
+                $countConditions[] = $condition;
+                $searchParam = '%' . $idopr . '%';
+                $params[] = $searchParam;
                 $countParams[] = $searchParam;
             }
             
@@ -87,6 +147,9 @@ class WorkPhaseController extends Controller
             
             // Conta totale
             $countQuery .= $whereClause;
+            //\Log::info('Count Query: ' . $countQuery);
+            //\Log::info('Count Params: ' . json_encode($countParams));
+            
             $totalResult = DB::connection('sqlsrv_gestionale')
                 ->select($countQuery, $countParams);
             $total = $totalResult[0]->total;
@@ -96,6 +159,9 @@ class WorkPhaseController extends Controller
             $params[] = $offset;
             $params[] = $perPage;
             
+            //\Log::info('Main Query: ' . $query);
+            //\Log::info('Main Params: ' . json_encode($params));
+            
             $dati = DB::connection('sqlsrv_gestionale')
                 ->select($query, $params);
             
@@ -104,9 +170,9 @@ class WorkPhaseController extends Controller
             $to = min($offset + $perPage, $total);
             
         } catch (\Exception $e) {
-            \Log::error('WorkPhase Error: ' . $e->getMessage());
-            \Log::error('WorkPhase Query: ' . $query);
-            \Log::error('WorkPhase Params: ' . json_encode($params));
+            //\Log::error('WorkPhase Error: ' . $e->getMessage());
+            //\Log::error('WorkPhase Query: ' . $query);
+            //\Log::error('WorkPhase Params: ' . json_encode($params));
             return response()->json(['error' => $e->getMessage()], 500);
         }
 

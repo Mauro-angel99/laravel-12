@@ -95,7 +95,7 @@
                                     <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500 border-r border-gray-200">{{ $user->email }}</td>
                                     <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500 border-r border-gray-200">{{ $user->roles->pluck('name')->join(', ') }}</td>
                                     <td class="px-6 py-4 whitespace-nowrap text-sm font-medium">
-                                        <a href="{{ route('users.edit', $user) }}" class="text-white hover:text-white bg-[rgba(4,69,133,1)] hover:bg-[rgba(3,55,106,1)] px-3 py-1 rounded-md text-sm font-medium transition duration-150 ease-in-out">
+                                        <a href="{{ route('users.edit', $user) }}" class="text-white hover:text-white bg-copam-blue hover:bg-copam-blue-hover px-3 py-1 rounded-md text-sm font-medium transition duration-150 ease-in-out">
                                             Modifica
                                         </a>
                                     </td>

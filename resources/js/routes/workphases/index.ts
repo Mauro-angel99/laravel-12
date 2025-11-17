@@ -157,7 +157,7 @@ list.head = (options?: RouteQueryOptions): RouteDefinition<'head'> => ({
     list.form = listForm
 /**
 * @see \App\Http\Controllers\WorkPhaseController::assign
- * @see app/Http/Controllers/WorkPhaseController.php:141
+ * @see app/Http/Controllers/WorkPhaseController.php:207
  * @route '/api/work-phases/assign'
  */
 export const assign = (options?: RouteQueryOptions): RouteDefinition<'post'> => ({
@@ -172,7 +172,7 @@ assign.definition = {
 
 /**
 * @see \App\Http\Controllers\WorkPhaseController::assign
- * @see app/Http/Controllers/WorkPhaseController.php:141
+ * @see app/Http/Controllers/WorkPhaseController.php:207
  * @route '/api/work-phases/assign'
  */
 assign.url = (options?: RouteQueryOptions) => {
@@ -181,7 +181,7 @@ assign.url = (options?: RouteQueryOptions) => {
 
 /**
 * @see \App\Http\Controllers\WorkPhaseController::assign
- * @see app/Http/Controllers/WorkPhaseController.php:141
+ * @see app/Http/Controllers/WorkPhaseController.php:207
  * @route '/api/work-phases/assign'
  */
 assign.post = (options?: RouteQueryOptions): RouteDefinition<'post'> => ({
@@ -191,7 +191,7 @@ assign.post = (options?: RouteQueryOptions): RouteDefinition<'post'> => ({
 
     /**
 * @see \App\Http\Controllers\WorkPhaseController::assign
- * @see app/Http/Controllers/WorkPhaseController.php:141
+ * @see app/Http/Controllers/WorkPhaseController.php:207
  * @route '/api/work-phases/assign'
  */
     const assignForm = (options?: RouteQueryOptions): RouteFormDefinition<'post'> => ({
@@ -201,7 +201,7 @@ assign.post = (options?: RouteQueryOptions): RouteDefinition<'post'> => ({
 
             /**
 * @see \App\Http\Controllers\WorkPhaseController::assign
- * @see app/Http/Controllers/WorkPhaseController.php:141
+ * @see app/Http/Controllers/WorkPhaseController.php:207
  * @route '/api/work-phases/assign'
  */
         assignForm.post = (options?: RouteQueryOptions): RouteFormDefinition<'post'> => ({

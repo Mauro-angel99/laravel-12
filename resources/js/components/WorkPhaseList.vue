@@ -8,6 +8,11 @@ import { Italian } from 'flatpickr/dist/l10n/it.js'
 
 const workPhases = ref([])
 const search = ref('')
+const searchFllav = ref('')
+const searchDtras = ref('')
+const searchDtric = ref('')
+const searchDtnum = ref('')
+const searchIdopr = ref('')
 const dateFrom = ref('')
 const dateTo = ref('')
 const dateFromPicker = ref(null)
@@ -51,13 +56,18 @@ const closeMessageModal = () => {
   messageModal.value.show = false
 }
 
-const fetchWorkPhases = async (searchTerm = '', fromDate = '', toDate = '', page = 1) => {
+const fetchWorkPhases = async (searchTerm = '', fllav = '', dtras = '', dtric = '', dtnum = '', idopr = '', fromDate = '', toDate = '', page = 1) => {
   loading.value = true
   try {
     const params = {
       page: page
     }
     if (searchTerm) params.search = searchTerm
+    if (fllav) params.fllav = fllav
+    if (dtras) params.dtras = dtras
+    if (dtric) params.dtric = dtric
+    if (dtnum) params.dtnum = dtnum
+    if (idopr) params.idopr = idopr
     if (fromDate) params.date_from = fromDate
     if (toDate) params.date_to = toDate
     
@@ -74,11 +84,16 @@ const fetchWorkPhases = async (searchTerm = '', fromDate = '', toDate = '', page
 
 const applyFilters = () => {
   currentPage.value = 1 // Reset alla prima pagina quando si applicano filtri
-  fetchWorkPhases(search.value, dateFrom.value, dateTo.value, 1)
+  fetchWorkPhases(search.value, searchFllav.value, searchDtras.value, searchDtric.value, searchDtnum.value, searchIdopr.value, dateFrom.value, dateTo.value, 1)
 }
 
 const clearAllFilters = () => {
   search.value = ''
+  searchFllav.value = ''
+  searchDtras.value = ''
+  searchDtric.value = ''
+  searchDtnum.value = ''
+  searchIdopr.value = ''
   dateFrom.value = ''
   dateTo.value = ''
   applyFilters()
@@ -86,7 +101,7 @@ const clearAllFilters = () => {
 
 const goToPage = (page) => {
   if (page >= 1 && page <= pagination.value.last_page) {
-    fetchWorkPhases(search.value, dateFrom.value, dateTo.value, page)
+    fetchWorkPhases(search.value, searchFllav.value, searchDtras.value, searchDtric.value, searchDtnum.value, searchIdopr.value, dateFrom.value, dateTo.value, page)
   }
 }
 
@@ -151,7 +166,7 @@ onMounted(async () => {
 
 // Watcher per la ricerca con debounce
 let searchTimeout
-watch(search, (newSearch) => {
+watch([search, searchFllav, searchDtras, searchDtric, searchDtnum, searchIdopr], () => {
   clearTimeout(searchTimeout)
   searchTimeout = setTimeout(() => {
     applyFilters()
@@ -192,7 +207,7 @@ const confirmSelected = async () => {
     notes.value = '';
 
     // Ricarica la lista se vuoi
-    await fetchWorkPhases(search.value, dateFrom.value, dateTo.value, currentPage.value);
+    await fetchWorkPhases(search.value, searchFllav.value, searchDtras.value, searchDtric.value, searchDtnum.value, searchIdopr.value, dateFrom.value, dateTo.value, currentPage.value);
 
   } catch (error) {
     console.error(error);
@@ -210,53 +225,86 @@ const confirmSelected = async () => {
     <div class="mb-6">
       <!-- Search Bar and Filters -->
       <div class="space-y-4">
-        <div class="flex gap-4 items-end">
-          <!-- Search input -->
-          <div class="flex-1">
-            <div class="relative">
-              <input 
-                type="text"
-                v-model="search"
-                placeholder="Cerca Fasi di Lavoro..."
-                class="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-md shadow-sm focus:ring-copam-blue focus:border-copam-blue sm:text-sm"
-              />
-              <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-                <svg class="h-5 w-5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path>
-                </svg>
-              </div>
-            </div>
+        <!-- First row: 3 search fields -->
+        <div class="grid grid-cols-3 gap-4">
+          <div>
+            <label class="block text-xs mb-1">Codice Lav</label>
+            <input 
+              type="text"
+              v-model="searchFllav"
+              placeholder=""
+              class="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:ring-copam-blue focus:border-copam-blue sm:text-sm"
+            />
           </div>
+          <div>
+            <label class="block text-xs mb-1">Data da</label>
+            <input
+              ref="dateFromPicker"
+              type="text"
+              v-model="dateFrom"
+              class="w-full border-gray-300 rounded-md shadow-sm focus:ring-copam-blue focus:border-copam-blue sm:text-sm"
+            />
+          </div>
+          <div>
+            <label class="block text-xs mb-1">Data a</label>
+            <input
+              ref="dateToPicker"
+              type="text"
+              v-model="dateTo"
+              class="w-full border-gray-300 rounded-md shadow-sm focus:ring-copam-blue focus:border-copam-blue sm:text-sm"
+            />
+          </div>
+          
+        </div>
 
-          <!-- Date range inputs -->
-          <div class="flex gap-4 flex-1">
-            <div class="flex-1">
-              <label class="block text-xs text-gray-500 mb-1">Data da</label>
-              <input
-                ref="dateFromPicker"
-                type="text"
-                v-model="dateFrom"
-                class="w-full border-gray-300 rounded-md shadow-sm focus:ring-copam-blue focus:border-copam-blue sm:text-sm"
-                placeholder="Seleziona data iniziale..."
-              />
-            </div>
-            <div class="flex-1">
-              <label class="block text-xs text-gray-500 mb-1">Data a</label>
-              <input
-                ref="dateToPicker"
-                type="text"
-                v-model="dateTo"
-                class="w-full border-gray-300 rounded-md shadow-sm focus:ring-copam-blue focus:border-copam-blue sm:text-sm"
-                placeholder="Seleziona data finale..."
-              />
-            </div>
+        <!-- Second row: 2 search fields -->
+        <div class="grid grid-cols-3 gap-4">
+          <div>
+            <label class="block text-xs mb-1">Rag. Soc.</label>
+            <input 
+              type="text"
+              v-model="searchDtras"
+              placeholder=""
+              class="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:ring-copam-blue focus:border-copam-blue sm:text-sm"
+            />
+          </div>
+          <div>
+            <label class="block text-xs mb-1">N. Ord. Cli.</label>
+            <input 
+              type="text"
+              v-model="searchDtric"
+              placeholder=""
+              class="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:ring-copam-blue focus:border-copam-blue sm:text-sm"
+            />
+          </div>
+          <div>
+            <label class="block text-xs mb-1">N. Ns. Ord.</label>
+            <input 
+              type="text"
+              v-model="searchDtnum"
+              placeholder=""
+              class="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:ring-copam-blue focus:border-copam-blue sm:text-sm"
+            />
+          </div>
+        </div>
+
+        <!-- Third row: Date range inputs -->
+        <div class="grid grid-cols-3 gap-4">
+          <div>
+            <label class="block text-xs mb-1">Ord. Prod.</label>
+            <input 
+              type="text"
+              v-model="searchIdopr"
+              placeholder=""
+              class="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:ring-copam-blue focus:border-copam-blue sm:text-sm"
+            />
           </div>
         </div>
 
         <!-- Action buttons -->
         <div class="flex justify-end gap-2">
           <button 
-            v-if="search || dateFrom || dateTo"
+            v-if="searchFllav || searchDtras || searchDtric || searchDtnum || searchIdopr || dateFrom || dateTo"
             @click="clearAllFilters"
             class="inline-flex items-center px-4 py-2 border border-gray-300 text-sm font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-copam-blue"
           >
@@ -268,7 +316,7 @@ const confirmSelected = async () => {
           <button 
             @click="applyFilters"
             :disabled="loading"
-            class="inline-flex items-center px-4 py-2 bg-[rgba(4,69,133,1)] border border-transparent rounded-md font-semibold text-xs text-white uppercase tracking-widest hover:bg-[rgba(3,55,106,1)] focus:bg-[rgba(3,55,106,1)] active:bg-[rgba(2,41,80,1)] focus:outline-none focus:ring-2 focus:ring-[rgba(4,69,133,1)] focus:ring-offset-2 transition ease-in-out duration-150"
+            class="inline-flex items-center px-4 py-2 bg-copam-blue border border-transparent rounded-md font-semibold text-xs text-white uppercase tracking-widest hover:bg-copam-blue-hover focus:bg-copam-blue-hover active:bg-copam-blue-active focus:outline-none focus:ring-2 focus:ring-copam-blue focus:ring-offset-2 transition ease-in-out duration-150"
           >
             <svg class="h-4 w-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path>
@@ -279,14 +327,12 @@ const confirmSelected = async () => {
       </div>
 
       <!-- Results info -->
-      <div v-if="search || dateFrom || dateTo" class="mt-4 text-sm text-gray-600">
+      <div v-if="searchFllav || searchDtras || searchDtric || searchDtnum || searchIdopr || dateFrom || dateTo" class="mt-4 text-sm text-gray-600">
         <span v-if="pagination.total > 0">
           Trovati {{ pagination.total }} record{{ pagination.total === 1 ? 'o' : 'i' }}
-          <template v-if="search"> per "{{ search }}"</template>
         </span>
         <span v-else>
           Nessun record trovato
-          <template v-if="search"> per "{{ search }}"</template>
         </span>
       </div>
     </div>
@@ -295,21 +341,24 @@ const confirmSelected = async () => {
       <table class="w-full">
         <thead class="bg-gray-50">
           <tr class="border-b border-gray-200">
-            <th class="px-3 py-3 text-center text-xs font-medium text-gray-500 uppercase tracking-wider border-r border-gray-200">#</th>
-            <th class="px-3 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider border-r border-gray-200">FLASS</th>
-            <th class="px-3 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider border-r border-gray-200">IDOPR</th>
-            <th class="px-3 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider border-r border-gray-200">FLSEQ</th>
-            <th class="px-3 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider border-r border-gray-200">FLLAV</th>
-            <th class="px-3 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider border-r border-gray-200">FLDES</th>
-            <th class="px-3 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider border-r border-gray-200">FLCON</th>
-            <th class="px-3 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider border-r border-gray-200">MATERIALE</th>
-            <th class="px-3 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider border-r border-gray-200">SPESSORE</th>
-            <th class="px-6 py-3 text-center text-xs font-medium text-gray-500 uppercase tracking-wider">Azioni</th>
+            <th class="px-3 py-3 text-center text-xs font-medium uppercase tracking-wider border-r border-gray-200">#</th>
+            <th class="px-3 py-3 text-left text-xs font-medium uppercase tracking-wider border-r border-gray-200">FLASS</th>
+            <th class="px-3 py-3 text-left text-xs font-medium uppercase tracking-wider border-r border-gray-200">IDOPR</th>
+            <th class="px-3 py-3 text-left text-xs font-medium uppercase tracking-wider border-r border-gray-200">FLSEQ</th>
+            <th class="px-3 py-3 text-left text-xs font-medium uppercase tracking-wider border-r border-gray-200">FLLAV</th>
+            <th class="px-3 py-3 text-left text-xs font-medium uppercase tracking-wider border-r border-gray-200">FLDES</th>
+            <th class="px-3 py-3 text-left text-xs font-medium uppercase tracking-wider border-r border-gray-200">DTRAS</th>
+            <th class="px-3 py-3 text-left text-xs font-medium uppercase tracking-wider border-r border-gray-200">DTRIC</th>
+            <th class="px-3 py-3 text-left text-xs font-medium uppercase tracking-wider border-r border-gray-200">DTNUM</th>
+            <th class="px-3 py-3 text-left text-xs font-medium uppercase tracking-wider border-r border-gray-200">FLCON</th>
+            <th class="px-3 py-3 text-left text-xs font-medium uppercase tracking-wider border-r border-gray-200">MATERIALE</th>
+            <th class="px-3 py-3 text-left text-xs font-medium uppercase tracking-wider border-r border-gray-200">SPESSORE</th>
+            <th class="px-6 py-3 text-center text-xs font-medium uppercase tracking-wider">Azioni</th>
           </tr>
         </thead>
         <tbody class="bg-white">
           <tr v-if="loading">
-            <td colspan="14" class="px-3 py-3 text-center text-sm text-gray-500">
+            <td colspan="13" class="px-3 py-3 text-center text-sm text-gray-500">
               <div class="flex items-center justify-center">
                 <svg class="animate-spin h-5 w-5 mr-3 text-gray-500" viewBox="0 0 24 24">
                   <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4" fill="none"></circle>
@@ -328,13 +377,16 @@ const confirmSelected = async () => {
             <td class="px-3 py-3 whitespace-nowrap text-sm text-gray-500 border-r border-gray-200">{{ phase.FLSEQ }}</td>
             <td class="px-3 py-3 whitespace-nowrap text-sm text-gray-500 border-r border-gray-200">{{ phase.FLLAV }}</td>
             <td class="px-3 py-3 whitespace-nowrap text-sm text-gray-500 border-r border-gray-200">{{ phase.FLDES }}</td>
+            <td class="px-3 py-3 whitespace-nowrap text-sm text-gray-500 border-r border-gray-200">{{ phase.DTRAS }}</td>
+            <td class="px-3 py-3 whitespace-nowrap text-sm text-gray-500 border-r border-gray-200">{{ phase.DTRIC }}</td>
+            <td class="px-3 py-3 whitespace-nowrap text-sm text-gray-500 border-r border-gray-200">{{ phase.DTNUM }}</td>
             <td class="px-6 py-3 whitespace-nowrap text-sm text-gray-500 border-r border-gray-200">{{ formatDate(phase.FLCON) }}</td>
             <td class="px-6 py-3 whitespace-nowrap text-sm text-gray-500 border-r border-gray-200">{{ phase.MATERIALE }}</td>
             <td class="px-3 py-3 whitespace-nowrap text-sm text-gray-500 border-r border-gray-200">{{ phase.SPESSORE }}</td>
             <td class="px-6 py-3 whitespace-nowrap text-center text-sm font-medium">
               <button 
                 @click="openModal(phase)"
-                class="text-white hover:text-white bg-[rgba(4,69,133,1)] hover:bg-[rgba(3,55,106,1)] p-2 rounded-md transition duration-150 ease-in-out"
+                class="text-copam-blue hover:text-copam-blue-hover transition duration-150 ease-in-out"
                 title="Visualizza dettagli"
               >
                 <svg class="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -345,7 +397,7 @@ const confirmSelected = async () => {
             </td>
           </tr>
           <tr v-if="!loading && !workPhases.length">
-            <td colspan="14" class="px-3 py-2 text-center">
+            <td colspan="13" class="px-3 py-2 text-center">
               <div class="text-center py-12">
                 <svg class="mx-auto h-12 w-12 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2"></path>
