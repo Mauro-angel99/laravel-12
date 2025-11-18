@@ -144,6 +144,9 @@ onMounted(async () => {
     allowInput: true,
     onChange: function(selectedDates, dateStr) {
       dateFrom.value = dateStr;
+    },
+    onClose: function(selectedDates, dateStr) {
+      dateFrom.value = dateStr;
     }
   });
 
@@ -155,6 +158,9 @@ onMounted(async () => {
     altInput: true,
     allowInput: true,
     onChange: function(selectedDates, dateStr) {
+      dateTo.value = dateStr;
+    },
+    onClose: function(selectedDates, dateStr) {
       dateTo.value = dateStr;
     }
   });
