@@ -239,7 +239,7 @@ const confirmSelected = async () => {
               type="text"
               v-model="searchFllav"
               placeholder=""
-              class="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:ring-copam-blue focus:border-copam-blue sm:text-sm"
+              class="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:ring-copam-blue focus:border-copam-blue sm:text-xs"
             />
           </div>
           <div>
@@ -248,7 +248,7 @@ const confirmSelected = async () => {
               ref="dateFromPicker"
               type="text"
               v-model="dateFrom"
-              class="w-full border-gray-300 rounded-md shadow-sm focus:ring-copam-blue focus:border-copam-blue sm:text-sm"
+              class="w-full border-gray-300 rounded-md shadow-sm focus:ring-copam-blue focus:border-copam-blue sm:text-xs"
             />
           </div>
           <div>
@@ -257,7 +257,7 @@ const confirmSelected = async () => {
               ref="dateToPicker"
               type="text"
               v-model="dateTo"
-              class="w-full border-gray-300 rounded-md shadow-sm focus:ring-copam-blue focus:border-copam-blue sm:text-sm"
+              class="w-full border-gray-300 rounded-md shadow-sm focus:ring-copam-blue focus:border-copam-blue sm:text-xs"
             />
           </div>
           
@@ -271,7 +271,7 @@ const confirmSelected = async () => {
               type="text"
               v-model="searchDtras"
               placeholder=""
-              class="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:ring-copam-blue focus:border-copam-blue sm:text-sm"
+              class="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:ring-copam-blue focus:border-copam-blue sm:text-xs"
             />
           </div>
           <div>
@@ -280,7 +280,7 @@ const confirmSelected = async () => {
               type="text"
               v-model="searchDtric"
               placeholder=""
-              class="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:ring-copam-blue focus:border-copam-blue sm:text-sm"
+              class="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:ring-copam-blue focus:border-copam-blue sm:text-xs"
             />
           </div>
           <div>
@@ -289,7 +289,7 @@ const confirmSelected = async () => {
               type="text"
               v-model="searchDtnum"
               placeholder=""
-              class="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:ring-copam-blue focus:border-copam-blue sm:text-sm"
+              class="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:ring-copam-blue focus:border-copam-blue sm:text-xs"
             />
           </div>
         </div>
@@ -302,7 +302,7 @@ const confirmSelected = async () => {
               type="text"
               v-model="searchIdopr"
               placeholder=""
-              class="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:ring-copam-blue focus:border-copam-blue sm:text-sm"
+              class="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:ring-copam-blue focus:border-copam-blue sm:text-xs"
             />
           </div>
         </div>
@@ -312,7 +312,7 @@ const confirmSelected = async () => {
           <button 
             v-if="searchFllav || searchDtras || searchDtric || searchDtnum || searchIdopr || dateFrom || dateTo"
             @click="clearAllFilters"
-            class="inline-flex items-center px-4 py-2 border border-gray-300 text-sm font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-copam-blue"
+            class="inline-flex items-center px-4 py-2 border border-gray-300 text-xs font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-copam-blue"
           >
             <svg class="h-4 w-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
@@ -333,7 +333,7 @@ const confirmSelected = async () => {
       </div>
 
       <!-- Results info -->
-      <div v-if="searchFllav || searchDtras || searchDtric || searchDtnum || searchIdopr || dateFrom || dateTo" class="mt-4 text-sm text-gray-600">
+      <div v-if="searchFllav || searchDtras || searchDtric || searchDtnum || searchIdopr || dateFrom || dateTo" class="mt-4 text-xs text-gray-600">
         <span v-if="pagination.total > 0">
           Trovati {{ pagination.total }} record{{ pagination.total === 1 ? 'o' : 'i' }}
         </span>
@@ -347,24 +347,22 @@ const confirmSelected = async () => {
       <table class="w-full">
         <thead class="bg-gray-50">
           <tr class="border-b border-gray-200">
-            <th class="px-3 py-3 text-center text-xs font-medium uppercase tracking-wider border-r border-gray-200">#</th>
-            <th class="px-3 py-3 text-left text-xs font-medium uppercase tracking-wider border-r border-gray-200">FLASS</th>
-            <th class="px-3 py-3 text-left text-xs font-medium uppercase tracking-wider border-r border-gray-200">IDOPR</th>
-            <th class="px-3 py-3 text-left text-xs font-medium uppercase tracking-wider border-r border-gray-200">FLSEQ</th>
-            <th class="px-3 py-3 text-left text-xs font-medium uppercase tracking-wider border-r border-gray-200">FLLAV</th>
-            <th class="px-3 py-3 text-left text-xs font-medium uppercase tracking-wider border-r border-gray-200">FLDES</th>
-            <th class="px-3 py-3 text-left text-xs font-medium uppercase tracking-wider border-r border-gray-200">DTRAS</th>
-            <th class="px-3 py-3 text-left text-xs font-medium uppercase tracking-wider border-r border-gray-200">DTRIC</th>
-            <th class="px-3 py-3 text-left text-xs font-medium uppercase tracking-wider border-r border-gray-200">DTNUM</th>
-            <th class="px-3 py-3 text-left text-xs font-medium uppercase tracking-wider border-r border-gray-200">FLCON</th>
-            <th class="px-3 py-3 text-left text-xs font-medium uppercase tracking-wider border-r border-gray-200">MATERIALE</th>
-            <th class="px-3 py-3 text-left text-xs font-medium uppercase tracking-wider border-r border-gray-200">SPESSORE</th>
-            <th class="px-6 py-3 text-center text-xs font-medium uppercase tracking-wider">Azioni</th>
+            <th class="px-3 py-2 text-center text-xs font-medium uppercase tracking-wider border-r border-gray-200">#</th>
+            <th class="px-3 py-2 text-left text-xs font-medium uppercase tracking-wider border-r border-gray-200">FLASS</th>
+            <th class="px-3 py-2 text-left text-xs font-medium uppercase tracking-wider border-r border-gray-200">IDOPR</th>
+            <th class="px-3 py-2 text-left text-xs font-medium uppercase tracking-wider border-r border-gray-200">FLSEQ</th>
+            <th class="px-3 py-2 text-left text-xs font-medium uppercase tracking-wider border-r border-gray-200">FLLAV</th>
+            <th class="px-3 py-2 text-left text-xs font-medium uppercase tracking-wider border-r border-gray-200">FLDES</th>
+            <th class="px-3 py-2 text-left text-xs font-medium uppercase tracking-wider border-r border-gray-200">DTRAS</th>
+            <th class="px-3 py-2 text-left text-xs font-medium uppercase tracking-wider border-r border-gray-200">DTRIC</th>
+            <th class="px-3 py-2 text-left text-xs font-medium uppercase tracking-wider border-r border-gray-200">DTNUM</th>
+            <th class="px-3 py-2 text-left text-xs font-medium uppercase tracking-wider border-r border-gray-200">FLCON</th>
+            <th class="px-3 py-2 text-center text-xs font-medium uppercase tracking-wider">Azioni</th>
           </tr>
         </thead>
         <tbody class="bg-white">
           <tr v-if="loading">
-            <td colspan="13" class="px-3 py-3 text-center text-sm text-gray-500">
+            <td colspan="13" class="px-3 py-3 text-center text-xs text-gray-500">
               <div class="flex items-center justify-center">
                 <svg class="animate-spin h-5 w-5 mr-3 text-gray-500" viewBox="0 0 24 24">
                   <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4" fill="none"></circle>
@@ -375,21 +373,19 @@ const confirmSelected = async () => {
             </td>
           </tr>
           <tr v-else v-for="phase in workPhases" :key="phase.RECORD_ID" class="hover:bg-gray-50 border-b border-gray-200">
-            <td class="px-3 py-3 whitespace-nowrap text-sm text-center border-r border-gray-200">
+            <td class="px-3 py-3 whitespace-nowrap text-xs text-center border-r border-gray-200">
               <input type="checkbox" v-model="selected" :value="phase.RECORD_ID" class="rounded border-gray-300 text-copam-blue focus:ring-copam-blue" />
             </td>
-            <td class="px-3 py-3 whitespace-nowrap text-sm text-gray-500 border-r border-gray-200">{{ phase.FLASS }}</td>
-            <td class="px-3 py-3 whitespace-nowrap text-sm text-gray-500 border-r border-gray-200">{{ phase.IDOPR }}</td>
-            <td class="px-3 py-3 whitespace-nowrap text-sm text-gray-500 border-r border-gray-200">{{ phase.FLSEQ }}</td>
-            <td class="px-3 py-3 whitespace-nowrap text-sm text-gray-500 border-r border-gray-200">{{ phase.FLLAV }}</td>
-            <td class="px-3 py-3 whitespace-nowrap text-sm text-gray-500 border-r border-gray-200">{{ phase.FLDES }}</td>
-            <td class="px-3 py-3 whitespace-nowrap text-sm text-gray-500 border-r border-gray-200">{{ phase.DTRAS }}</td>
-            <td class="px-3 py-3 whitespace-nowrap text-sm text-gray-500 border-r border-gray-200">{{ phase.DTRIC }}</td>
-            <td class="px-3 py-3 whitespace-nowrap text-sm text-gray-500 border-r border-gray-200">{{ phase.DTNUM }}</td>
-            <td class="px-6 py-3 whitespace-nowrap text-sm text-gray-500 border-r border-gray-200">{{ formatDate(phase.FLCON) }}</td>
-            <td class="px-6 py-3 whitespace-nowrap text-sm text-gray-500 border-r border-gray-200">{{ phase.MATERIALE }}</td>
-            <td class="px-3 py-3 whitespace-nowrap text-sm text-gray-500 border-r border-gray-200">{{ phase.SPESSORE }}</td>
-            <td class="px-6 py-3 whitespace-nowrap text-center text-sm font-medium">
+            <td class="px-3 py-2 whitespace-nowrap text-xs text-gray-500 border-r border-gray-200">{{ phase.FLASS }}</td>
+            <td class="px-3 py-2 whitespace-nowrap text-xs text-gray-500 border-r border-gray-200">{{ phase.IDOPR }}</td>
+            <td class="px-3 py-2 whitespace-nowrap text-xs text-gray-500 border-r border-gray-200">{{ phase.FLSEQ }}</td>
+            <td class="px-3 py-2 whitespace-nowrap text-xs text-gray-500 border-r border-gray-200">{{ phase.FLLAV }}</td>
+            <td class="px-3 py-2 whitespace-nowrap text-xs text-gray-500 border-r border-gray-200">{{ phase.FLDES }}</td>
+            <td class="px-3 py-2 whitespace-nowrap text-xs text-gray-500 border-r border-gray-200">{{ phase.DTRAS }}</td>
+            <td class="px-3 py-2 whitespace-nowrap text-xs text-gray-500 border-r border-gray-200">{{ phase.DTRIC }}</td>
+            <td class="px-3 py-2 whitespace-nowrap text-xs text-gray-500 border-r border-gray-200">{{ phase.DTNUM }}</td>
+            <td class="px-3 py-2 whitespace-nowrap text-xs text-gray-500 border-r border-gray-200">{{ formatDate(phase.FLCON) }}</td>
+            <td class="px-3 py-2 whitespace-nowrap text-center text-xs font-medium">
               <button 
                 @click="openModal(phase)"
                 class="text-copam-blue hover:text-copam-blue-hover transition duration-150 ease-in-out"
@@ -408,8 +404,8 @@ const confirmSelected = async () => {
                 <svg class="mx-auto h-12 w-12 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2"></path>
                 </svg>
-                <h3 class="mt-2 text-sm font-medium text-gray-900">Nessuna fase di lavoro trovata</h3>
-                <p class="mt-1 text-sm text-gray-500">
+                <h3 class="mt-2 text-xs font-medium text-gray-900">Nessuna fase di lavoro trovata</h3>
+                <p class="mt-1 text-xs text-gray-500">
                   {{ search ? 'Prova a modificare i termini di ricerca.' : 'Non ci sono fasi di lavoro disponibili.' }}
                 </p>
               </div>
@@ -420,7 +416,7 @@ const confirmSelected = async () => {
     </div>
 
     <!-- Informazioni paginazione -->
-    <div class="mt-4 flex justify-between items-center text-sm text-gray-600">
+    <div class="mt-4 flex justify-between items-center text-xs text-gray-600">
       <div>
         Mostrando {{ pagination.from }} - {{ pagination.to }} di {{ pagination.total }} record
       </div>
@@ -432,33 +428,33 @@ const confirmSelected = async () => {
       <button 
         @click="goToPage(1)" 
         :disabled="currentPage === 1"
-        class="px-3 py-1 text-sm border rounded disabled:opacity-50 disabled:cursor-not-allowed hover:bg-gray-50"
+        class="px-3 py-1 text-xs border rounded disabled:opacity-50 disabled:cursor-not-allowed hover:bg-gray-50"
       >
         Prima
       </button>
       <button 
         @click="goToPage(currentPage - 1)" 
         :disabled="currentPage === 1"
-        class="px-3 py-1 text-sm border rounded disabled:opacity-50 disabled:cursor-not-allowed hover:bg-gray-50"
+        class="px-3 py-1 text-xs border rounded disabled:opacity-50 disabled:cursor-not-allowed hover:bg-gray-50"
       >
         Precedente
       </button>
       
-      <span class="px-3 py-1 text-sm">
+      <span class="px-3 py-1 text-xs">
         Pagina {{ currentPage }} di {{ pagination.last_page }}
       </span>
       
       <button 
         @click="goToPage(currentPage + 1)" 
         :disabled="currentPage === pagination.last_page"
-        class="px-3 py-1 text-sm border rounded disabled:opacity-50 disabled:cursor-not-allowed hover:bg-gray-50"
+        class="px-3 py-1 text-xs border rounded disabled:opacity-50 disabled:cursor-not-allowed hover:bg-gray-50"
       >
         Successiva
       </button>
       <button 
         @click="goToPage(pagination.last_page)" 
         :disabled="currentPage === pagination.last_page"
-        class="px-3 py-1 text-sm border rounded disabled:opacity-50 disabled:cursor-not-allowed hover:bg-gray-50"
+        class="px-3 py-1 text-xs border rounded disabled:opacity-50 disabled:cursor-not-allowed hover:bg-gray-50"
       >
         Ultima
       </button>
@@ -467,12 +463,12 @@ const confirmSelected = async () => {
     <!-- User selection and notes -->
     <div class="mt-4 grid grid-cols-2 gap-4">
       <div>
-        <label class="block text-sm font-medium text-gray-700 mb-1">
+        <label class="block text-xs font-medium text-gray-700 mb-1">
           Seleziona Utente
         </label>
         <select
           v-model="selectedUser"
-          class="mt-1 block w-full pl-3 pr-10 py-2 text-base border-gray-300 focus:outline-none focus:ring-copam-blue focus:border-copam-blue sm:text-sm rounded-md"
+          class="mt-1 block w-full pl-3 pr-10 py-2 text-base border-gray-300 focus:outline-none focus:ring-copam-blue focus:border-copam-blue sm:text-xs rounded-md"
         >
           <option value="">Seleziona un utente</option>
           <option v-for="user in users" :key="user.id" :value="user.id">
@@ -481,13 +477,13 @@ const confirmSelected = async () => {
         </select>
       </div>
       <div>
-        <label class="block text-sm font-medium text-gray-700 mb-1">
+        <label class="block text-xs font-medium text-gray-700 mb-1">
           Note
         </label>
         <textarea
           v-model="notes"
           rows="3"
-          class="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:ring-copam-blue focus:border-copam-blue sm:text-sm"
+          class="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:ring-copam-blue focus:border-copam-blue sm:text-xs"
           placeholder="Inserisci le note..."
         ></textarea>
       </div>
@@ -551,7 +547,7 @@ const confirmSelected = async () => {
                 {{ messageModal.title }}
               </h3>
               <div class="mt-2">
-                <p class="text-sm text-gray-500">
+                <p class="text-xs text-gray-500">
                   {{ messageModal.message }}
                 </p>
               </div>
@@ -564,7 +560,7 @@ const confirmSelected = async () => {
               type="button"
               @click="closeMessageModal"
               :class="[
-                'w-full inline-flex justify-center rounded-md border border-transparent shadow-sm px-4 py-2 text-base font-medium text-white focus:outline-none focus:ring-2 focus:ring-offset-2 sm:ml-3 sm:w-auto sm:text-sm',
+                'w-full inline-flex justify-center rounded-md border border-transparent shadow-sm px-4 py-2 text-base font-medium text-white focus:outline-none focus:ring-2 focus:ring-offset-2 sm:ml-3 sm:w-auto sm:text-xs',
                 messageModal.type === 'success' 
                   ? 'bg-green-600 hover:bg-green-700 focus:ring-green-500' 
                   : 'bg-red-600 hover:bg-red-700 focus:ring-red-500'
