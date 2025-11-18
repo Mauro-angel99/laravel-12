@@ -66,19 +66,19 @@ onMounted(async () => {
       <table class="w-full">
         <thead class="bg-gray-50">
           <tr class="border-b border-gray-200">
-            <th class="px-3 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider border-r border-gray-200">FLASS</th>
-            <th class="px-3 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider border-r border-gray-200">IDOPR</th>
-            <th class="px-3 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider border-r border-gray-200">FLSEQ</th>
-            <th class="px-3 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider border-r border-gray-200">FLLAV</th>
-            <th class="px-3 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider border-r border-gray-200">FLDES</th>
-            <th class="px-3 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider border-r border-gray-200">Assegnato a</th>
-            <th class="px-3 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider border-r border-gray-200">Data Assegnazione</th>
-            <th class="px-3 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Note</th>
+            <th class="px-3 py-2 text-left text-xs font-bold uppercase tracking-wider border-r border-gray-200">FLASS</th>
+            <th class="px-3 py-2 text-left text-xs font-bold uppercase tracking-wider border-r border-gray-200">IDOPR</th>
+            <th class="px-3 py-2 text-left text-xs font-bold uppercase tracking-wider border-r border-gray-200">FLSEQ</th>
+            <th class="px-3 py-2 text-left text-xs font-bold uppercase tracking-wider border-r border-gray-200">FLLAV</th>
+            <th class="px-3 py-2 text-left text-xs font-bold uppercase tracking-wider border-r border-gray-200">FLDES</th>
+            <th class="px-3 py-2 text-left text-xs font-bold uppercase tracking-wider border-r border-gray-200">Assegnato a</th>
+            <th class="px-3 py-2 text-left text-xs font-bold uppercase tracking-wider border-r border-gray-200">Data Assegnazione</th>
+            <th class="px-3 py-2 text-left text-xs font-bold uppercase tracking-wider">Note</th>
           </tr>
         </thead>
         <tbody class="bg-white">
           <tr v-if="loading">
-            <td colspan="8" class="px-3 py-3 text-center text-sm text-gray-500">
+            <td colspan="8" class="px-3 py-2 text-center text-xs text-gray-500">
               <div class="flex items-center justify-center">
                 <svg class="animate-spin h-5 w-5 mr-3 text-gray-500" viewBox="0 0 24 24">
                   <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4" fill="none"></circle>
@@ -89,28 +89,28 @@ onMounted(async () => {
             </td>
           </tr>
           <tr v-else v-for="assignment in assignedWorkPhases" :key="assignment.id" class="hover:bg-gray-50 border-b border-gray-200">
-            <td class="px-3 py-3 whitespace-nowrap text-sm text-gray-500 border-r border-gray-200">
+            <td class="px-3 py-2 whitespace-nowrap text-xs text-gray-900 border-r border-gray-200">
               {{ assignment.work_phase?.FLASS || 'N/D' }}
             </td>
-            <td class="px-3 py-3 whitespace-nowrap text-sm text-gray-500 border-r border-gray-200">
+            <td class="px-3 py-2 whitespace-nowrap text-xs text-gray-900 border-r border-gray-200">
               {{ assignment.work_phase?.IDOPR || 'N/D' }}
             </td>
-            <td class="px-3 py-3 whitespace-nowrap text-sm text-gray-500 border-r border-gray-200">
+            <td class="px-3 py-2 whitespace-nowrap text-xs text-gray-900 border-r border-gray-200">
               {{ assignment.work_phase?.FLSEQ || 'N/D' }}
             </td>
-            <td class="px-3 py-3 whitespace-nowrap text-sm text-gray-500 border-r border-gray-200">
+            <td class="px-3 py-2 whitespace-nowrap text-xs text-gray-900 border-r border-gray-200">
               {{ assignment.work_phase?.FLLAV || 'N/D' }}
             </td>
-            <td class="px-3 py-3 whitespace-nowrap text-sm text-gray-500 border-r border-gray-200">
+            <td class="px-3 py-2 whitespace-nowrap text-xs text-gray-900 border-r border-gray-200">
               {{ assignment.work_phase?.FLDES || 'N/D' }}
             </td>
-            <td class="px-3 py-3 whitespace-nowrap text-sm text-gray-500 border-r border-gray-200">
+            <td class="px-3 py-2 whitespace-nowrap text-xs text-gray-900 border-r border-gray-200">
               {{ assignment.assigned_user?.name || 'N/D' }}
             </td>
-            <td class="px-3 py-3 whitespace-nowrap text-sm text-gray-500 border-r border-gray-200">
+            <td class="px-3 py-2 whitespace-nowrap text-xs text-gray-900 border-r border-gray-200">
               {{ formatDate(assignment.created_at) }}
             </td>
-            <td class="px-3 py-3 text-sm text-gray-500">
+            <td class="px-3 py-2 text-xs text-gray-900">
               {{ assignment.notes || '-' }}
             </td>
           </tr>
@@ -120,8 +120,8 @@ onMounted(async () => {
                 <svg class="mx-auto h-12 w-12 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2"></path>
                 </svg>
-                <h3 class="mt-2 text-sm font-medium text-gray-900">Nessuna fase di lavoro assegnata</h3>
-                <p class="mt-1 text-sm text-gray-500">
+                <h3 class="mt-2 text-xs font-medium text-gray-900">Nessuna fase di lavoro assegnata</h3>
+                <p class="mt-1 text-xs text-gray-500">
                   Non hai ancora fasi di lavoro assegnate.
                 </p>
               </div>
@@ -132,7 +132,7 @@ onMounted(async () => {
     </div>
 
     <!-- Informazioni paginazione -->
-    <div class="mt-4 flex justify-between items-center text-sm text-gray-600">
+    <div class="mt-4 flex justify-between items-center text-xs text-gray-600">
       <div>
         Mostrando {{ pagination.from }} - {{ pagination.to }} di {{ pagination.total }} record
       </div>
@@ -143,33 +143,33 @@ onMounted(async () => {
       <button 
         @click="goToPage(1)" 
         :disabled="currentPage === 1"
-        class="px-3 py-1 text-sm border rounded disabled:opacity-50 disabled:cursor-not-allowed hover:bg-gray-50"
+        class="px-3 py-1 text-xs border rounded disabled:opacity-50 disabled:cursor-not-allowed hover:bg-gray-50"
       >
         Prima
       </button>
       <button 
         @click="goToPage(currentPage - 1)" 
         :disabled="currentPage === 1"
-        class="px-3 py-1 text-sm border rounded disabled:opacity-50 disabled:cursor-not-allowed hover:bg-gray-50"
+        class="px-3 py-1 text-xs border rounded disabled:opacity-50 disabled:cursor-not-allowed hover:bg-gray-50"
       >
         Precedente
       </button>
       
-      <span class="px-3 py-1 text-sm">
+      <span class="px-3 py-1 text-xs">
         Pagina {{ currentPage }} di {{ pagination.last_page }}
       </span>
       
       <button 
         @click="goToPage(currentPage + 1)" 
         :disabled="currentPage === pagination.last_page"
-        class="px-3 py-1 text-sm border rounded disabled:opacity-50 disabled:cursor-not-allowed hover:bg-gray-50"
+        class="px-3 py-1 text-xs border rounded disabled:opacity-50 disabled:cursor-not-allowed hover:bg-gray-50"
       >
         Successiva
       </button>
       <button 
         @click="goToPage(pagination.last_page)" 
         :disabled="currentPage === pagination.last_page"
-        class="px-3 py-1 text-sm border rounded disabled:opacity-50 disabled:cursor-not-allowed hover:bg-gray-50"
+        class="px-3 py-1 text-xs border rounded disabled:opacity-50 disabled:cursor-not-allowed hover:bg-gray-50"
       >
         Ultima
       </button>
