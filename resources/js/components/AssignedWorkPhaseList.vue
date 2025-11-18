@@ -57,10 +57,6 @@ onMounted(async () => {
 
 <template>
   <div class="bg-white shadow rounded-lg p-3">
-    <div class="mb-6">
-      <h3 class="text-lg font-medium text-gray-900">Le tue Fasi di Lavoro Assegnate</h3>
-      <p class="mt-1 text-sm text-gray-500">Visualizza tutte le fasi di lavoro che ti sono state assegnate.</p>
-    </div>
 
     <div class="overflow-x-auto">
       <table class="w-full">
