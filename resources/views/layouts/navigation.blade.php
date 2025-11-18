@@ -43,6 +43,9 @@
                                     <x-dropdown-link :href="route('users.index')">
                                         {{ __('Utenti') }}
                                     </x-dropdown-link>
+                                    <x-dropdown-link :href="route('settings.general')">
+                                        {{ __('Generali') }}
+                                    </x-dropdown-link>
                                 </x-slot>
                             </x-dropdown>
                         </div>

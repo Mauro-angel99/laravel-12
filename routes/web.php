@@ -56,5 +56,12 @@ Route::middleware('auth')->group(function () {
         ->name('assigned-work-phases.list');
 });
 
+// Settings routes
+Route::middleware('auth')->group(function () {
+    Route::get('/settings/general', function () {
+        return view('settings.general');
+    })->name('settings.general');
+});
+
 
 require __DIR__.'/auth.php';
