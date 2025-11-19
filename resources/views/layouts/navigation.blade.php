@@ -17,11 +17,11 @@
                     </x-nav-link>
                     @if(Auth::user()->hasRole('admin'))
                         <x-nav-link :href="route('workphases.index')" :active="request()->routeIs('workphases.index')">
-                            {{ __('Ass. Fasi di Lavoro') }}
+                            {{ __('Gestione') }}
                         </x-nav-link>
                     @endif
                     <x-nav-link :href="route('assigned-work-phases.index')" :active="request()->routeIs('assigned-work-phases.index')">
-                        {{ __('Fasi di Lavoro Assegnate') }}
+                        {{ __('Lavorazioni') }}
                     </x-nav-link>
                     
                     @if(Auth::user()->hasRole('admin'))
