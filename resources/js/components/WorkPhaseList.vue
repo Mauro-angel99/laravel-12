@@ -13,6 +13,8 @@ const searchDtras = ref('')
 const searchDtric = ref('')
 const searchDtnum = ref('')
 const searchIdopr = ref('')
+const showOnlyWorked = ref(true)
+const showOnlyAvailable = ref(true)
 const dateFrom = ref('')
 const dateTo = ref('')
 const dateFromPicker = ref(null)
@@ -58,7 +60,7 @@ const closeMessageModal = () => {
   messageModal.value.show = false
 }
 
-const fetchWorkPhases = async (searchTerm = '', fllav = '', dtras = '', dtric = '', dtnum = '', idopr = '', fromDate = '', toDate = '', page = 1) => {
+const fetchWorkPhases = async (searchTerm = '', fllav = '', dtras = '', dtric = '', dtnum = '', idopr = '', fromDate = '', toDate = '', onlyWorked = false, onlyAvailable = false, page = 1) => {
   loading.value = true
   try {
     const params = {
@@ -72,6 +74,8 @@ const fetchWorkPhases = async (searchTerm = '', fllav = '', dtras = '', dtric = 
     if (idopr) params.idopr = idopr
     if (fromDate) params.date_from = fromDate
     if (toDate) params.date_to = toDate
+    if (onlyWorked) params.only_worked = '1'
+    if (onlyAvailable) params.only_available = '1'
     
     const res = await axios.get('/api/work-phases', { params })
     workPhases.value = res.data.data
@@ -86,7 +90,7 @@ const fetchWorkPhases = async (searchTerm = '', fllav = '', dtras = '', dtric = 
 
 const applyFilters = () => {
   currentPage.value = 1 // Reset alla prima pagina quando si applicano filtri
-  fetchWorkPhases(search.value, searchFllav.value, searchDtras.value, searchDtric.value, searchDtnum.value, searchIdopr.value, dateFrom.value, dateTo.value, 1)
+  fetchWorkPhases(search.value, searchFllav.value, searchDtras.value, searchDtric.value, searchDtnum.value, searchIdopr.value, dateFrom.value, dateTo.value, showOnlyWorked.value, showOnlyAvailable.value, 1)
 }
 
 const clearAllFilters = () => {
@@ -96,6 +100,8 @@ const clearAllFilters = () => {
   searchDtric.value = ''
   searchDtnum.value = ''
   searchIdopr.value = ''
+  showOnlyWorked.value = false
+  showOnlyAvailable.value = false
   dateFrom.value = ''
   dateTo.value = ''
   
@@ -112,7 +118,7 @@ const clearAllFilters = () => {
 
 const goToPage = (page) => {
   if (page >= 1 && page <= pagination.value.last_page) {
-    fetchWorkPhases(search.value, searchFllav.value, searchDtras.value, searchDtric.value, searchDtnum.value, searchIdopr.value, dateFrom.value, dateTo.value, page)
+    fetchWorkPhases(search.value, searchFllav.value, searchDtras.value, searchDtric.value, searchDtnum.value, searchIdopr.value, dateFrom.value, dateTo.value, showOnlyWorked.value, showOnlyAvailable.value, page)
   }
 }
 
@@ -178,7 +184,7 @@ onMounted(async () => {
 
   // Carica i dati iniziali
   await fetchUsers();
-  await fetchWorkPhases();
+  await fetchWorkPhases('', '', '', '', '', '', '', '', showOnlyWorked.value, showOnlyAvailable.value, 1);
 });
 
 // Watcher per la ricerca con debounce
@@ -197,6 +203,16 @@ watch([dateFrom, dateTo], () => {
   dateTimeout = setTimeout(() => {
     applyFilters()
   }, 300)
+})
+
+// Watcher per lo switch "Solo Lavorati" (senza debounce)
+watch(showOnlyWorked, () => {
+  applyFilters()
+})
+
+// Watcher per lo switch "Solo Disponibili" (senza debounce)
+watch(showOnlyAvailable, () => {
+  applyFilters()
 })
 
 const confirmSelected = async () => {
@@ -224,7 +240,7 @@ const confirmSelected = async () => {
     notes.value = '';
 
     // Ricarica la lista se vuoi
-    await fetchWorkPhases(search.value, searchFllav.value, searchDtras.value, searchDtric.value, searchDtnum.value, searchIdopr.value, dateFrom.value, dateTo.value, currentPage.value);
+    await fetchWorkPhases(search.value, searchFllav.value, searchDtras.value, searchDtric.value, searchDtnum.value, searchIdopr.value, dateFrom.value, dateTo.value, showOnlyWorked.value, showOnlyAvailable.value, currentPage.value);
 
   } catch (error) {
     console.error(error);
@@ -316,35 +332,47 @@ const confirmSelected = async () => {
               class="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:ring-copam-blue focus:border-copam-blue sm:text-xs"
             />
           </div>
+          <div class="flex items-end">
+            <label class="inline-flex items-center cursor-pointer">
+              <input 
+                type="checkbox" 
+                v-model="showOnlyWorked" 
+                class="sr-only peer"
+              >
+              <div class="relative w-11 h-6 bg-gray-200 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-blue-300 rounded-full peer peer-checked:after:translate-x-full rtl:peer-checked:after:-translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:start-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-copam-blue"></div>
+              <span class="ms-3 text-xs font-bold text-gray-900">Escludi i lavorati</span>
+            </label>
+          </div>
+          <div class="flex items-end">
+            <label class="inline-flex items-center cursor-pointer">
+              <input 
+                type="checkbox" 
+                v-model="showOnlyAvailable" 
+                class="sr-only peer"
+              >
+              <div class="relative w-11 h-6 bg-gray-200 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-blue-300 rounded-full peer peer-checked:after:translate-x-full rtl:peer-checked:after:-translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:start-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-copam-blue"></div>
+              <span class="ms-3 text-xs font-bold text-gray-900">Solo i disponibili</span>
+            </label>
+          </div>
         </div>
 
         <!-- Action buttons -->
         <div class="flex justify-end gap-2">
           <button 
-            v-if="searchFllav || searchDtras || searchDtric || searchDtnum || searchIdopr || dateFrom || dateTo"
+            v-if="searchFllav || searchDtras || searchDtric || searchDtnum || searchIdopr || showOnlyWorked || showOnlyAvailable || dateFrom || dateTo"
             @click="clearAllFilters"
             class="inline-flex items-center px-4 py-2 border border-gray-300 font-semibold text-xs font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-copam-blue"
           >
             <svg class="h-4 w-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
             </svg>
-            Cancella
-          </button>
-          <button 
-            @click="applyFilters"
-            :disabled="loading"
-            class="inline-flex items-center px-4 py-2 bg-copam-blue border border-transparent rounded-md font-semibold text-xs text-white  tracking-widest hover:bg-copam-blue-hover focus:bg-copam-blue-hover active:bg-copam-blue-active focus:outline-none focus:ring-2 focus:ring-copam-blue focus:ring-offset-2 transition ease-in-out duration-150"
-          >
-            <svg class="h-4 w-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path>
-            </svg>
-            {{ loading ? 'Caricamento...' : 'Cerca' }}
+            Cancella filtri
           </button>
         </div>
       </div>
 
       <!-- Results info -->
-      <div v-if="searchFllav || searchDtras || searchDtric || searchDtnum || searchIdopr || dateFrom || dateTo" class="mt-4 text-xs text-gray-600">
+      <div v-if="searchFllav || searchDtras || searchDtric || searchDtnum || searchIdopr || showOnlyWorked || showOnlyAvailable || dateFrom || dateTo" class="mt-4 text-xs text-gray-600">
         <span v-if="pagination.total > 0">
           Trovati {{ pagination.total }} record{{ pagination.total === 1 ? 'o' : 'i' }}
         </span>
@@ -385,7 +413,12 @@ const confirmSelected = async () => {
           </tr>
           <tr v-else v-for="phase in workPhases" :key="phase.RECORD_ID" class="hover:bg-gray-50 border-b border-gray-200">
             <td class="px-3 py-2 whitespace-nowrap text-xs text-center border-r border-gray-200">
-              <input type="checkbox" v-model="selected" :value="phase.RECORD_ID" class="rounded border-gray-300 text-copam-blue focus:ring-copam-blue" />
+              <div class="flex items-center justify-center gap-2">
+                <input type="checkbox" v-model="selected" :value="phase.RECORD_ID" class="rounded border-gray-300 text-copam-blue focus:ring-copam-blue" />
+                <svg v-if="phase.is_assigned" class="h-5 w-5 text-red-600" fill="currentColor" viewBox="0 0 20 20" title="Già assegnata">
+                  <path fill-rule="evenodd" d="M8.257 3.099c.765-1.36 2.722-1.36 3.486 0l5.58 9.92c.75 1.334-.213 2.98-1.742 2.98H4.42c-1.53 0-2.493-1.646-1.743-2.98l5.58-9.92zM11 13a1 1 0 11-2 0 1 1 0 012 0zm-1-8a1 1 0 00-1 1v3a1 1 0 002 0V6a1 1 0 00-1-1z" clip-rule="evenodd" />
+                </svg>
+              </div>
             </td>
             <td class="px-3 py-2 whitespace-nowrap text-xs text-gray-900 border-r border-gray-200">{{ phase.FLASS }}</td>
             <td class="px-3 py-2 whitespace-nowrap text-xs text-gray-900 border-r border-gray-200">{{ phase.IDOPR }}</td>

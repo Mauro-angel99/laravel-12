@@ -22,6 +22,8 @@ class WorkPhaseController extends Controller
         $dtric = $request->input('dtric', '');
         $dtnum = $request->input('dtnum', '');
         $idopr = $request->input('idopr', '');
+        $onlyWorked = $request->input('only_worked', '');
+        $onlyAvailable = $request->input('only_available', '');
         $dateFrom = $request->input('date_from', '');
         $dateTo = $request->input('date_to', '');
         $page = $request->input('page', 1);
@@ -123,6 +125,20 @@ class WorkPhaseController extends Controller
                 $countParams[] = $searchParam;
             }
             
+            // Filtro per solo lavorati (FLQTB = 0)
+            if (!empty($onlyWorked)) {
+                $condition = 'f.FLQTB = 0';
+                $conditions[] = $condition;
+                $countConditions[] = $condition;
+            }
+            
+            // Filtro per solo disponibili (FLQTD > 0 AND FLQTB = 0)
+            if (!empty($onlyAvailable)) {
+                $condition = '(f.FLQTD > 0 AND f.FLQTB = 0)';
+                $conditions[] = $condition;
+                $countConditions[] = $condition;
+            }
+            
             // Filtro per date
             if (!empty($dateFrom)) {
                 $condition = 'CONVERT(DATETIME, f.FLCON, 120) >= CONVERT(DATETIME, ?, 120)';
@@ -164,6 +180,14 @@ class WorkPhaseController extends Controller
             
             $dati = DB::connection('sqlsrv_gestionale')
                 ->select($query, $params);
+            
+            // Recupera gli ID delle fasi già assegnate dal database Laravel
+            $assignedPhaseIds = WorkPhaseAssignment::pluck('work_phase_id')->toArray();
+            
+            // Aggiungi il flag is_assigned a ogni record
+            foreach ($dati as $record) {
+                $record->is_assigned = in_array($record->RECORD_ID, $assignedPhaseIds) ? 1 : 0;
+            }
             
             $lastPage = ceil($total / $perPage);
             $from = $offset + 1;
