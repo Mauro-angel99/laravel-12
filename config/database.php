@@ -37,8 +37,8 @@ return [
             'host' => 'localhost', // L'istanza è sul tuo PC
             'port' => '1433', // Porta standard di MSSQL 1433
             'database' => 'CONCEPT', // Nome che hai dato in SSMS
-            'username' => 'sa', // Il tuo utente MSSQL (es. 'sa')
-            'password' => 'password2', // La password che hai impostato
+            'username' => env('DB_GESTIONALE_USERNAME', 'sa'),
+            'password' => env('DB_GESTIONALE_PASSWORD', ''),
             'charset' => 'utf8',
             'prefix' => '',
             'prefix_indexes' => true,
