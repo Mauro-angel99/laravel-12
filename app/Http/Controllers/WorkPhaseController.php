@@ -56,7 +56,8 @@ class WorkPhaseController extends Controller
                 d.DROPR AS D_DROPR,
                 d.DTRAS,
                 d.DTRIC,
-                d.DTNUM
+                d.DTNUM,
+                d.DRCON
             FROM dbo.A01_ORD_FAS f
             LEFT JOIN dbo.A01_ORD_COM_LAM l ON f.IDOPR = l.IDORD
             LEFT JOIN dbo.A01_DOC_VER_ALL d ON f.FLASS = d.DROPR';
