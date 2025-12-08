@@ -111,7 +111,7 @@ onMounted(async () => {
           @input="handleSearch"
           type="text"
           placeholder="Cerca per merce, ordine, area o posizione..."
-          class="w-full px-3 py-2 text-sm border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+          class="w-full px-3 py-2 text-sm border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-copam-blue focus:border-copam-blue"
         >
       </div>
     </div>
@@ -212,7 +212,7 @@ onMounted(async () => {
                 v-model="formData.product_code"
                 type="text" 
                 required
-                class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-copam-blue focus:border-copam-blue"
               >
             </div>
 
@@ -222,7 +222,7 @@ onMounted(async () => {
                 v-model="formData.production_order"
                 type="text" 
                 required
-                class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-copam-blue focus:border-copam-blue"
               >
             </div>
 
@@ -232,7 +232,7 @@ onMounted(async () => {
                 v-model="formData.warehouse_area"
                 type="text" 
                 required
-                class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-copam-blue focus:border-copam-blue"
               >
             </div>
 
@@ -242,7 +242,7 @@ onMounted(async () => {
                 v-model="formData.warehouse_position"
                 type="text" 
                 required
-                class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-copam-blue focus:border-copam-blue"
               >
             </div>
 

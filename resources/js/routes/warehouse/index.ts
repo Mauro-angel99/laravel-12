@@ -157,7 +157,7 @@ list.head = (options?: RouteQueryOptions): RouteDefinition<'head'> => ({
     list.form = listForm
 /**
 * @see \App\Http\Controllers\WarehouseController::store
- * @see app/Http/Controllers/WarehouseController.php:84
+ * @see app/Http/Controllers/WarehouseController.php:86
  * @route '/api/warehouse'
  */
 export const store = (options?: RouteQueryOptions): RouteDefinition<'post'> => ({
@@ -172,7 +172,7 @@ store.definition = {
 
 /**
 * @see \App\Http\Controllers\WarehouseController::store
- * @see app/Http/Controllers/WarehouseController.php:84
+ * @see app/Http/Controllers/WarehouseController.php:86
  * @route '/api/warehouse'
  */
 store.url = (options?: RouteQueryOptions) => {
@@ -181,7 +181,7 @@ store.url = (options?: RouteQueryOptions) => {
 
 /**
 * @see \App\Http\Controllers\WarehouseController::store
- * @see app/Http/Controllers/WarehouseController.php:84
+ * @see app/Http/Controllers/WarehouseController.php:86
  * @route '/api/warehouse'
  */
 store.post = (options?: RouteQueryOptions): RouteDefinition<'post'> => ({
@@ -191,7 +191,7 @@ store.post = (options?: RouteQueryOptions): RouteDefinition<'post'> => ({
 
     /**
 * @see \App\Http\Controllers\WarehouseController::store
- * @see app/Http/Controllers/WarehouseController.php:84
+ * @see app/Http/Controllers/WarehouseController.php:86
  * @route '/api/warehouse'
  */
     const storeForm = (options?: RouteQueryOptions): RouteFormDefinition<'post'> => ({
@@ -201,7 +201,7 @@ store.post = (options?: RouteQueryOptions): RouteDefinition<'post'> => ({
 
             /**
 * @see \App\Http\Controllers\WarehouseController::store
- * @see app/Http/Controllers/WarehouseController.php:84
+ * @see app/Http/Controllers/WarehouseController.php:86
  * @route '/api/warehouse'
  */
         storeForm.post = (options?: RouteQueryOptions): RouteFormDefinition<'post'> => ({
