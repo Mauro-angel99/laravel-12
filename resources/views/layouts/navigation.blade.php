@@ -25,6 +25,12 @@
                     </x-nav-link>
                     
                     @if(Auth::user()->hasRole('admin'))
+                        <x-nav-link :href="route('warehouse.index')" :active="request()->routeIs('warehouse.index')">
+                            {{ __('Magazzino') }}
+                        </x-nav-link>
+                    @endif
+                    
+                    @if(Auth::user()->hasRole('admin'))
                         <!-- Dropdown Impostazioni -->
                         <div class="hidden sm:flex sm:items-center">
                             <x-dropdown align="left" width="48">
@@ -113,6 +119,11 @@
             <x-responsive-nav-link :href="route('assigned-work-phases.index')" :active="request()->routeIs('assigned-work-phases.index')">
                 {{ __('Fasi di Lavoro Assegnate') }}
             </x-responsive-nav-link>
+            @if(Auth::user()->hasRole('admin'))
+                <x-responsive-nav-link :href="route('warehouse.index')" :active="request()->routeIs('warehouse.index')">
+                    {{ __('Magazzino') }}
+                </x-responsive-nav-link>
+            @endif
             @if(Auth::user()->hasRole('admin'))
                 <x-responsive-nav-link :href="route('users.index')" :active="request()->routeIs('users.index')">
                     {{ __('Utenti') }}

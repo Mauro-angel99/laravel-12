@@ -134,6 +134,49 @@ class WorkPhaseController extends Controller
             */
 
 
+
+
+            /*
+
+            TUTTI I CAMPI RICHIESTI:
+
+            'RECORD_ID',
+            'DRCMM',
+            'DRCON',
+            'FLNOT',
+            'OPART',
+            'FLQTA',
+            'FLQTD',
+            'FLQTB',
+            'ARMAT',
+            'ARDMZ',
+            'FLLAV',
+            'FLASS',
+            'IDOPR',
+            'FLSEQ',
+            'FLDES',
+            'FLCON',
+            'DTNUM',
+            'DTRAS',
+            'DRDES',
+            'DTRIC',
+            'TEMPO',
+
+
+
+            TUTTI I CAMPI CHE MANCANO:
+
+            DRCMM
+            FLNOT
+            OPART
+            ARMAT
+            ARDMZ
+            DRDES
+            TEMPO
+
+             */
+
+
             
             // Query principale per i dati (senza ORDER BY)
             $query = 'SELECT 

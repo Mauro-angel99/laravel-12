@@ -6,6 +6,7 @@ use Illuminate\Support\Facades\Route;
 
 use App\Http\Controllers\WorkPhaseController;
 use App\Http\Controllers\WorkPhaseAssignmentController;
+use App\Http\Controllers\WarehouseController;
 use App\Http\Controllers\UserController as ApiUserController;
 
 Route::middleware(['auth', 'role:admin'])->group(function () {
@@ -54,6 +55,16 @@ Route::middleware('auth')->group(function () {
     // API per restituire i dati JSON
     Route::get('/api/assigned-work-phases', [WorkPhaseAssignmentController::class, 'list'])
         ->name('assigned-work-phases.list');
+});
+
+// Warehouse routes
+Route::middleware('auth')->group(function () {
+    Route::get('/warehouse', [WarehouseController::class, 'index'])
+        ->name('warehouse.index');
+
+    // API per restituire i dati JSON
+    Route::get('/api/warehouse', [WarehouseController::class, 'list'])
+        ->name('warehouse.list');
 });
 
 // Settings routes
