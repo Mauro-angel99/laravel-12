@@ -69,6 +69,14 @@ Route::middleware('auth')->group(function () {
     // API per creare un nuovo elemento
     Route::post('/api/warehouse', [WarehouseController::class, 'store'])
         ->name('warehouse.store');
+    
+    // API per aggiornare un elemento
+    Route::put('/api/warehouse/{warehouse}', [WarehouseController::class, 'update'])
+        ->name('warehouse.update');
+    
+    // API per eliminare un elemento
+    Route::delete('/api/warehouse/{warehouse}', [WarehouseController::class, 'destroy'])
+        ->name('warehouse.destroy');
 });
 
 // Settings routes

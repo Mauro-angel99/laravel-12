@@ -131,13 +131,17 @@ class WarehouseController extends Controller
     {
         $validated = $request->validate([
             'product_code' => 'required|string|max:50',
-            'product_description' => 'required|string|max:255',
+            'product_description' => 'nullable|string|max:255',
             'production_order' => 'required|string|max:50',
             'warehouse_area' => 'required|string|max:50',
             'warehouse_position' => 'required|string|max:50',
             'quantity' => 'nullable|numeric|min:0',
             'notes' => 'nullable|string',
         ]);
+
+        // Imposta valori di default per campi opzionali
+        $validated['product_description'] = $validated['product_description'] ?? '';
+        $validated['quantity'] = $validated['quantity'] ?? 0;
 
         $warehouse->update($validated);
 

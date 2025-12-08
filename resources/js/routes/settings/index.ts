@@ -1,6 +1,6 @@
 import { queryParams, type RouteQueryOptions, type RouteDefinition, type RouteFormDefinition } from './../../wayfinder'
 /**
- * @see routes/web.php:76
+ * @see routes/web.php:84
  * @route '/settings/general'
  */
 export const general = (options?: RouteQueryOptions): RouteDefinition<'get'> => ({
@@ -14,7 +14,7 @@ general.definition = {
 } satisfies RouteDefinition<["get","head"]>
 
 /**
- * @see routes/web.php:76
+ * @see routes/web.php:84
  * @route '/settings/general'
  */
 general.url = (options?: RouteQueryOptions) => {
@@ -22,7 +22,7 @@ general.url = (options?: RouteQueryOptions) => {
 }
 
 /**
- * @see routes/web.php:76
+ * @see routes/web.php:84
  * @route '/settings/general'
  */
 general.get = (options?: RouteQueryOptions): RouteDefinition<'get'> => ({
@@ -30,7 +30,7 @@ general.get = (options?: RouteQueryOptions): RouteDefinition<'get'> => ({
     method: 'get',
 })
 /**
- * @see routes/web.php:76
+ * @see routes/web.php:84
  * @route '/settings/general'
  */
 general.head = (options?: RouteQueryOptions): RouteDefinition<'head'> => ({
@@ -39,7 +39,7 @@ general.head = (options?: RouteQueryOptions): RouteDefinition<'head'> => ({
 })
 
     /**
- * @see routes/web.php:76
+ * @see routes/web.php:84
  * @route '/settings/general'
  */
     const generalForm = (options?: RouteQueryOptions): RouteFormDefinition<'get'> => ({
@@ -48,7 +48,7 @@ general.head = (options?: RouteQueryOptions): RouteDefinition<'head'> => ({
     })
 
             /**
- * @see routes/web.php:76
+ * @see routes/web.php:84
  * @route '/settings/general'
  */
         generalForm.get = (options?: RouteQueryOptions): RouteFormDefinition<'get'> => ({
@@ -56,7 +56,7 @@ general.head = (options?: RouteQueryOptions): RouteDefinition<'head'> => ({
             method: 'get',
         })
             /**
- * @see routes/web.php:76
+ * @see routes/web.php:84
  * @route '/settings/general'
  */
         generalForm.head = (options?: RouteQueryOptions): RouteFormDefinition<'get'> => ({

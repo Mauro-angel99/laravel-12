@@ -37,7 +37,7 @@
     <div class="min-h-screen bg-gray-100">
         @include('layouts.navigation')
 
-        <main class="p-6">
+        <main class="pt-3 px-1">
             @inertia
         </main>
     </div>

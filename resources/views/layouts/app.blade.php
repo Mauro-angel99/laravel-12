@@ -29,7 +29,7 @@
         @endisset
 
         {{-- Vue + Blade content --}}
-        <main id="app" class="p-6">
+        <main id="app" class="pt-3 px-1">
             {{-- se la pagina usa slot (Livewire/Breeze) --}}
             {{ $slot ?? '' }}
 

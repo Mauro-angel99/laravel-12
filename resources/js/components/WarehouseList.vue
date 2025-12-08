@@ -15,12 +15,43 @@ const pagination = ref({
 })
 
 const showModal = ref(false)
+const showEditModal = ref(false)
+const showDeleteModal = ref(false)
+const deleteItemId = ref(null)
 const formData = ref({
   product_code: '',
   production_order: '',
   warehouse_area: '',
   warehouse_position: ''
 })
+const editData = ref({
+  id: null,
+  product_code: '',
+  production_order: '',
+  warehouse_area: '',
+  warehouse_position: ''
+})
+
+// Stato della modal di messaggio
+const messageModal = ref({
+  show: false,
+  type: 'success', // 'success' o 'error'
+  title: '',
+  message: ''
+})
+
+const showMessageModal = (type, title, message) => {
+  messageModal.value = {
+    show: true,
+    type,
+    title,
+    message
+  }
+}
+
+const closeMessageModal = () => {
+  messageModal.value.show = false
+}
 
 const searchQuery = ref('')
 
@@ -76,14 +107,67 @@ const closeModal = () => {
   showModal.value = false
 }
 
+const openEditModal = (warehouse) => {
+  editData.value = {
+    id: warehouse.id,
+    product_code: warehouse.product_code,
+    production_order: warehouse.production_order,
+    warehouse_area: warehouse.warehouse_area,
+    warehouse_position: warehouse.warehouse_position
+  }
+  showEditModal.value = true
+}
+
+const closeEditModal = () => {
+  showEditModal.value = false
+}
+
 const saveWarehouse = async () => {
   try {
-    await axios.post('/api/warehouse', formData.value)
+    const res = await axios.post('/api/warehouse', formData.value)
     closeModal()
+    showMessageModal('success', 'Successo', res.data.message || 'Elemento aggiunto con successo')
     await fetchWarehouses(currentPage.value)
   } catch (error) {
     console.error(error)
-    alert('Errore durante il salvataggio')
+    const errorMessage = error.response?.data?.message || 'Errore durante il salvataggio'
+    showMessageModal('error', 'Errore', errorMessage)
+  }
+}
+
+const updateWarehouse = async () => {
+  try {
+    const res = await axios.put(`/api/warehouse/${editData.value.id}`, editData.value)
+    closeEditModal()
+    showMessageModal('success', 'Successo', res.data.message || 'Elemento aggiornato con successo')
+    await fetchWarehouses(currentPage.value)
+  } catch (error) {
+    console.error(error)
+    const errorMessage = error.response?.data?.message || 'Errore durante l\'aggiornamento'
+    showMessageModal('error', 'Errore', errorMessage)
+  }
+}
+
+const openDeleteModal = (id) => {
+  deleteItemId.value = id
+  showDeleteModal.value = true
+}
+
+const closeDeleteModal = () => {
+  showDeleteModal.value = false
+  deleteItemId.value = null
+}
+
+const confirmDelete = async () => {
+  try {
+    const res = await axios.delete(`/api/warehouse/${deleteItemId.value}`)
+    closeDeleteModal()
+    showMessageModal('success', 'Successo', res.data.message || 'Elemento eliminato con successo')
+    await fetchWarehouses(currentPage.value)
+  } catch (error) {
+    console.error(error)
+    const errorMessage = error.response?.data?.message || 'Errore durante l\'eliminazione'
+    showMessageModal('error', 'Errore', errorMessage)
   }
 }
 
@@ -123,12 +207,13 @@ onMounted(async () => {
             <th class="px-3 py-2 text-left text-xs font-bold uppercase tracking-wider border-r border-gray-200">Merce</th>
             <th class="px-3 py-2 text-left text-xs font-bold uppercase tracking-wider border-r border-gray-200">Ord. Prod.</th>
             <th class="px-3 py-2 text-left text-xs font-bold uppercase tracking-wider border-r border-gray-200">Area</th>
-            <th class="px-3 py-2 text-left text-xs font-bold uppercase tracking-wider">Posizione</th>
+            <th class="px-3 py-2 text-left text-xs font-bold uppercase tracking-wider border-r border-gray-200">Posizione</th>
+            <th class="px-3 py-2 text-center text-xs font-bold uppercase tracking-wider">Azioni</th>
           </tr>
         </thead>
         <tbody class="bg-white">
           <tr v-if="loading">
-            <td colspan="4" class="px-3 py-2 text-center text-xs text-gray-500">
+            <td colspan="5" class="px-3 py-2 text-center text-xs text-gray-500">
               <div class="flex items-center justify-center">
                 <svg class="animate-spin h-5 w-5 mr-3 text-gray-500" viewBox="0 0 24 24">
                   <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4" fill="none"></circle>
@@ -148,12 +233,34 @@ onMounted(async () => {
             <td class="px-3 py-2 whitespace-nowrap text-xs text-gray-900 border-r border-gray-200">
               {{ warehouse.warehouse_area }}
             </td>
-            <td class="px-3 py-2 whitespace-nowrap text-xs text-gray-900">
+            <td class="px-3 py-2 whitespace-nowrap text-xs text-gray-900 border-r border-gray-200">
               {{ warehouse.warehouse_position }}
+            </td>
+            <td class="px-3 py-2 whitespace-nowrap text-center text-xs">
+              <div class="flex justify-center gap-2">
+                <button 
+                  @click="openEditModal(warehouse)"
+                  class="text-copam-blue hover:text-copam-blue/80 transition duration-150 ease-in-out"
+                  title="Modifica"
+                >
+                  <svg class="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"></path>
+                  </svg>
+                </button>
+                <button 
+                  @click="openDeleteModal(warehouse.id)"
+                  class="text-red-600 hover:text-red-800 transition duration-150 ease-in-out"
+                  title="Elimina"
+                >
+                  <svg class="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"></path>
+                  </svg>
+                </button>
+              </div>
             </td>
           </tr>
           <tr v-if="!loading && !warehouses.length">
-            <td colspan="4" class="px-3 py-2 text-center">
+            <td colspan="5" class="px-3 py-2 text-center">
               <div class="text-center py-12">
                 <svg class="mx-auto h-12 w-12 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4"></path>
@@ -265,5 +372,196 @@ onMounted(async () => {
         </div>
       </div>
     </div>
+
+    <!-- Modal Modifica -->
+    <div v-if="showEditModal" class="fixed inset-0 bg-gray-600 bg-opacity-50 overflow-y-auto h-full w-full z-50" @click.self="closeEditModal">
+      <div class="relative top-20 mx-auto p-5 border w-96 shadow-lg rounded-md bg-white">
+        <div class="mt-3">
+          <h3 class="text-lg font-medium leading-6 text-gray-900 mb-4">Modifica elemento magazzino</h3>
+          
+          <form @submit.prevent="updateWarehouse" class="space-y-4">
+            <div>
+              <label class="block text-sm font-medium text-gray-700 mb-1">Merce</label>
+              <input 
+                v-model="editData.product_code"
+                type="text" 
+                required
+                class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-copam-blue focus:border-copam-blue"
+              >
+            </div>
+
+            <div>
+              <label class="block text-sm font-medium text-gray-700 mb-1">Ordine di produzione</label>
+              <input 
+                v-model="editData.production_order"
+                type="text" 
+                required
+                class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-copam-blue focus:border-copam-blue"
+              >
+            </div>
+
+            <div>
+              <label class="block text-sm font-medium text-gray-700 mb-1">Area</label>
+              <input 
+                v-model="editData.warehouse_area"
+                type="text" 
+                required
+                class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-copam-blue focus:border-copam-blue"
+              >
+            </div>
+
+            <div>
+              <label class="block text-sm font-medium text-gray-700 mb-1">Posizione</label>
+              <input 
+                v-model="editData.warehouse_position"
+                type="text" 
+                required
+                class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-copam-blue focus:border-copam-blue"
+              >
+            </div>
+
+            <div class="flex justify-end space-x-3 pt-4">
+              <button 
+                type="button"
+                @click="closeEditModal"
+                class="px-4 py-2 bg-gray-200 text-gray-700 text-sm font-medium rounded-md hover:bg-gray-300 focus:outline-none"
+              >
+                Annulla
+              </button>
+              <button 
+                type="submit"
+                class="px-4 py-2 bg-copam-blue text-white text-sm font-medium rounded-md hover:bg-copam-blue/90 focus:outline-none focus:ring-2 focus:ring-copam-blue"
+              >
+                Aggiorna
+              </button>
+            </div>
+          </form>
+        </div>
+      </div>
+    </div>
+
+    <!-- Modal Conferma Eliminazione -->
+    <div v-if="showDeleteModal" class="fixed inset-0 z-50 overflow-y-auto">
+      <div class="flex items-center justify-center min-h-screen px-4 pt-4 pb-20 text-center sm:block sm:p-0">
+        <!-- Overlay -->
+        <div 
+          class="fixed inset-0 transition-opacity bg-gray-500 bg-opacity-75"
+          @click="closeDeleteModal"
+        ></div>
+
+        <!-- Modal -->
+        <div class="inline-block align-bottom bg-white rounded-lg px-4 pt-5 pb-4 text-left overflow-hidden shadow-xl transform transition-all sm:my-8 sm:align-middle sm:max-w-lg sm:w-full sm:p-6">
+          <div class="sm:flex sm:items-start">
+            <!-- Icona -->
+            <div class="mx-auto flex-shrink-0 flex items-center justify-center h-12 w-12 rounded-full bg-red-100 sm:mx-0 sm:h-10 sm:w-10">
+              <svg class="h-6 w-6 text-red-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"></path>
+              </svg>
+            </div>
+            
+            <!-- Contenuto -->
+            <div class="mt-3 text-center sm:mt-0 sm:ml-4 sm:text-left">
+              <h3 class="text-lg leading-6 font-medium text-gray-900">
+                Conferma eliminazione
+              </h3>
+              <div class="mt-2">
+                <p class="text-sm text-gray-500">
+                  Sei sicuro di voler eliminare questo elemento dal magazzino? Questa azione non può essere annullata.
+                </p>
+              </div>
+            </div>
+          </div>
+          
+          <!-- Pulsanti -->
+          <div class="mt-5 sm:mt-4 sm:flex sm:flex-row-reverse">
+            <button 
+              type="button"
+              @click="confirmDelete"
+              class="w-full inline-flex justify-center rounded-md border border-transparent shadow-sm px-4 py-2 bg-red-600 text-base font-medium text-white hover:bg-red-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-red-500 sm:ml-3 sm:w-auto sm:text-sm"
+            >
+              Elimina
+            </button>
+            <button 
+              type="button"
+              @click="closeDeleteModal"
+              class="mt-3 w-full inline-flex justify-center rounded-md border border-gray-300 shadow-sm px-4 py-2 bg-white text-base font-medium text-gray-700 hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-copam-blue sm:mt-0 sm:w-auto sm:text-sm"
+            >
+              Annulla
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
   </div>
+
+  <!-- Modal Messaggio di Conferma/Errore -->
+  <Teleport to="body">
+    <div v-if="messageModal.show" class="fixed inset-0 z-50 overflow-y-auto">
+      <div class="flex items-center justify-center min-h-screen px-4 pt-4 pb-20 text-center sm:block sm:p-0">
+        <!-- Overlay -->
+        <div 
+          class="fixed inset-0 transition-opacity bg-gray-500 bg-opacity-75"
+          @click="closeMessageModal"
+        ></div>
+
+        <!-- Modal -->
+        <div class="inline-block align-bottom bg-white rounded-lg px-4 pt-5 pb-4 text-left overflow-hidden shadow-xl transform transition-all sm:my-8 sm:align-middle sm:max-w-lg sm:w-full sm:p-6">
+          <div class="sm:flex sm:items-start">
+            <!-- Icona -->
+            <div :class="[
+              'mx-auto flex-shrink-0 flex items-center justify-center h-12 w-12 rounded-full sm:mx-0 sm:h-10 sm:w-10',
+              messageModal.type === 'success' ? 'bg-green-100' : 'bg-red-100'
+            ]">
+              <svg 
+                v-if="messageModal.type === 'success'"
+                class="h-6 w-6 text-green-600" 
+                fill="none" 
+                stroke="currentColor" 
+                viewBox="0 0 24 24"
+              >
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path>
+              </svg>
+              <svg 
+                v-else
+                class="h-6 w-6 text-red-600" 
+                fill="none" 
+                stroke="currentColor" 
+                viewBox="0 0 24 24"
+              >
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
+              </svg>
+            </div>
+            
+            <!-- Contenuto -->
+            <div class="mt-3 text-center sm:mt-0 sm:ml-4 sm:text-left">
+              <h3 class="text-lg leading-6 font-medium text-gray-900">
+                {{ messageModal.title }}
+              </h3>
+              <div class="mt-2">
+                <p class="text-xs text-gray-500">
+                  {{ messageModal.message }}
+                </p>
+              </div>
+            </div>
+          </div>
+          
+          <!-- Pulsante -->
+          <div class="mt-5 sm:mt-4 sm:flex sm:flex-row-reverse">
+            <button 
+              type="button"
+              @click="closeMessageModal"
+              :class="[
+                'w-full inline-flex justify-center rounded-md border border-transparent shadow-sm px-4 py-2 text-base font-medium text-white focus:outline-none focus:ring-2 focus:ring-offset-2 sm:ml-3 sm:w-auto sm:text-xs',
+                messageModal.type === 'success' 
+                  ? 'bg-green-600 hover:bg-green-700 focus:ring-green-500' 
+                  : 'bg-red-600 hover:bg-red-700 focus:ring-red-500'
+              ]"
+            >
+              OK
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </Teleport>
 </template>
