@@ -29,7 +29,6 @@ const selectedPhase = ref(null)
 const users = ref([])
 const selectedUser = ref('')
 const notes = ref('')
-const topScrollbar = ref(null)
 const tableContainer = ref(null)
 const pagination = ref({
   current_page: 1,
@@ -187,17 +186,6 @@ onMounted(async () => {
   // Carica i dati iniziali
   await fetchUsers();
   await fetchWorkPhases('', '', '', '', '', '', '', '', showOnlyWorked.value, showOnlyAvailable.value, 1);
-  
-  // Sincronizza le scrollbar
-  if (topScrollbar.value && tableContainer.value) {
-    topScrollbar.value.addEventListener('scroll', () => {
-      tableContainer.value.scrollLeft = topScrollbar.value.scrollLeft;
-    });
-    
-    tableContainer.value.addEventListener('scroll', () => {
-      topScrollbar.value.scrollLeft = tableContainer.value.scrollLeft;
-    });
-  }
 });
 
 // Watcher per la ricerca con debounce
@@ -395,20 +383,13 @@ const confirmSelected = async () => {
       </div>
     </div>
 
-    <!-- Scrollbar superiore -->
-    <div ref="topScrollbar" class="overflow-x-auto mb-2">
-      <div class="h-1" style="width: max-content; min-width: 100%;">
-        <div style="width: 1800px; height: 1px;"></div>
-      </div>
-    </div>
-
     <div ref="tableContainer" class="overflow-x-auto">
       <table class="w-full">
         <thead class="bg-gray-50">
           <tr class="border-b border-gray-200">
             <th class="px-3 py-2 text-center text-xs font-bold uppercase tracking-wider border-r border-gray-200">#</th>
+            <th class="px-3 py-2 text-left text-xs font-bold uppercase tracking-wider border-r border-gray-200">DRCMM</th>
             <th class="px-3 py-2 text-left text-xs font-bold uppercase tracking-wider border-r border-gray-200">DRCON</th>
-            <th class="px-3 py-2 text-left text-xs font-bold uppercase tracking-wider border-r border-gray-200">OPART</th>
             <th class="px-3 py-2 text-left text-xs font-bold uppercase tracking-wider border-r border-gray-200">FLASS</th>
             <th class="px-3 py-2 text-left text-xs font-bold uppercase tracking-wider border-r border-gray-200">IDOPR</th>
             <th class="px-3 py-2 text-left text-xs font-bold uppercase tracking-wider border-r border-gray-200">FLSEQ</th>
@@ -442,8 +423,8 @@ const confirmSelected = async () => {
                 </svg>
               </div>
             </td>
+            <td class="px-3 py-2 whitespace-nowrap text-xs text-gray-900 border-r border-gray-200">{{ phase.DRCMM }}</td>
             <td class="px-3 py-2 whitespace-nowrap text-xs text-gray-900 border-r border-gray-200">{{ phase.DRCON }}</td>
-            <td class="px-3 py-2 whitespace-nowrap text-xs text-gray-900 border-r border-gray-200"></td>
             <td class="px-3 py-2 whitespace-nowrap text-xs text-gray-900 border-r border-gray-200">{{ phase.FLASS }}</td>
             <td class="px-3 py-2 whitespace-nowrap text-xs text-gray-900 border-r border-gray-200">{{ phase.IDOPR }}</td>
             <td class="px-3 py-2 whitespace-nowrap text-xs text-gray-900 border-r border-gray-200">{{ phase.FLSEQ }}</td>

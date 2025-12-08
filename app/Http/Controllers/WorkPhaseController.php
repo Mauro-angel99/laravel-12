@@ -37,6 +37,103 @@ class WorkPhaseController extends Controller
             LEFT JOIN dbo.A01_DOC_VER_ALL d ON f.FLASS = d.DROPR';
             $countParams = [];
             $countConditions = [];
+
+
+
+            /*
+            SELECT 
+                v.TABLE_NAME AS VIEW_NAME,
+                COUNT(DISTINCT c.COLUMN_NAME) AS num_columns_found,
+                STRING_AGG(c.COLUMN_NAME, ', ') AS columns_found
+            FROM 
+                INFORMATION_SCHEMA.COLUMNS c
+            INNER JOIN 
+                INFORMATION_SCHEMA.VIEWS v ON c.TABLE_NAME = v.TABLE_NAME AND c.TABLE_SCHEMA = v.TABLE_SCHEMA
+            WHERE 
+                c.COLUMN_NAME IN (
+                    'RECORD_ID',
+                    'DRCMM',
+                    'DRCON',
+                    'FLNOT',
+                    'OPART',
+                    'FLQTA',
+                    'FLQTD',
+                    'FLQTB',
+                    'ARMAT',
+                    'ARDMZ',
+                    'FLLAV',
+                    'FLASS',
+                    'IDOPR',
+                    'FLSEQ',
+                    'FLDES',
+                    'FLCON'
+                )
+            GROUP BY 
+                v.TABLE_NAME
+            HAVING 
+                COUNT(DISTINCT c.COLUMN_NAME) = 16  -- Numero totale di campi cercati
+            ORDER BY 
+                num_columns_found DESC, v.TABLE_NAME
+
+
+
+
+
+                'DTNUM',
+                'TEMPO',
+                'DTRAS',
+                'DRDES',
+                'DTRIC''
+
+                SELECT 
+                    v.TABLE_NAME AS VIEW_NAME,
+                    COUNT(DISTINCT c.COLUMN_NAME) AS num_columns_found,
+                    STRING_AGG(c.COLUMN_NAME, ', ') AS columns_found
+                FROM 
+                    INFORMATION_SCHEMA.COLUMNS c
+                INNER JOIN 
+                    INFORMATION_SCHEMA.VIEWS v ON c.TABLE_NAME = v.TABLE_NAME AND c.TABLE_SCHEMA = v.TABLE_SCHEMA
+                WHERE 
+                    c.COLUMN_NAME IN (
+                        'RECORD_ID',
+                        'DTNUM',
+                        'DTRAS',
+                        'DRDES',
+                        'DTRIC'
+                    )
+                GROUP BY 
+                    v.TABLE_NAME
+                HAVING 
+                    COUNT(DISTINCT c.COLUMN_NAME) = 5  -- Numero totale di campi cercati
+                ORDER BY 
+                    num_columns_found DESC, v.TABLE_NAME
+
+
+
+
+
+
+                SELECT 
+                    v.TABLE_NAME AS VIEW_NAME,
+                    COUNT(DISTINCT c.COLUMN_NAME) AS num_columns_found,
+                    STRING_AGG(c.COLUMN_NAME, ', ') AS columns_found
+                FROM 
+                    INFORMATION_SCHEMA.COLUMNS c
+                INNER JOIN 
+                    INFORMATION_SCHEMA.VIEWS v ON c.TABLE_NAME = v.TABLE_NAME AND c.TABLE_SCHEMA = v.TABLE_SCHEMA
+                WHERE 
+                    c.COLUMN_NAME IN (
+                        'TEMPO'
+                    )
+                GROUP BY 
+                    v.TABLE_NAME
+                HAVING 
+                    COUNT(DISTINCT c.COLUMN_NAME) = 1  -- Numero totale di campi cercati
+                ORDER BY 
+                    num_columns_found DESC, v.TABLE_NAME
+            */
+
+
             
             // Query principale per i dati (senza ORDER BY)
             $query = 'SELECT 
