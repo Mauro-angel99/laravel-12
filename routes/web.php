@@ -65,6 +65,10 @@ Route::middleware('auth')->group(function () {
     // API per restituire i dati JSON
     Route::get('/api/warehouse', [WarehouseController::class, 'list'])
         ->name('warehouse.list');
+    
+    // API per creare un nuovo elemento
+    Route::post('/api/warehouse', [WarehouseController::class, 'store'])
+        ->name('warehouse.store');
 });
 
 // Settings routes

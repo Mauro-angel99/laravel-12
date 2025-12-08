@@ -155,9 +155,65 @@ list.head = (options?: RouteQueryOptions): RouteDefinition<'head'> => ({
         })
     
     list.form = listForm
+/**
+* @see \App\Http\Controllers\WarehouseController::store
+ * @see app/Http/Controllers/WarehouseController.php:84
+ * @route '/api/warehouse'
+ */
+export const store = (options?: RouteQueryOptions): RouteDefinition<'post'> => ({
+    url: store.url(options),
+    method: 'post',
+})
+
+store.definition = {
+    methods: ["post"],
+    url: '/api/warehouse',
+} satisfies RouteDefinition<["post"]>
+
+/**
+* @see \App\Http\Controllers\WarehouseController::store
+ * @see app/Http/Controllers/WarehouseController.php:84
+ * @route '/api/warehouse'
+ */
+store.url = (options?: RouteQueryOptions) => {
+    return store.definition.url + queryParams(options)
+}
+
+/**
+* @see \App\Http\Controllers\WarehouseController::store
+ * @see app/Http/Controllers/WarehouseController.php:84
+ * @route '/api/warehouse'
+ */
+store.post = (options?: RouteQueryOptions): RouteDefinition<'post'> => ({
+    url: store.url(options),
+    method: 'post',
+})
+
+    /**
+* @see \App\Http\Controllers\WarehouseController::store
+ * @see app/Http/Controllers/WarehouseController.php:84
+ * @route '/api/warehouse'
+ */
+    const storeForm = (options?: RouteQueryOptions): RouteFormDefinition<'post'> => ({
+        action: store.url(options),
+        method: 'post',
+    })
+
+            /**
+* @see \App\Http\Controllers\WarehouseController::store
+ * @see app/Http/Controllers/WarehouseController.php:84
+ * @route '/api/warehouse'
+ */
+        storeForm.post = (options?: RouteQueryOptions): RouteFormDefinition<'post'> => ({
+            action: store.url(options),
+            method: 'post',
+        })
+    
+    store.form = storeForm
 const warehouse = {
     index: Object.assign(index, index),
 list: Object.assign(list, list),
+store: Object.assign(store, store),
 }
 
 export default warehouse
