@@ -118,7 +118,7 @@ onMounted(async () => {
                 </svg>
                 <h3 class="mt-2 text-xs font-medium text-gray-900">Nessuna fase di lavoro assegnata</h3>
                 <p class="mt-1 text-xs text-gray-500">
-                  Non hai ancora fasi di lavoro assegnate.
+                  Non hai ancora Fasi di lavoro prese in carico.
                 </p>
               </div>
             </td>
@@ -139,7 +139,7 @@ onMounted(async () => {
       <button 
         @click="goToPage(1)" 
         :disabled="currentPage === 1"
-        class="px-3 py-1 text-xs border rounded disabled:opacity-50 disabled:cursor-not-allowed hover:bg-gray-50"
+        class="hidden md:inline-flex px-3 py-1 text-xs border rounded disabled:opacity-50 disabled:cursor-not-allowed hover:bg-gray-50"
       >
         Prima
       </button>
@@ -165,7 +165,7 @@ onMounted(async () => {
       <button 
         @click="goToPage(pagination.last_page)" 
         :disabled="currentPage === pagination.last_page"
-        class="px-3 py-1 text-xs border rounded disabled:opacity-50 disabled:cursor-not-allowed hover:bg-gray-50"
+        class="hidden md:inline-flex px-3 py-1 text-xs border rounded disabled:opacity-50 disabled:cursor-not-allowed hover:bg-gray-50"
       >
         Ultima
       </button>

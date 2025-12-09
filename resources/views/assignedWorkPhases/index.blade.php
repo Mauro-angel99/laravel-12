@@ -1,7 +1,7 @@
 <x-app-layout>
     <x-slot name="header">
-        <h2 class="font-semibold text-xl text-gray-800 leading-tight">
-            {{ __('Fasi di Lavoro Assegnate') }}
+        <h2 class="font-semibold text-lg text-gray-800 leading-tight text-center py-0">
+            {{ __('Fasi di lavoro prese in carico') }}
         </h2>
     </x-slot>
 

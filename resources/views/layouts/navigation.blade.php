@@ -117,7 +117,7 @@
                 </x-responsive-nav-link>
             @endif
             <x-responsive-nav-link :href="route('assigned-work-phases.index')" :active="request()->routeIs('assigned-work-phases.index')">
-                {{ __('Fasi di Lavoro Assegnate') }}
+                {{ __('Fasi di lavoro prese in carico') }}
             </x-responsive-nav-link>
             @if(Auth::user()->hasRole('admin'))
                 <x-responsive-nav-link :href="route('warehouse.index')" :active="request()->routeIs('warehouse.index')">
