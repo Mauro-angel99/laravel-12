@@ -260,7 +260,7 @@ const confirmSelected = async () => {
       <!-- Search Bar and Filters -->
       <div class="space-y-4">
         <!-- First row: 3 search fields -->
-        <div class="grid grid-cols-3 gap-4">
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
           <div>
             <label class="block text-xs font-bold mb-1">Codice Lav</label>
             <input 
@@ -292,7 +292,7 @@ const confirmSelected = async () => {
         </div>
 
         <!-- Second row: 2 search fields -->
-        <div class="grid grid-cols-3 gap-4">
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
           <div>
             <label class="block text-xs font-bold mb-1">Rag. Soc.</label>
             <input 
@@ -322,8 +322,8 @@ const confirmSelected = async () => {
           </div>
         </div>
 
-        <!-- Third row: Date range inputs -->
-        <div class="grid grid-cols-3 gap-4">
+        <!-- Third row: Order production and switches -->
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
           <div>
             <label class="block text-xs font-bold mb-1">Ord. Prod.</label>
             <input 
@@ -333,27 +333,29 @@ const confirmSelected = async () => {
               class="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:ring-copam-blue focus:border-copam-blue sm:text-xs"
             />
           </div>
-          <div class="flex items-end">
-            <label class="inline-flex items-center cursor-pointer">
-              <input 
-                type="checkbox" 
-                v-model="showOnlyWorked" 
-                class="sr-only peer"
-              >
-              <div class="relative w-11 h-6 bg-gray-200 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-blue-300 rounded-full peer peer-checked:after:translate-x-full rtl:peer-checked:after:-translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:start-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-copam-blue"></div>
-              <span class="ms-3 text-xs font-bold text-gray-900">Escludi i lavorati</span>
-            </label>
-          </div>
-          <div class="flex items-end">
-            <label class="inline-flex items-center cursor-pointer">
-              <input 
-                type="checkbox" 
-                v-model="showOnlyAvailable" 
-                class="sr-only peer"
-              >
-              <div class="relative w-11 h-6 bg-gray-200 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-blue-300 rounded-full peer peer-checked:after:translate-x-full rtl:peer-checked:after:-translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:start-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-copam-blue"></div>
-              <span class="ms-3 text-xs font-bold text-gray-900">Solo i disponibili</span>
-            </label>
+          <div class="md:col-span-2 grid grid-cols-2 gap-4">
+            <div class="flex items-end">
+              <label class="inline-flex items-center cursor-pointer">
+                <input 
+                  type="checkbox" 
+                  v-model="showOnlyWorked" 
+                  class="sr-only peer"
+                >
+                <div class="relative w-11 h-6 bg-gray-200 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-blue-300 rounded-full peer peer-checked:after:translate-x-full rtl:peer-checked:after:-translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:start-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-copam-blue"></div>
+                <span class="ms-3 text-xs font-bold text-gray-900">Escludi i lavorati</span>
+              </label>
+            </div>
+            <div class="flex items-end">
+              <label class="inline-flex items-center cursor-pointer">
+                <input 
+                  type="checkbox" 
+                  v-model="showOnlyAvailable" 
+                  class="sr-only peer"
+                >
+                <div class="relative w-11 h-6 bg-gray-200 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-blue-300 rounded-full peer peer-checked:after:translate-x-full rtl:peer-checked:after:-translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:start-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-copam-blue"></div>
+                <span class="ms-3 text-xs font-bold text-gray-900">Solo i disponibili</span>
+              </label>
+            </div>
           </div>
         </div>
 
@@ -398,13 +400,12 @@ const confirmSelected = async () => {
             <th class="px-3 py-2 text-left text-xs font-bold uppercase tracking-wider border-r border-gray-200">DTRAS</th>
             <th class="px-3 py-2 text-left text-xs font-bold uppercase tracking-wider border-r border-gray-200">DTRIC</th>
             <th class="px-3 py-2 text-left text-xs font-bold uppercase tracking-wider border-r border-gray-200">DTNUM</th>
-            <th class="px-3 py-2 text-left text-xs font-bold uppercase tracking-wider border-r border-gray-200">FLCON</th>
-            <th class="px-3 py-2 text-center text-xs font-bold uppercase tracking-wider">Azioni</th>
+            <th class="px-3 py-2 text-left text-xs font-bold uppercase tracking-wider">FLCON</th>
           </tr>
         </thead>
         <tbody class="bg-white">
           <tr v-if="loading">
-            <td colspan="13" class="px-3 py-2 text-center text-xs text-gray-500">
+            <td colspan="12" class="px-3 py-2 text-center text-xs text-gray-500">
               <div class="flex items-center justify-center">
                 <svg class="animate-spin h-5 w-5 mr-3 text-gray-500" viewBox="0 0 24 24">
                   <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4" fill="none"></circle>
@@ -414,8 +415,8 @@ const confirmSelected = async () => {
               </div>
             </td>
           </tr>
-          <tr v-else v-for="phase in workPhases" :key="phase.RECORD_ID" class="hover:bg-gray-50 border-b border-gray-200">
-            <td class="px-3 py-2 whitespace-nowrap text-xs text-center border-r border-gray-200">
+          <tr v-else v-for="phase in workPhases" :key="phase.RECORD_ID" @click="openModal(phase)" class="hover:bg-gray-100 border-b border-gray-200 cursor-pointer transition-colors">
+            <td class="px-3 py-2 whitespace-nowrap text-xs text-center border-r border-gray-200" @click.stop>
               <div class="flex items-center justify-between gap-2">
                 <input type="checkbox" v-model="selected" :value="phase.RECORD_ID" class="rounded border-gray-300 text-copam-blue focus:ring-copam-blue" />
                 <svg v-if="phase.is_assigned" class="h-5 w-5 text-red-600" fill="currentColor" viewBox="0 0 20 20" title="Già assegnata">
@@ -433,22 +434,10 @@ const confirmSelected = async () => {
             <td class="px-3 py-2 whitespace-nowrap text-xs text-gray-900 border-r border-gray-200">{{ phase.DTRAS }}</td>
             <td class="px-3 py-2 whitespace-nowrap text-xs text-gray-900 border-r border-gray-200">{{ phase.DTRIC }}</td>
             <td class="px-3 py-2 whitespace-nowrap text-xs text-gray-900 border-r border-gray-200">{{ phase.DTNUM }}</td>
-            <td class="px-3 py-2 whitespace-nowrap text-xs text-gray-900 border-r border-gray-200">{{ formatDate(phase.FLCON) }}</td>
-            <td class="px-3 py-2 whitespace-nowrap text-center text-xs font-medium">
-              <button 
-                @click="openModal(phase)"
-                class="text-copam-blue hover:text-copam-blue-hover transition duration-150 ease-in-out"
-                title="Visualizza dettagli"
-              >
-                <svg class="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"></path>
-                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"></path>
-                </svg>
-              </button>
-            </td>
+            <td class="px-3 py-2 whitespace-nowrap text-xs text-gray-900">{{ formatDate(phase.FLCON) }}</td>
           </tr>
           <tr v-if="!loading && !workPhases.length">
-            <td colspan="13" class="px-3 py-2 text-center">
+            <td colspan="12" class="px-3 py-2 text-center">
               <div class="text-center py-12">
                 <svg class="mx-auto h-12 w-12 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2"></path>
@@ -465,7 +454,7 @@ const confirmSelected = async () => {
     </div>
 
     <!-- Informazioni paginazione -->
-    <div class="mt-4 flex justify-between items-center text-xs text-gray-600">
+    <div class="mt-4 flex flex-col sm:flex-row justify-between items-center gap-2 text-xs text-gray-600">
       <div>
         Mostrando {{ pagination.from }} - {{ pagination.to }} di {{ pagination.total }} record
       </div>
@@ -473,11 +462,11 @@ const confirmSelected = async () => {
     </div>
     
     <!-- Controlli paginazione -->
-    <div class="mt-2 flex justify-center items-center space-x-2">
+    <div class="mt-2 flex flex-wrap justify-center items-center gap-2">
       <button 
         @click="goToPage(1)" 
         :disabled="currentPage === 1"
-        class="px-3 py-1 text-xs border rounded disabled:opacity-50 disabled:cursor-not-allowed hover:bg-gray-50"
+        class="hidden md:inline-flex px-3 py-1 text-xs border rounded disabled:opacity-50 disabled:cursor-not-allowed hover:bg-gray-50"
       >
         Prima
       </button>
@@ -503,14 +492,14 @@ const confirmSelected = async () => {
       <button 
         @click="goToPage(pagination.last_page)" 
         :disabled="currentPage === pagination.last_page"
-        class="px-3 py-1 text-xs border rounded disabled:opacity-50 disabled:cursor-not-allowed hover:bg-gray-50"
+        class="hidden md:inline-flex px-3 py-1 text-xs border rounded disabled:opacity-50 disabled:cursor-not-allowed hover:bg-gray-50"
       >
         Ultima
       </button>
     </div>
     
     <!-- User selection and notes -->
-    <div class="mt-4 grid grid-cols-2 gap-4">
+    <div class="mt-4 grid grid-cols-1 md:grid-cols-2 gap-4">
       <div>
         <label class="block text-xs font-bold text-gray-900 mb-1">
           Seleziona Utente

@@ -93,11 +93,31 @@ class WarehouseController extends Controller
             'warehouse_position' => 'required|string|max:50',
             'quantity' => 'nullable|numeric|min:0',
             'notes' => 'nullable|string',
+            'force_save' => 'nullable|boolean',
         ]);
 
         // Imposta valori di default per campi opzionali
         $validated['product_description'] = $validated['product_description'] ?? '';
         $validated['quantity'] = $validated['quantity'] ?? 0;
+
+        // Controlla se la posizione è già occupata
+        $existingItem = Warehouse::where('warehouse_area', $validated['warehouse_area'])
+            ->where('warehouse_position', $validated['warehouse_position'])
+            ->first();
+
+        $forceSave = filter_var($request->input('force_save'), FILTER_VALIDATE_BOOLEAN);
+
+        if ($existingItem && !$forceSave) {
+            return response()->json([
+                'success' => false,
+                'position_occupied' => true,
+                'message' => 'La posizione ' . $validated['warehouse_position'] . ' nell\'area ' . $validated['warehouse_area'] . ' è già occupata.',
+                'existing_item' => $existingItem
+            ], 409);
+        }
+
+        // Rimuove force_save dai dati da salvare
+        unset($validated['force_save']);
 
         $warehouse = Warehouse::create($validated);
 
@@ -132,16 +152,37 @@ class WarehouseController extends Controller
         $validated = $request->validate([
             'product_code' => 'required|string|max:50',
             'product_description' => 'nullable|string|max:255',
-            'production_order' => 'required|string|max:50',
+            'production_order' => 'nullable|string|max:50',
             'warehouse_area' => 'required|string|max:50',
             'warehouse_position' => 'required|string|max:50',
             'quantity' => 'nullable|numeric|min:0',
             'notes' => 'nullable|string',
+            'force_save' => 'nullable|boolean',
         ]);
 
         // Imposta valori di default per campi opzionali
         $validated['product_description'] = $validated['product_description'] ?? '';
         $validated['quantity'] = $validated['quantity'] ?? 0;
+
+        // Controlla se la posizione è già occupata (escludendo l'elemento corrente)
+        $existingItem = Warehouse::where('warehouse_area', $validated['warehouse_area'])
+            ->where('warehouse_position', $validated['warehouse_position'])
+            ->where('id', '!=', $warehouse->id)
+            ->first();
+
+        $forceSave = filter_var($request->input('force_save'), FILTER_VALIDATE_BOOLEAN);
+
+        if ($existingItem && !$forceSave) {
+            return response()->json([
+                'success' => false,
+                'position_occupied' => true,
+                'message' => 'La posizione ' . $validated['warehouse_position'] . ' nell\'area ' . $validated['warehouse_area'] . ' è già occupata.',
+                'existing_item' => $existingItem
+            ], 409);
+        }
+
+        // Rimuove force_save dai dati da salvare
+        unset($validated['force_save']);
 
         $warehouse->update($validated);
 

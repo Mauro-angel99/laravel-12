@@ -16,6 +16,11 @@ const pagination = ref({
 
 const showModal = ref(false)
 const showDetailModal = ref(false)
+const showConfirmModal = ref(false)
+const confirmModalData = ref({
+  message: '',
+  onConfirm: null
+})
 const selectedWarehouse = ref(null)
 const formData = ref({
   product_code: '',
@@ -43,6 +48,29 @@ const showMessageModal = (type, title, message) => {
 
 const closeMessageModal = () => {
   messageModal.value.show = false
+}
+
+const showConfirmation = (message, onConfirm) => {
+  confirmModalData.value = {
+    message,
+    onConfirm
+  }
+  showConfirmModal.value = true
+}
+
+const closeConfirmModal = () => {
+  showConfirmModal.value = false
+  confirmModalData.value = {
+    message: '',
+    onConfirm: null
+  }
+}
+
+const handleConfirm = () => {
+  if (confirmModalData.value.onConfirm) {
+    confirmModalData.value.onConfirm()
+  }
+  closeConfirmModal()
 }
 
 const searchQuery = ref('')
@@ -109,45 +137,70 @@ const closeDetailModal = () => {
   selectedWarehouse.value = null
 }
 
-const saveWarehouse = async () => {
+const saveWarehouse = async (forceSave = false) => {
   try {
-    const res = await axios.post('/api/warehouse', formData.value)
+    const data = { ...formData.value }
+    if (forceSave) {
+      data.force_save = true
+    }
+    
+    const res = await axios.post('/api/warehouse', data)
     closeModal()
     showMessageModal('success', 'Successo', res.data.message || 'Elemento aggiunto con successo')
     await fetchWarehouses(currentPage.value)
   } catch (error) {
-    console.error(error)
+    // Controlla se la posizione è occupata
+    if (error.response?.status === 409 && error.response?.data?.position_occupied) {
+      const message = error.response.data.message + '\n\nVuoi comunque aggiungere l\'elemento in questa posizione?'
+      showConfirmation(message, () => {
+        saveWarehouse(true)
+      })
+      return
+    }
+    
     const errorMessage = error.response?.data?.message || 'Errore durante il salvataggio'
     showMessageModal('error', 'Errore', errorMessage)
   }
 }
 
-const updateWarehouse = async () => {
+const updateWarehouse = async (forceSave = false) => {
   try {
-    const res = await axios.put(`/api/warehouse/${selectedWarehouse.value.id}`, selectedWarehouse.value)
+    const data = { ...selectedWarehouse.value }
+    if (forceSave) {
+      data.force_save = true
+    }
+    
+    const res = await axios.put(`/api/warehouse/${selectedWarehouse.value.id}`, data)
     closeDetailModal()
     showMessageModal('success', 'Successo', res.data.message || 'Elemento aggiornato con successo')
     await fetchWarehouses(currentPage.value)
   } catch (error) {
-    console.error(error)
+    // Controlla se la posizione è occupata
+    if (error.response?.status === 409 && error.response?.data?.position_occupied) {
+      const message = error.response.data.message + '\n\nVuoi comunque modificare l\'elemento con questa posizione?'
+      showConfirmation(message, () => {
+        updateWarehouse(true)
+      })
+      return
+    }
+    
     const errorMessage = error.response?.data?.message || 'Errore durante l\'aggiornamento'
     showMessageModal('error', 'Errore', errorMessage)
   }
 }
 
 const deleteWarehouse = async () => {
-  if (!confirm('Sei sicuro di voler eliminare questo elemento?')) return
-  
-  try {
-    const res = await axios.delete(`/api/warehouse/${selectedWarehouse.value.id}`)
-    closeDetailModal()
-    showMessageModal('success', 'Successo', res.data.message || 'Elemento eliminato con successo')
-    await fetchWarehouses(currentPage.value)
-  } catch (error) {
-    console.error(error)
-    const errorMessage = error.response?.data?.message || 'Errore durante l\'eliminazione'
-    showMessageModal('error', 'Errore', errorMessage)
-  }
+  showConfirmation('Sei sicuro di voler eliminare questo elemento?', async () => {
+    try {
+      const res = await axios.delete(`/api/warehouse/${selectedWarehouse.value.id}`)
+      closeDetailModal()
+      showMessageModal('success', 'Successo', res.data.message || 'Elemento eliminato con successo')
+      await fetchWarehouses(currentPage.value)
+    } catch (error) {
+      const errorMessage = error.response?.data?.message || 'Errore durante l\'eliminazione'
+      showMessageModal('error', 'Errore', errorMessage)
+    }
+  })
 }
 
 // Carica i dati iniziali
@@ -274,7 +327,7 @@ onMounted(async () => {
         <div class="mt-3">
           <h3 class="text-lg font-medium leading-6 text-gray-900 mb-4">Aggiungi elemento magazzino</h3>
           
-          <form @submit.prevent="saveWarehouse" class="space-y-4">
+          <form @submit.prevent="saveWarehouse(false)" class="space-y-4">
             <div>
               <label class="block text-sm font-medium text-gray-700 mb-1">Merce</label>
               <input 
@@ -340,7 +393,7 @@ onMounted(async () => {
         <div class="mt-3">
           <h3 class="text-lg font-medium leading-6 text-gray-900 mb-4">Dettaglio elemento</h3>
           
-          <form @submit.prevent="updateWarehouse" class="space-y-4">
+          <form @submit.prevent="updateWarehouse(false)" class="space-y-4">
             <div>
               <label class="block text-sm font-medium text-gray-700 mb-1">Merce</label>
               <input 
@@ -407,6 +460,61 @@ onMounted(async () => {
       </div>
     </div>
   </div>
+
+  <!-- Modal Conferma -->
+  <Teleport to="body">
+    <div v-if="showConfirmModal" class="fixed inset-0 z-50 overflow-y-auto">
+      <div class="flex items-center justify-center min-h-screen px-4 pt-4 pb-20 text-center sm:block sm:p-0">
+        <!-- Overlay -->
+        <div 
+          class="fixed inset-0 transition-opacity bg-gray-500 bg-opacity-75"
+          @click="closeConfirmModal"
+        ></div>
+
+        <!-- Modal -->
+        <div class="inline-block align-bottom bg-white rounded-lg px-4 pt-5 pb-4 text-left overflow-hidden shadow-xl transform transition-all sm:my-8 sm:align-middle sm:max-w-lg sm:w-full sm:p-6">
+          <div class="sm:flex sm:items-start">
+            <!-- Icona Warning -->
+            <div class="mx-auto flex-shrink-0 flex items-center justify-center h-12 w-12 rounded-full bg-yellow-100 sm:mx-0 sm:h-10 sm:w-10">
+              <svg class="h-6 w-6 text-yellow-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"></path>
+              </svg>
+            </div>
+            
+            <!-- Contenuto -->
+            <div class="mt-3 text-center sm:mt-0 sm:ml-4 sm:text-left">
+              <h3 class="text-lg leading-6 font-medium text-gray-900">
+                Conferma operazione
+              </h3>
+              <div class="mt-2">
+                <p class="text-sm text-gray-500 whitespace-pre-line">
+                  {{ confirmModalData.message }}
+                </p>
+              </div>
+            </div>
+          </div>
+          
+          <!-- Pulsanti -->
+          <div class="mt-5 sm:mt-4 sm:flex sm:flex-row-reverse gap-2">
+            <button 
+              type="button"
+              @click="handleConfirm"
+              class="w-full inline-flex justify-center rounded-md border border-transparent shadow-sm px-4 py-2 bg-copam-blue text-white text-sm font-medium hover:bg-copam-blue/90 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-copam-blue sm:w-auto"
+            >
+              Conferma
+            </button>
+            <button 
+              type="button"
+              @click="closeConfirmModal"
+              class="mt-3 w-full inline-flex justify-center rounded-md border border-gray-300 shadow-sm px-4 py-2 bg-white text-gray-700 text-sm font-medium hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-copam-blue sm:mt-0 sm:w-auto"
+            >
+              Annulla
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </Teleport>
 
   <!-- Modal Messaggio di Conferma/Errore -->
   <Teleport to="body">
