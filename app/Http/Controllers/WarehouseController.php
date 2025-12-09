@@ -88,7 +88,7 @@ class WarehouseController extends Controller
         $validated = $request->validate([
             'product_code' => 'required|string|max:50',
             'product_description' => 'nullable|string|max:255',
-            'production_order' => 'required|string|max:50',
+            'production_order' => 'nullable|string|max:50',
             'warehouse_area' => 'required|string|max:50',
             'warehouse_position' => 'required|string|max:50',
             'quantity' => 'nullable|numeric|min:0',

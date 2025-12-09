@@ -14,8 +14,8 @@ return new class extends Migration
         Schema::create('warehouses', function (Blueprint $table) {
             $table->id();
             $table->string('product_code', 50)->index();
-            $table->string('product_description', 255);
-            $table->string('production_order', 50)->index();
+            $table->string('product_description', 255)->nullable();
+            $table->string('production_order', 50)->nullable()->index();
             $table->string('warehouse_area', 50)->index();
             $table->string('warehouse_position', 50)->index();
             $table->decimal('quantity', 10, 2)->default(0);
