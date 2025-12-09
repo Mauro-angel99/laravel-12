@@ -322,8 +322,16 @@ onMounted(async () => {
     </div>
 
     <!-- Modal -->
-    <div v-if="showModal" class="fixed inset-0 bg-gray-600 bg-opacity-50 overflow-y-auto h-full w-full z-50" @click.self="closeModal">
-      <div class="relative top-20 mx-auto p-5 border w-96 shadow-lg rounded-md bg-white">
+    <div v-if="showModal" class="fixed inset-0 z-50 overflow-y-auto">
+      <div class="flex items-center justify-center min-h-screen px-4 pt-4 pb-20 text-center sm:block sm:p-0">
+        <!-- Overlay -->
+        <div 
+          class="fixed inset-0 transition-opacity bg-gray-500 bg-opacity-75"
+          @click="closeModal"
+        ></div>
+
+        <!-- Modal -->
+        <div class="inline-block align-bottom bg-white rounded-lg px-4 pt-5 pb-4 text-left overflow-hidden shadow-xl transform transition-all sm:my-8 sm:align-middle sm:max-w-lg sm:w-full sm:p-6 max-w-md w-full">
         <div class="mt-3">
           <h3 class="text-lg font-medium leading-6 text-gray-900 mb-4">Aggiungi elemento magazzino</h3>
           
@@ -385,11 +393,20 @@ onMounted(async () => {
           </form>
         </div>
       </div>
+      </div>
     </div>
 
     <!-- Modal Dettaglio/Modifica/Elimina -->
-    <div v-if="showDetailModal && selectedWarehouse" class="fixed inset-0 bg-gray-600 bg-opacity-50 overflow-y-auto h-full w-full z-50" @click.self="closeDetailModal">
-      <div class="relative top-20 mx-auto p-5 border w-96 shadow-lg rounded-md bg-white">
+    <div v-if="showDetailModal && selectedWarehouse" class="fixed inset-0 z-50 overflow-y-auto">
+      <div class="flex items-center justify-center min-h-screen px-4 pt-4 pb-20 text-center sm:block sm:p-0">
+        <!-- Overlay -->
+        <div 
+          class="fixed inset-0 transition-opacity bg-gray-500 bg-opacity-75"
+          @click="closeDetailModal"
+        ></div>
+
+        <!-- Modal -->
+        <div class="inline-block align-bottom bg-white rounded-lg px-4 pt-5 pb-4 text-left overflow-hidden shadow-xl transform transition-all sm:my-8 sm:align-middle sm:max-w-lg sm:w-full sm:p-6 max-w-md w-full">
         <div class="mt-3">
           <h3 class="text-lg font-medium leading-6 text-gray-900 mb-4">Dettaglio elemento</h3>
           
@@ -457,6 +474,7 @@ onMounted(async () => {
             </div>
           </form>
         </div>
+      </div>
       </div>
     </div>
   </div>
