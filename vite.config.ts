@@ -27,7 +27,7 @@ export default defineConfig({
             },
         }),
     ],
-    /*server: {
+    server: {
         host: 'myproject.local',
         port: 5173,
         strictPort: true,
@@ -37,17 +37,17 @@ export default defineConfig({
             host: 'myproject.local',
             protocol: 'ws',
         },
-    },*/
-    server: {
+    },
+    /*server: {
         host: '0.0.0.0', // Espone Vite su tutte le interfacce
         port: 5173,
         strictPort: true,
         cors: true,
         hmr: {
-            host: '192.168.1.5', // Il tuo IP locale
+            host: '10.39.218.41', // Il tuo IP locale
             protocol: 'ws',
         },
-    },
+    },*/
     preview: {
         host: 'myproject.local',
         port: 4173,
