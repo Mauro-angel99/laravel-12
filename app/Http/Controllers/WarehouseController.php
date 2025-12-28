@@ -86,10 +86,10 @@ class WarehouseController extends Controller
     public function store(Request $request)
     {
         $validated = $request->validate([
-            'product_code' => 'required|string|max:50',
+            'product_code' => 'nullable|string|max:50',
             'product_description' => 'nullable|string|max:255',
             'production_order' => 'nullable|string|max:50',
-            'warehouse_area' => 'required|string|max:50',
+            'warehouse_area' => 'nullable|string|max:50',
             'warehouse_position' => 'required|string|max:50',
             'quantity' => 'nullable|numeric|min:0',
             'notes' => 'nullable|string',
@@ -100,10 +100,13 @@ class WarehouseController extends Controller
         $validated['product_description'] = $validated['product_description'] ?? '';
         $validated['quantity'] = $validated['quantity'] ?? 0;
 
-        // Controlla se la posizione è già occupata
-        $existingItem = Warehouse::where('warehouse_area', $validated['warehouse_area'])
-            ->where('warehouse_position', $validated['warehouse_position'])
-            ->first();
+        // Controlla se la posizione è già occupata (solo se warehouse_area è specificato)
+        $existingItem = null;
+        if (!empty($validated['warehouse_area'])) {
+            $existingItem = Warehouse::where('warehouse_area', $validated['warehouse_area'])
+                ->where('warehouse_position', $validated['warehouse_position'])
+                ->first();
+        }
 
         $forceSave = filter_var($request->input('force_save'), FILTER_VALIDATE_BOOLEAN);
 
@@ -150,10 +153,10 @@ class WarehouseController extends Controller
     public function update(Request $request, Warehouse $warehouse)
     {
         $validated = $request->validate([
-            'product_code' => 'required|string|max:50',
+            'product_code' => 'nullable|string|max:50',
             'product_description' => 'nullable|string|max:255',
             'production_order' => 'nullable|string|max:50',
-            'warehouse_area' => 'required|string|max:50',
+            'warehouse_area' => 'nullable|string|max:50',
             'warehouse_position' => 'required|string|max:50',
             'quantity' => 'nullable|numeric|min:0',
             'notes' => 'nullable|string',
@@ -164,11 +167,14 @@ class WarehouseController extends Controller
         $validated['product_description'] = $validated['product_description'] ?? '';
         $validated['quantity'] = $validated['quantity'] ?? 0;
 
-        // Controlla se la posizione è già occupata (escludendo l'elemento corrente)
-        $existingItem = Warehouse::where('warehouse_area', $validated['warehouse_area'])
-            ->where('warehouse_position', $validated['warehouse_position'])
-            ->where('id', '!=', $warehouse->id)
-            ->first();
+        // Controlla se la posizione è già occupata (escludendo l'elemento corrente, solo se warehouse_area è specificato)
+        $existingItem = null;
+        if (!empty($validated['warehouse_area'])) {
+            $existingItem = Warehouse::where('warehouse_area', $validated['warehouse_area'])
+                ->where('warehouse_position', $validated['warehouse_position'])
+                ->where('id', '!=', $warehouse->id)
+                ->first();
+        }
 
         $forceSave = filter_var($request->input('force_save'), FILTER_VALIDATE_BOOLEAN);
 

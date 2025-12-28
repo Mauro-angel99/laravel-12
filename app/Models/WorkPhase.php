@@ -7,6 +7,7 @@ use Illuminate\Database\Eloquent\Relations\HasMany;
 
 class WorkPhase extends Model
 {
+    protected $connection = 'sqlsrv_gestionale'; // Connessione SQL Server
     protected $table = 'A01_ORD_FAS'; // Nome della tabella su SQL Server
     protected $primaryKey = 'RECORD_ID'; // Chiave primaria
     public $timestamps = false; // Non ci sono created_at / updated_at nella tabella

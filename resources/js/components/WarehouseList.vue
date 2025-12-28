@@ -25,7 +25,6 @@ const selectedWarehouse = ref(null)
 const formData = ref({
   product_code: '',
   production_order: '',
-  warehouse_area: '',
   warehouse_position: ''
 })
 
@@ -118,7 +117,6 @@ const openModal = () => {
   formData.value = {
     product_code: '',
     production_order: '',
-    warehouse_area: '',
     warehouse_position: ''
   }
 }
@@ -226,7 +224,7 @@ onMounted(async () => {
           v-model="searchQuery"
           @input="handleSearch"
           type="text"
-          placeholder="Cerca per merce, ordine, area o posizione..."
+          placeholder="Cerca per merce, ordine o posizione..."
           class="w-full px-3 py-2 text-sm border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-copam-blue focus:border-copam-blue"
         >
       </div>
@@ -238,13 +236,12 @@ onMounted(async () => {
           <tr class="border-b border-gray-200">
             <th class="px-3 py-2 text-left text-xs font-bold uppercase tracking-wider border-r border-gray-200">Merce</th>
             <th class="px-3 py-2 text-left text-xs font-bold uppercase tracking-wider border-r border-gray-200">Ord. Prod.</th>
-            <th class="px-3 py-2 text-left text-xs font-bold uppercase tracking-wider border-r border-gray-200">Area</th>
             <th class="px-3 py-2 text-left text-xs font-bold uppercase tracking-wider">Posizione</th>
           </tr>
         </thead>
         <tbody class="bg-white">
           <tr v-if="loading">
-            <td colspan="4" class="px-3 py-2 text-center text-xs text-gray-500">
+            <td colspan="3" class="px-3 py-2 text-center text-xs text-gray-500">
               <div class="flex items-center justify-center">
                 <svg class="animate-spin h-5 w-5 mr-3 text-gray-500" viewBox="0 0 24 24">
                   <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4" fill="none"></circle>
@@ -267,15 +264,12 @@ onMounted(async () => {
             <td class="px-3 py-2 whitespace-nowrap text-xs text-gray-900 border-r border-gray-200">
               {{ warehouse.production_order || '-' }}
             </td>
-            <td class="px-3 py-2 whitespace-nowrap text-xs text-gray-900 border-r border-gray-200">
-              {{ warehouse.warehouse_area }}
-            </td>
             <td class="px-3 py-2 whitespace-nowrap text-xs text-gray-900">
               {{ warehouse.warehouse_position }}
             </td>
           </tr>
           <tr v-if="!loading && !warehouses.length">
-            <td colspan="4" class="px-3 py-2 text-center">
+            <td colspan="3" class="px-3 py-2 text-center">
               <div class="text-center py-12">
                 <svg class="mx-auto h-12 w-12 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4"></path>
@@ -341,7 +335,6 @@ onMounted(async () => {
               <input 
                 v-model="formData.product_code"
                 type="text" 
-                required
                 class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-copam-blue focus:border-copam-blue"
               >
             </div>
@@ -351,16 +344,6 @@ onMounted(async () => {
               <input 
                 v-model="formData.production_order"
                 type="text" 
-                class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-copam-blue focus:border-copam-blue"
-              >
-            </div>
-
-            <div>
-              <label class="block text-sm font-medium text-gray-700 mb-1">Area</label>
-              <input 
-                v-model="formData.warehouse_area"
-                type="text" 
-                required
                 class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-copam-blue focus:border-copam-blue"
               >
             </div>
@@ -416,7 +399,6 @@ onMounted(async () => {
               <input 
                 v-model="selectedWarehouse.product_code"
                 type="text" 
-                required
                 class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-copam-blue focus:border-copam-blue"
               >
             </div>
@@ -426,16 +408,6 @@ onMounted(async () => {
               <input 
                 v-model="selectedWarehouse.production_order"
                 type="text"
-                class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-copam-blue focus:border-copam-blue"
-              >
-            </div>
-
-            <div>
-              <label class="block text-sm font-medium text-gray-700 mb-1">Area</label>
-              <input 
-                v-model="selectedWarehouse.warehouse_area"
-                type="text" 
-                required
                 class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-copam-blue focus:border-copam-blue"
               >
             </div>
