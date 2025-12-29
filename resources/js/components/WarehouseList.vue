@@ -15,7 +15,7 @@ const pagination = ref({
 })
 
 const searchQuery = ref('')
-const filterPending = ref(true)
+const filterPending = ref(false)
 const showCreateModal = ref(false)
 const showProductsModal = ref(false)
 const showEditModal = ref(false)
