@@ -202,7 +202,7 @@ const updatePositionName = async () => {
       warehouse_position: editingPositionName.value
     })
     isEditingPosition.value = false
-    selectedPosition.value.warehouse_position = editingPositionName.value
+    closeProductsModal()
     showMessageModal('success', 'Successo', res.data.message || 'Posizione aggiornata con successo')
     await fetchPositions(currentPage.value)
   } catch (error) {
@@ -433,7 +433,7 @@ onMounted(async () => {
           @click="closeProductsModal"
         ></div>
 
-        <div class="inline-block align-bottom bg-white rounded-lg px-4 pt-5 pb-4 text-left overflow-hidden shadow-xl transform transition-all sm:my-8 sm:align-middle sm:max-w-4xl sm:w-full sm:p-6">
+        <div class="inline-block align-bottom bg-white rounded-lg px-4 pt-5 pb-4 text-left overflow-hidden shadow-xl transform transition-all sm:my-8 sm:align-middle sm:max-w-6xl sm:w-full sm:p-6 max-w-md w-full">
           <div class="mt-3">
             <h3 class="text-lg font-medium leading-6 text-gray-900 mb-4">
               Merci in Posizione: {{ selectedPosition?.warehouse_position }}
@@ -473,17 +473,17 @@ onMounted(async () => {
             <div class="mt-6 space-y-3">
               <div>
                 <label class="block text-sm font-medium text-gray-700 mb-1">Modifica Posizione</label>
-                <div class="flex gap-2">
+                <div class="flex flex-col sm:flex-row gap-2">
                   <input
                     v-model="editingPositionName"
                     type="text"
-                    class="flex-1 px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-copam-blue focus:border-copam-blue text-sm"
+                    class="w-full sm:w-1/2 px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-copam-blue focus:border-copam-blue text-sm"
                     placeholder="Inserisci nuovo nome posizione"
                   />
                   <button
                     @click="updatePositionName"
                     :disabled="!editingPositionName || editingPositionName === selectedPosition?.warehouse_position"
-                    class="px-4 py-2 bg-copam-blue text-white text-sm font-medium rounded-md hover:bg-copam-blue/90 focus:outline-none focus:ring-2 focus:ring-copam-blue disabled:opacity-50 disabled:cursor-not-allowed"
+                    class="w-full sm:w-auto px-4 py-2 bg-copam-blue text-white text-sm font-medium rounded-md hover:bg-copam-blue/90 focus:outline-none focus:ring-2 focus:ring-copam-blue disabled:opacity-50 disabled:cursor-not-allowed"
                   >
                     Aggiorna
                   </button>
