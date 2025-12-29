@@ -4,6 +4,7 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Relations\BelongsTo;
 
 class Warehouse extends Model
 {
@@ -14,16 +15,21 @@ class Warehouse extends Model
     public $timestamps = true;
 
     protected $fillable = [
+        'warehouse_position_id',
         'product_code',
         'product_description',
         'production_order',
-        'warehouse_area',
-        'warehouse_position',
-        'quantity',
         'notes',
+        'pending',
+        'pending_code',
     ];
 
     protected $casts = [
-        'quantity' => 'decimal:2',
+        'pending' => 'boolean',
     ];
+
+    public function position(): BelongsTo
+    {
+        return $this->belongsTo(WarehousePosition::class, 'warehouse_position_id');
+    }
 }

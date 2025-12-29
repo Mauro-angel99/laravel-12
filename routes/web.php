@@ -66,6 +66,14 @@ Route::middleware('auth')->group(function () {
     Route::get('/api/warehouse', [WarehouseController::class, 'list'])
         ->name('warehouse.list');
     
+    // API per ottenere i prodotti di una posizione
+    Route::get('/api/warehouse/positions/{position}/products', [WarehouseController::class, 'getPositionProducts'])
+        ->name('warehouse.position.products');
+    
+    // API per aggiornare il nome di una posizione
+    Route::put('/api/warehouse/positions/{position}', [WarehouseController::class, 'updatePosition'])
+        ->name('warehouse.position.update');
+    
     // API per creare un nuovo elemento
     Route::post('/api/warehouse', [WarehouseController::class, 'store'])
         ->name('warehouse.store');
