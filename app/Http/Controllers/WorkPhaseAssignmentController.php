@@ -44,16 +44,62 @@ class WorkPhaseAssignmentController extends Controller
         $workPhaseIds = $assignments->pluck('work_phase_id')->unique()->toArray();
         
         if (!empty($workPhaseIds)) {
-            $workPhases = DB::connection('sqlsrv_gestionale')
+            $workPhaseQuery = DB::connection('sqlsrv_gestionale')
                 ->table('A01_ORD_FAS')
-                ->whereIn('RECORD_ID', $workPhaseIds)
-                ->get()
-                ->keyBy('RECORD_ID');
+                ->whereIn('RECORD_ID', $workPhaseIds);
             
-            // Aggiungi i dati delle work phases agli assignments
-            $assignments->each(function ($assignment) use ($workPhases) {
-                $assignment->work_phase = $workPhases->get($assignment->work_phase_id);
-            });
+            // Applica filtri se presenti
+            if ($request->filled('fllav')) {
+                $workPhaseQuery->where('FLLAV', 'like', '%' . $request->input('fllav') . '%');
+            }
+            if ($request->filled('dtras')) {
+                $workPhaseQuery->where('DTRAS', 'like', '%' . $request->input('dtras') . '%');
+            }
+            if ($request->filled('dtric')) {
+                $workPhaseQuery->where('DTRIC', 'like', '%' . $request->input('dtric') . '%');
+            }
+            if ($request->filled('dtnum')) {
+                $workPhaseQuery->where('DTNUM', 'like', '%' . $request->input('dtnum') . '%');
+            }
+            if ($request->filled('idopr')) {
+                $workPhaseQuery->where('IDOPR', 'like', '%' . $request->input('idopr') . '%');
+            }
+            if ($request->filled('date_from')) {
+                $dateFrom = \DateTime::createFromFormat('d/m/Y', $request->input('date_from'));
+                if ($dateFrom) {
+                    $workPhaseQuery->where('DTORD', '>=', $dateFrom->format('Y-m-d'));
+                }
+            }
+            if ($request->filled('date_to')) {
+                $dateTo = \DateTime::createFromFormat('d/m/Y', $request->input('date_to'));
+                if ($dateTo) {
+                    $workPhaseQuery->where('DTORD', '<=', $dateTo->format('Y-m-d'));
+                }
+            }
+            
+            $workPhases = $workPhaseQuery->get()->keyBy('RECORD_ID');
+            
+            // Aggiungi i dati delle work phases agli assignments e filtra
+            $filteredAssignments = $assignments->filter(function ($assignment) use ($workPhases) {
+                $workPhase = $workPhases->get($assignment->work_phase_id);
+                if ($workPhase) {
+                    $assignment->work_phase = $workPhase;
+                    return true;
+                }
+                return false;
+            })->values();
+            
+            return response()->json([
+                'data' => $filteredAssignments,
+                'pagination' => [
+                    'current_page' => $page,
+                    'per_page' => $perPage,
+                    'total' => $filteredAssignments->count(),
+                    'last_page' => ceil($filteredAssignments->count() / $perPage),
+                    'from' => $offset + 1,
+                    'to' => min($offset + $perPage, $filteredAssignments->count()),
+                ]
+            ]);
         }
 
         return response()->json([

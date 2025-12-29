@@ -1,8 +1,22 @@
 <script setup>
 import { ref, watch, onMounted } from 'vue'
 import axios from 'axios'
+import flatpickr from 'flatpickr'
+import 'flatpickr/dist/flatpickr.css'
+import { Italian } from 'flatpickr/dist/l10n/it.js'
 
 const assignedWorkPhases = ref([])
+const searchFllav = ref('')
+const searchDtras = ref('')
+const searchDtric = ref('')
+const searchDtnum = ref('')
+const searchIdopr = ref('')
+const dateFrom = ref('')
+const dateTo = ref('')
+const dateFromPicker = ref(null)
+const dateToPicker = ref(null)
+const dateFromInstance = ref(null)
+const dateToInstance = ref(null)
 const loading = ref(false)
 const currentPage = ref(1)
 const pagination = ref({
@@ -15,12 +29,19 @@ const pagination = ref({
   has_more_pages: false
 })
 
-const fetchAssignedWorkPhases = async (page = 1) => {
+const fetchAssignedWorkPhases = async (fllav = '', dtras = '', dtric = '', dtnum = '', idopr = '', fromDate = '', toDate = '', page = 1) => {
   loading.value = true
   try {
     const params = {
       page: page
     }
+    if (fllav) params.fllav = fllav
+    if (dtras) params.dtras = dtras
+    if (dtric) params.dtric = dtric
+    if (dtnum) params.dtnum = dtnum
+    if (idopr) params.idopr = idopr
+    if (fromDate) params.date_from = fromDate
+    if (toDate) params.date_to = toDate
     
     const res = await axios.get('/api/assigned-work-phases', { params })
     assignedWorkPhases.value = res.data.data
@@ -33,9 +54,45 @@ const fetchAssignedWorkPhases = async (page = 1) => {
   }
 }
 
+const applyFilters = () => {
+  currentPage.value = 1
+  fetchAssignedWorkPhases(searchFllav.value, searchDtras.value, searchDtric.value, searchDtnum.value, searchIdopr.value, dateFrom.value, dateTo.value, 1)
+}
+
+const clearAllFilters = () => {
+  searchFllav.value = ''
+  searchDtras.value = ''
+  searchDtric.value = ''
+  searchDtnum.value = ''
+  searchIdopr.value = ''
+  dateFrom.value = ''
+  dateTo.value = ''
+  if (dateFromInstance.value) dateFromInstance.value.clear()
+  if (dateToInstance.value) dateToInstance.value.clear()
+  applyFilters()
+}
+
+// Watchers per i campi di ricerca con debounce
+let searchTimeout
+watch([searchFllav, searchDtras, searchDtric, searchDtnum, searchIdopr], () => {
+  clearTimeout(searchTimeout)
+  searchTimeout = setTimeout(() => {
+    applyFilters()
+  }, 300)
+})
+
+// Watcher per le date con debounce
+let dateTimeout
+watch([dateFrom, dateTo], () => {
+  clearTimeout(dateTimeout)
+  dateTimeout = setTimeout(() => {
+    applyFilters()
+  }, 300)
+})
+
 const goToPage = (page) => {
   if (page >= 1 && page <= pagination.value.last_page) {
-    fetchAssignedWorkPhases(page)
+    fetchAssignedWorkPhases(searchFllav.value, searchDtras.value, searchDtric.value, searchDtnum.value, searchIdopr.value, dateFrom.value, dateTo.value, page)
   }
 }
 
@@ -51,12 +108,137 @@ const formatDate = (dateString) => {
 // Carica i dati iniziali
 onMounted(async () => {
   await fetchAssignedWorkPhases();
+  
+  // Inizializza flatpickr per dateFrom
+  if (dateFromPicker.value) {
+    dateFromInstance.value = flatpickr(dateFromPicker.value, {
+      dateFormat: 'd/m/Y',
+      locale: Italian,
+      onChange: (selectedDates, dateStr) => {
+        dateFrom.value = dateStr
+      }
+    })
+  }
+  
+  // Inizializza flatpickr per dateTo
+  if (dateToPicker.value) {
+    dateToInstance.value = flatpickr(dateToPicker.value, {
+      dateFormat: 'd/m/Y',
+      locale: Italian,
+      onChange: (selectedDates, dateStr) => {
+        dateTo.value = dateStr
+      }
+    })
+  }
 });
 
 </script>
 
 <template>
   <div class="bg-white shadow rounded-lg p-3">
+    <div class="mb-6">
+      <!-- Search Bar and Filters -->
+      <div class="space-y-4">
+        <!-- First row: 3 search fields -->
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+          <div>
+            <label class="block text-xs font-bold mb-1">Codice Lav</label>
+            <input 
+              type="text"
+              v-model="searchFllav"
+              placeholder=""
+              class="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:ring-copam-blue focus:border-copam-blue sm:text-xs"
+            />
+          </div>
+          <div>
+            <label class="block text-xs font-bold mb-1">Data da</label>
+            <input
+              ref="dateFromPicker"
+              type="text"
+              v-model="dateFrom"
+              class="w-full border-gray-300 rounded-md shadow-sm focus:ring-copam-blue focus:border-copam-blue sm:text-xs"
+            />
+          </div>
+          <div>
+            <label class="block text-xs font-bold mb-1">Data a</label>
+            <input
+              ref="dateToPicker"
+              type="text"
+              v-model="dateTo"
+              class="w-full border-gray-300 rounded-md shadow-sm focus:ring-copam-blue focus:border-copam-blue sm:text-xs"
+            />
+          </div>
+        </div>
+
+        <!-- Second row: 3 search fields -->
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+          <div>
+            <label class="block text-xs font-bold mb-1">Rag. Soc.</label>
+            <input 
+              type="text"
+              v-model="searchDtras"
+              placeholder=""
+              class="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:ring-copam-blue focus:border-copam-blue sm:text-xs"
+            />
+          </div>
+          <div>
+            <label class="block text-xs font-bold mb-1">N. Ord. Cli.</label>
+            <input 
+              type="text"
+              v-model="searchDtric"
+              placeholder=""
+              class="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:ring-copam-blue focus:border-copam-blue sm:text-xs"
+            />
+          </div>
+          <div>
+            <label class="block text-xs font-bold mb-1">N. Ns. Ord.</label>
+            <input 
+              type="text"
+              v-model="searchDtnum"
+              placeholder=""
+              class="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:ring-copam-blue focus:border-copam-blue sm:text-xs"
+            />
+          </div>
+        </div>
+
+        <!-- Third row: Order production -->
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+          <div>
+            <label class="block text-xs font-bold mb-1">Ord. Prod.</label>
+            <input 
+              type="text"
+              v-model="searchIdopr"
+              placeholder=""
+              class="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:ring-copam-blue focus:border-copam-blue sm:text-xs"
+            />
+          </div>
+        </div>
+
+        <!-- Action buttons -->
+        <div class="flex justify-end gap-2">
+          <button 
+            v-if="searchFllav || searchDtras || searchDtric || searchDtnum || searchIdopr || dateFrom || dateTo"
+            @click="clearAllFilters"
+            class="inline-flex items-center px-4 py-2 border border-gray-300 font-semibold text-xs font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-copam-blue"
+          >
+            <svg class="h-4 w-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
+            </svg>
+            Cancella filtri
+          </button>
+        </div>
+      </div>
+
+      <!-- Results info -->
+      <div v-if="searchFllav || searchDtras || searchDtric || searchDtnum || searchIdopr || dateFrom || dateTo" class="mt-4 text-xs text-gray-600">
+        <span v-if="pagination.total > 0">
+          Trovati {{ pagination.total }} record{{ pagination.total === 1 ? 'o' : 'i' }}
+        </span>
+        <span v-else>
+          Nessun risultato trovato
+        </span>
+      </div>
+    </div>
 
     <div class="overflow-x-auto">
       <table class="w-full">
