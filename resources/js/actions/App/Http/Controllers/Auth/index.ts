@@ -5,7 +5,6 @@ import NewPasswordController from './NewPasswordController'
 import EmailVerificationPromptController from './EmailVerificationPromptController'
 import VerifyEmailController from './VerifyEmailController'
 import EmailVerificationNotificationController from './EmailVerificationNotificationController'
-import ConfirmablePasswordController from './ConfirmablePasswordController'
 import PasswordController from './PasswordController'
 const Auth = {
     AuthenticatedSessionController: Object.assign(AuthenticatedSessionController, AuthenticatedSessionController),
@@ -15,7 +14,6 @@ NewPasswordController: Object.assign(NewPasswordController, NewPasswordControlle
 EmailVerificationPromptController: Object.assign(EmailVerificationPromptController, EmailVerificationPromptController),
 VerifyEmailController: Object.assign(VerifyEmailController, VerifyEmailController),
 EmailVerificationNotificationController: Object.assign(EmailVerificationNotificationController, EmailVerificationNotificationController),
-ConfirmablePasswordController: Object.assign(ConfirmablePasswordController, ConfirmablePasswordController),
 PasswordController: Object.assign(PasswordController, PasswordController),
 }
 
