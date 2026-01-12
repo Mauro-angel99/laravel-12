@@ -26,6 +26,7 @@ class WorkPhaseController extends Controller
         $onlyAvailable = $request->input('only_available', '');
         $dateFrom = $request->input('date_from', '');
         $dateTo = $request->input('date_to', '');
+        $sort = $request->input('sort', 'drcon_asc');
         $page = $request->input('page', 1);
         $perPage = 20;
         $offset = ($page - 1) * $perPage;
@@ -311,8 +312,32 @@ class WorkPhaseController extends Controller
                 ->select($countQuery, $countParams);
             $total = $totalResult[0]->total;
             
+            // Gestione ordinamento
+            $orderBy = 'd.DRCON ASC, f.RECORD_ID DESC'; // Default
+            switch ($sort) {
+                case 'drcon_desc':
+                    $orderBy = 'd.DRCON DESC, f.RECORD_ID DESC';
+                    break;
+                case 'dtras_asc':
+                    $orderBy = 'd.DTRAS ASC, f.RECORD_ID DESC';
+                    break;
+                case 'flnot_asc':
+                    $orderBy = 'f.FLNOT ASC, f.RECORD_ID DESC';
+                    break;
+                case 'armat_asc':
+                    $orderBy = 'l.ARMAT ASC, f.RECORD_ID DESC';
+                    break;
+                case 'ardmz_asc':
+                    $orderBy = 'l.ARDMZ ASC, f.RECORD_ID DESC';
+                    break;
+                case 'drcon_asc':
+                default:
+                    $orderBy = 'd.DRCON ASC, f.RECORD_ID DESC';
+                    break;
+            }
+            
             // Aggiungi WHERE, ORDER BY e OFFSET/FETCH
-            $query .= $whereClause . ' ORDER BY f.FLCON ASC, f.RECORD_ID DESC OFFSET ? ROWS FETCH NEXT ? ROWS ONLY';
+            $query .= $whereClause . ' ORDER BY ' . $orderBy . ' OFFSET ? ROWS FETCH NEXT ? ROWS ONLY';
             $params[] = $offset;
             $params[] = $perPage;
             

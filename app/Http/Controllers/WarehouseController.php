@@ -5,6 +5,9 @@ namespace App\Http\Controllers;
 use App\Models\Warehouse;
 use App\Models\WarehousePosition;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Log;
 
 class WarehouseController extends Controller
 {
@@ -92,12 +95,12 @@ class WarehouseController extends Controller
             'product_code' => 'nullable|string|max:50',
             'product_description' => 'nullable|string|max:255',
             'production_order' => 'nullable|string|max:50',
-            'notes' => 'nullable|string',
+            'notes' => 'nullable|string|max:1000',
             'pending' => 'boolean',
             'pending_code' => 'nullable|string|max:50',
         ]);
 
-        // Se pending è false, warehouse_position è obbligatorio
+        // Validazione logica
         if (!($validated['pending'] ?? false) && empty($validated['warehouse_position'])) {
             return response()->json([
                 'success' => false,
@@ -106,34 +109,59 @@ class WarehouseController extends Controller
             ], 422);
         }
 
-        // Se pending è true e non c'è posizione, usa pending_code come posizione
-        if (($validated['pending'] ?? false) && empty($validated['warehouse_position'])) {
-            $validated['warehouse_position'] = 'IN_ATTESA_' . ($validated['pending_code'] ?? 'TEMP');
+        try {
+            DB::beginTransaction();
+
+            // Gestione posizione pending con codice univoco
+            if (($validated['pending'] ?? false) && empty($validated['warehouse_position'])) {
+                $pendingCode = $validated['pending_code'] ?? uniqid('TEMP_', true);
+                $validated['warehouse_position'] = 'IN_ATTESA_' . $pendingCode;
+            }
+
+            // Trova o crea la posizione (atomico dentro la transazione)
+            $position = WarehousePosition::firstOrCreate(
+                ['warehouse_position' => $validated['warehouse_position']]
+            );
+
+            // Crea la merce nella posizione
+            $warehouse = Warehouse::create([
+                'warehouse_position_id' => $position->id,
+                'product_code' => $validated['product_code'],
+                'production_order' => $validated['production_order'],
+                'product_description' => $validated['product_description'],
+                'notes' => $validated['notes'] ?? null,
+                'pending' => $validated['pending'] ?? false,
+                'pending_code' => $validated['pending_code'] ?? null,
+                'created_by' => Auth::id(),
+                'received_at' => now(),
+            ]);
+
+            DB::commit();
+
+            Log::info('Warehouse item created', [
+                'warehouse_id' => $warehouse->id,
+                'position' => $validated['warehouse_position'],
+                'user_id' => Auth::id()
+            ]);
+
+            return response()->json([
+                'success' => true,
+                'message' => 'Merce aggiunta al magazzino con successo',
+                'data' => $warehouse->load('position')
+            ], 201);
+
+        } catch (\Exception $e) {
+            DB::rollBack();
+            Log::error('Error creating warehouse item: ' . $e->getMessage(), [
+                'user_id' => Auth::id(),
+                'data' => $validated
+            ]);
+            
+            return response()->json([
+                'success' => false,
+                'message' => 'Errore durante l\'inserimento della merce'
+            ], 500);
         }
-
-        // Trova o crea la posizione
-        $position = WarehousePosition::firstOrCreate(
-            [
-                'warehouse_position' => $validated['warehouse_position'],
-            ]
-        );
-
-        // Crea la merce nella posizione
-        $warehouse = Warehouse::create([
-            'warehouse_position_id' => $position->id,
-            'product_code' => $validated['product_code'],
-            'production_order' => $validated['production_order'],
-            'product_description' => $validated['product_description'],
-            'notes' => $validated['notes'] ?? null,
-            'pending' => $validated['pending'] ?? false,
-            'pending_code' => $validated['pending_code'] ?? null,
-        ]);
-
-        return response()->json([
-            'success' => true,
-            'message' => 'Merce aggiunta al magazzino con successo',
-            'data' => $warehouse->load('position')
-        ], 201);
     }
 
     public function update(Request $request, Warehouse $warehouse)
@@ -143,61 +171,113 @@ class WarehouseController extends Controller
             'product_code' => 'nullable|string|max:50',
             'product_description' => 'nullable|string|max:255',
             'production_order' => 'nullable|string|max:50',
-            'notes' => 'nullable|string',
+            'notes' => 'nullable|string|max:1000',
             'pending' => 'boolean',
             'pending_code' => 'nullable|string|max:50',
         ]);
 
-        $oldPositionId = $warehouse->warehouse_position_id;
+        try {
+            DB::beginTransaction();
 
-        // Trova o crea la nuova posizione
-        $position = WarehousePosition::firstOrCreate(
-            [
-                'warehouse_position' => $validated['warehouse_position'],
-            ]
-        );
+            $oldPositionId = $warehouse->warehouse_position_id;
 
-        // Aggiorna la merce
-        $warehouse->update([
-            'warehouse_position_id' => $position->id,
-            'product_code' => $validated['product_code'],
-            'production_order' => $validated['production_order'],
-            'product_description' => $validated['product_description'],
-            'notes' => $validated['notes'] ?? null,
-            'pending' => $validated['pending'] ?? false,
-            'pending_code' => $validated['pending_code'] ?? null,
-        ]);
+            // Trova o crea la nuova posizione
+            $position = WarehousePosition::firstOrCreate(
+                ['warehouse_position' => $validated['warehouse_position']]
+            );
 
-        // Se la posizione è cambiata, elimina la vecchia se è vuota
-        if ($oldPositionId !== $position->id) {
-            $oldPosition = WarehousePosition::find($oldPositionId);
-            if ($oldPosition && $oldPosition->warehouses()->count() === 0) {
-                $oldPosition->delete();
+            // Aggiorna la merce
+            $warehouse->update([
+                'warehouse_position_id' => $position->id,
+                'product_code' => $validated['product_code'],
+                'production_order' => $validated['production_order'],
+                'product_description' => $validated['product_description'],
+                'notes' => $validated['notes'] ?? null,
+                'pending' => $validated['pending'] ?? false,
+                'pending_code' => $validated['pending_code'] ?? null,
+                'updated_by' => Auth::id(),
+            ]);
+
+            // Se la posizione è cambiata, elimina la vecchia se è vuota
+            if ($oldPositionId !== $position->id) {
+                $oldPosition = WarehousePosition::find($oldPositionId);
+                if ($oldPosition && $oldPosition->warehouses()->count() === 0) {
+                    $oldPosition->delete();
+                }
             }
-        }
 
-        return response()->json([
-            'success' => true,
-            'message' => 'Merce aggiornata con successo',
-            'data' => $warehouse->load('position')
-        ]);
+            DB::commit();
+
+            Log::info('Warehouse item updated', [
+                'warehouse_id' => $warehouse->id,
+                'old_position_id' => $oldPositionId,
+                'new_position_id' => $position->id,
+                'user_id' => Auth::id()
+            ]);
+
+            return response()->json([
+                'success' => true,
+                'message' => 'Merce aggiornata con successo',
+                'data' => $warehouse->load('position')
+            ]);
+
+        } catch (\Exception $e) {
+            DB::rollBack();
+            Log::error('Error updating warehouse item: ' . $e->getMessage(), [
+                'warehouse_id' => $warehouse->id,
+                'user_id' => Auth::id()
+            ]);
+            
+            return response()->json([
+                'success' => false,
+                'message' => 'Errore durante l\'aggiornamento della merce'
+            ], 500);
+        }
     }
 
     public function destroy(Warehouse $warehouse)
     {
-        $positionId = $warehouse->warehouse_position_id;
-        $warehouse->delete();
+        try {
+            DB::beginTransaction();
 
-        // Se la posizione è vuota, eliminala
-        $position = WarehousePosition::find($positionId);
-        if ($position && $position->warehouses()->count() === 0) {
-            $position->delete();
+            $positionId = $warehouse->warehouse_position_id;
+            $warehouseId = $warehouse->id;
+            $warehouseData = $warehouse->toArray();
+
+            $warehouse->delete();
+
+            // Se la posizione è vuota, eliminala
+            $position = WarehousePosition::find($positionId);
+            if ($position && $position->warehouses()->count() === 0) {
+                $position->delete();
+            }
+
+            DB::commit();
+
+            Log::info('Warehouse item deleted', [
+                'warehouse_id' => $warehouseId,
+                'position_id' => $positionId,
+                'data' => $warehouseData,
+                'user_id' => Auth::id()
+            ]);
+
+            return response()->json([
+                'success' => true,
+                'message' => 'Merce eliminata dal magazzino con successo'
+            ]);
+
+        } catch (\Exception $e) {
+            DB::rollBack();
+            Log::error('Error deleting warehouse item: ' . $e->getMessage(), [
+                'warehouse_id' => $warehouse->id,
+                'user_id' => Auth::id()
+            ]);
+            
+            return response()->json([
+                'success' => false,
+                'message' => 'Errore durante l\'eliminazione della merce'
+            ], 500);
         }
-
-        return response()->json([
-            'success' => true,
-            'message' => 'Merce eliminata dal magazzino con successo'
-        ]);
     }
 
     // API: aggiorna il nome di una posizione
@@ -207,50 +287,84 @@ class WarehouseController extends Controller
             'warehouse_position' => 'required|string|max:50',
         ]);
 
-        // Controlla se la posizione VECCHIA era "in attesa" (prima dell'update)
-        $wasInAttesa = strpos($position->warehouse_position, 'IN_ATTESA_') === 0;
+        try {
+            DB::beginTransaction();
 
-        // Controlla se la nuova posizione esiste già
-        $existingPosition = WarehousePosition::where('warehouse_position', $validated['warehouse_position'])
-            ->where('id', '!=', $position->id)
-            ->first();
+            $oldPositionName = $position->warehouse_position;
+            // Controlla se la posizione VECCHIA era "in attesa" (prima dell'update)
+            // Usa una regex più precisa per identificare le posizioni IN_ATTESA
+            $wasInAttesa = preg_match('/^IN_ATTESA_[A-Z0-9_]+$/i', $position->warehouse_position) === 1;
 
-        if ($existingPosition) {
-            // Se esiste già, sposta tutte le merci alla posizione esistente
-            if ($wasInAttesa) {
-                // Se era in attesa, imposta pending=false quando viene spostato
-                $position->warehouses()->update([
-                    'warehouse_position_id' => $existingPosition->id,
-                    'pending' => false,
-                    'pending_code' => null,
-                ]);
+            // Controlla se la nuova posizione esiste già
+            $existingPosition = WarehousePosition::where('warehouse_position', $validated['warehouse_position'])
+                ->where('id', '!=', $position->id)
+                ->first();
+
+            if ($existingPosition) {
+                // Se esiste già, sposta tutte le merci alla posizione esistente
+                if ($wasInAttesa) {
+                    // Se era in attesa, imposta pending=false quando viene spostato
+                    $position->warehouses()->update([
+                        'warehouse_position_id' => $existingPosition->id,
+                        'pending' => false,
+                        'pending_code' => null,
+                        'updated_by' => Auth::id(),
+                    ]);
+                } else {
+                    // Se non era in attesa, sposta solo la posizione senza modificare pending
+                    $position->warehouses()->update([
+                        'warehouse_position_id' => $existingPosition->id,
+                        'updated_by' => Auth::id(),
+                    ]);
+                }
+                
+                // Elimina la vecchia posizione vuota
+                $position->delete();
+                
+                $position = $existingPosition;
             } else {
-                // Se non era in attesa, sposta solo la posizione senza modificare pending
-                $position->warehouses()->update([
-                    'warehouse_position_id' => $existingPosition->id,
+                // Altrimenti aggiorna normalmente il nome della posizione
+                $position->update([
+                    'warehouse_position' => $validated['warehouse_position'],
                 ]);
+
+                // Se la posizione era "in attesa", imposta pending=0 per tutte le merci
+                if ($wasInAttesa) {
+                    $position->warehouses()->update([
+                        'pending' => false,
+                        'pending_code' => null,
+                        'updated_by' => Auth::id(),
+                    ]);
+                }
             }
-            
-            // Elimina la vecchia posizione vuota
-            $position->delete();
-            
-            $position = $existingPosition;
-        } else {
-            // Altrimenti aggiorna normalmente il nome della posizione
-            $position->update([
-                'warehouse_position' => $validated['warehouse_position'],
+
+            DB::commit();
+
+            Log::info('Warehouse position updated', [
+                'position_id' => $position->id,
+                'old_name' => $oldPositionName,
+                'new_name' => $validated['warehouse_position'],
+                'was_pending' => $wasInAttesa,
+                'user_id' => Auth::id()
             ]);
 
-            // Se la posizione era "in attesa", imposta pending=0 per tutte le merci
-            if ($wasInAttesa) {
-                $position->warehouses()->update(['pending' => false, 'pending_code' => null]);
-            }
-        }
+            return response()->json([
+                'success' => true,
+                'message' => 'Posizione aggiornata con successo',
+                'data' => $position
+            ]);
 
-        return response()->json([
-            'success' => true,
-            'message' => 'Posizione aggiornata con successo',
-            'data' => $position
-        ]);
+        } catch (\Exception $e) {
+            DB::rollBack();
+            Log::error('Error updating warehouse position: ' . $e->getMessage(), [
+                'position_id' => $position->id,
+                'user_id' => Auth::id()
+            ]);
+            
+            return response()->json([
+                'success' => false,
+                'message' => 'Errore durante l\'aggiornamento della posizione'
+            ], 500);
+        }
     }
 }

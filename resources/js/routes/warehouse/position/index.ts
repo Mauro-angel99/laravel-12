@@ -1,7 +1,7 @@
 import { queryParams, type RouteQueryOptions, type RouteDefinition, type RouteFormDefinition, applyUrlDefaults } from './../../../wayfinder'
 /**
 * @see \App\Http\Controllers\WarehouseController::products
- * @see app/Http/Controllers/WarehouseController.php:78
+ * @see app/Http/Controllers/WarehouseController.php:81
  * @route '/api/warehouse/positions/{position}/products'
  */
 export const products = (args: { position: string | number } | [position: string | number ] | string | number, options?: RouteQueryOptions): RouteDefinition<'get'> => ({
@@ -16,7 +16,7 @@ products.definition = {
 
 /**
 * @see \App\Http\Controllers\WarehouseController::products
- * @see app/Http/Controllers/WarehouseController.php:78
+ * @see app/Http/Controllers/WarehouseController.php:81
  * @route '/api/warehouse/positions/{position}/products'
  */
 products.url = (args: { position: string | number } | [position: string | number ] | string | number, options?: RouteQueryOptions) => {
@@ -44,7 +44,7 @@ products.url = (args: { position: string | number } | [position: string | number
 
 /**
 * @see \App\Http\Controllers\WarehouseController::products
- * @see app/Http/Controllers/WarehouseController.php:78
+ * @see app/Http/Controllers/WarehouseController.php:81
  * @route '/api/warehouse/positions/{position}/products'
  */
 products.get = (args: { position: string | number } | [position: string | number ] | string | number, options?: RouteQueryOptions): RouteDefinition<'get'> => ({
@@ -53,7 +53,7 @@ products.get = (args: { position: string | number } | [position: string | number
 })
 /**
 * @see \App\Http\Controllers\WarehouseController::products
- * @see app/Http/Controllers/WarehouseController.php:78
+ * @see app/Http/Controllers/WarehouseController.php:81
  * @route '/api/warehouse/positions/{position}/products'
  */
 products.head = (args: { position: string | number } | [position: string | number ] | string | number, options?: RouteQueryOptions): RouteDefinition<'head'> => ({
@@ -63,7 +63,7 @@ products.head = (args: { position: string | number } | [position: string | numbe
 
     /**
 * @see \App\Http\Controllers\WarehouseController::products
- * @see app/Http/Controllers/WarehouseController.php:78
+ * @see app/Http/Controllers/WarehouseController.php:81
  * @route '/api/warehouse/positions/{position}/products'
  */
     const productsForm = (args: { position: string | number } | [position: string | number ] | string | number, options?: RouteQueryOptions): RouteFormDefinition<'get'> => ({
@@ -73,7 +73,7 @@ products.head = (args: { position: string | number } | [position: string | numbe
 
             /**
 * @see \App\Http\Controllers\WarehouseController::products
- * @see app/Http/Controllers/WarehouseController.php:78
+ * @see app/Http/Controllers/WarehouseController.php:81
  * @route '/api/warehouse/positions/{position}/products'
  */
         productsForm.get = (args: { position: string | number } | [position: string | number ] | string | number, options?: RouteQueryOptions): RouteFormDefinition<'get'> => ({
@@ -82,7 +82,7 @@ products.head = (args: { position: string | number } | [position: string | numbe
         })
             /**
 * @see \App\Http\Controllers\WarehouseController::products
- * @see app/Http/Controllers/WarehouseController.php:78
+ * @see app/Http/Controllers/WarehouseController.php:81
  * @route '/api/warehouse/positions/{position}/products'
  */
         productsForm.head = (args: { position: string | number } | [position: string | number ] | string | number, options?: RouteQueryOptions): RouteFormDefinition<'get'> => ({
@@ -98,7 +98,7 @@ products.head = (args: { position: string | number } | [position: string | numbe
     products.form = productsForm
 /**
 * @see \App\Http\Controllers\WarehouseController::update
- * @see app/Http/Controllers/WarehouseController.php:204
+ * @see app/Http/Controllers/WarehouseController.php:284
  * @route '/api/warehouse/positions/{position}'
  */
 export const update = (args: { position: number | { id: number } } | [position: number | { id: number } ] | number | { id: number }, options?: RouteQueryOptions): RouteDefinition<'put'> => ({
@@ -113,7 +113,7 @@ update.definition = {
 
 /**
 * @see \App\Http\Controllers\WarehouseController::update
- * @see app/Http/Controllers/WarehouseController.php:204
+ * @see app/Http/Controllers/WarehouseController.php:284
  * @route '/api/warehouse/positions/{position}'
  */
 update.url = (args: { position: number | { id: number } } | [position: number | { id: number } ] | number | { id: number }, options?: RouteQueryOptions) => {
@@ -146,7 +146,7 @@ update.url = (args: { position: number | { id: number } } | [position: number | 
 
 /**
 * @see \App\Http\Controllers\WarehouseController::update
- * @see app/Http/Controllers/WarehouseController.php:204
+ * @see app/Http/Controllers/WarehouseController.php:284
  * @route '/api/warehouse/positions/{position}'
  */
 update.put = (args: { position: number | { id: number } } | [position: number | { id: number } ] | number | { id: number }, options?: RouteQueryOptions): RouteDefinition<'put'> => ({
@@ -156,7 +156,7 @@ update.put = (args: { position: number | { id: number } } | [position: number | 
 
     /**
 * @see \App\Http\Controllers\WarehouseController::update
- * @see app/Http/Controllers/WarehouseController.php:204
+ * @see app/Http/Controllers/WarehouseController.php:284
  * @route '/api/warehouse/positions/{position}'
  */
     const updateForm = (args: { position: number | { id: number } } | [position: number | { id: number } ] | number | { id: number }, options?: RouteQueryOptions): RouteFormDefinition<'post'> => ({
@@ -171,7 +171,7 @@ update.put = (args: { position: number | { id: number } } | [position: number | 
 
             /**
 * @see \App\Http\Controllers\WarehouseController::update
- * @see app/Http/Controllers/WarehouseController.php:204
+ * @see app/Http/Controllers/WarehouseController.php:284
  * @route '/api/warehouse/positions/{position}'
  */
         updateForm.put = (args: { position: number | { id: number } } | [position: number | { id: number } ] | number | { id: number }, options?: RouteQueryOptions): RouteFormDefinition<'post'> => ({

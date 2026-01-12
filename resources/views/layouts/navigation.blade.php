@@ -30,6 +30,12 @@
                         </x-nav-link>
                     @endif
                     
+                    {{-- @if(Auth::user()->hasRole('admin'))
+                        <x-nav-link :href="route('processing-parameters.index')" :active="request()->routeIs('processing-parameters.index')">
+                            {{ __('Parametri di lavorazione') }}
+                        </x-nav-link>
+                    @endif --}}
+                    
                     @if(Auth::user()->hasRole('admin'))
                         <!-- Dropdown Impostazioni -->
                         <div class="hidden sm:flex sm:items-center">
@@ -124,6 +130,11 @@
                     {{ __('Magazzino') }}
                 </x-responsive-nav-link>
             @endif
+            {{-- @if(Auth::user()->hasRole('admin'))
+                <x-responsive-nav-link :href="route('processing-parameters.index')" :active="request()->routeIs('processing-parameters.index')">
+                    {{ __('Parametri di lavorazione') }}
+                </x-responsive-nav-link>
+            @endif --}}
             @if(Auth::user()->hasRole('admin'))
                 <x-responsive-nav-link :href="route('users.index')" :active="request()->routeIs('users.index')">
                     {{ __('Utenti') }}

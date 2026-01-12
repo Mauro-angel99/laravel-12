@@ -22,14 +22,28 @@ class Warehouse extends Model
         'notes',
         'pending',
         'pending_code',
+        'created_by',
+        'updated_by',
+        'received_at',
     ];
 
     protected $casts = [
         'pending' => 'boolean',
+        'received_at' => 'datetime',
     ];
 
     public function position(): BelongsTo
     {
         return $this->belongsTo(WarehousePosition::class, 'warehouse_position_id');
+    }
+
+    public function createdBy(): BelongsTo
+    {
+        return $this->belongsTo(\App\Models\User::class, 'created_by');
+    }
+
+    public function updatedBy(): BelongsTo
+    {
+        return $this->belongsTo(\App\Models\User::class, 'updated_by');
     }
 }

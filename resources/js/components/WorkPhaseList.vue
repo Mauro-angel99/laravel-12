@@ -29,6 +29,7 @@ const selectedPhase = ref(null)
 const users = ref([])
 const selectedUser = ref('')
 const notes = ref('')
+const sortBy = ref('drcon_asc')
 const tableContainer = ref(null)
 const pagination = ref({
   current_page: 1,
@@ -77,6 +78,7 @@ const fetchWorkPhases = async (searchTerm = '', fllav = '', dtras = '', dtric = 
     if (toDate) params.date_to = toDate
     if (onlyWorked) params.only_worked = '1'
     if (onlyAvailable) params.only_available = '1'
+    if (sortBy.value) params.sort = sortBy.value
     
     const res = await axios.get('/api/work-phases', { params })
     workPhases.value = res.data.data
@@ -213,6 +215,11 @@ watch(showOnlyWorked, () => {
 
 // Watcher per lo switch "Solo Disponibili" (senza debounce)
 watch(showOnlyAvailable, () => {
+  applyFilters()
+})
+
+// Watcher per l'ordinamento
+watch(sortBy, () => {
   applyFilters()
 })
 
@@ -359,18 +366,35 @@ const confirmSelected = async () => {
           </div>
         </div>
 
-        <!-- Action buttons -->
-        <div class="flex justify-end gap-2">
-          <button 
-            v-if="searchFllav || searchDtras || searchDtric || searchDtnum || searchIdopr || showOnlyWorked || showOnlyAvailable || dateFrom || dateTo"
-            @click="clearAllFilters"
-            class="inline-flex items-center px-4 py-2 border border-gray-300 font-semibold text-xs font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-copam-blue"
-          >
-            <svg class="h-4 w-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
-            </svg>
-            Cancella filtri
-          </button>
+        <!-- Ordinamento e Action buttons -->
+        <div class="flex justify-between items-center gap-2">
+          <div>
+            <label class="block text-xs font-bold mb-1">Ordinamento</label>
+            <select 
+              v-model="sortBy"
+              class="px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:ring-copam-blue focus:border-copam-blue text-xs"
+            >
+              <option value="drcon_asc">DRCON crescente</option>
+              <option value="drcon_desc">DRCON decrescente</option>
+              <option value="dtras_asc">DTRAS crescente</option>
+              <option value="flnot_asc">FLNOT crescente</option>
+              <option value="armat_asc">ARMAT crescente</option>
+              <option value="ardmz_asc">ARDMZ crescente</option>
+            </select>
+          </div>
+          
+          <div class="flex gap-2">
+            <button 
+              v-if="searchFllav || searchDtras || searchDtric || searchDtnum || searchIdopr || showOnlyWorked || showOnlyAvailable || dateFrom || dateTo"
+              @click="clearAllFilters"
+              class="inline-flex items-center px-4 py-2 border border-gray-300 font-semibold text-xs font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-copam-blue"
+            >
+              <svg class="h-4 w-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
+              </svg>
+              Cancella filtri
+            </button>
+          </div>
         </div>
       </div>
 

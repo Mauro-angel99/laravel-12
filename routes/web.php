@@ -7,6 +7,7 @@ use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\WorkPhaseController;
 use App\Http\Controllers\WorkPhaseAssignmentController;
 use App\Http\Controllers\WarehouseController;
+use App\Http\Controllers\ProcessingParametersController;
 use App\Http\Controllers\UserController as ApiUserController;
 
 Route::middleware(['auth', 'role:admin'])->group(function () {
@@ -86,6 +87,12 @@ Route::middleware('auth')->group(function () {
     Route::delete('/api/warehouse/{warehouse}', [WarehouseController::class, 'destroy'])
         ->name('warehouse.destroy');
 });
+
+// Processing Parameters routes
+// Route::middleware('auth')->group(function () {
+//     Route::get('/processing-parameters', [ProcessingParametersController::class, 'index'])
+//         ->name('processing-parameters.index');
+// });
 
 // Settings routes
 Route::middleware('auth')->group(function () {

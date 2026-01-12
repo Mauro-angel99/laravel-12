@@ -1,6 +1,7 @@
 <script setup>
 import { ref, watch, onMounted } from 'vue'
 import axios from 'axios'
+import AssignedWorkPhaseModal from './AssignedWorkPhaseModal.vue'
 import flatpickr from 'flatpickr'
 import 'flatpickr/dist/flatpickr.css'
 import { Italian } from 'flatpickr/dist/l10n/it.js'
@@ -19,6 +20,8 @@ const dateFromInstance = ref(null)
 const dateToInstance = ref(null)
 const loading = ref(false)
 const currentPage = ref(1)
+const showModal = ref(false)
+const selectedAssignment = ref(null)
 const pagination = ref({
   current_page: 1,
   per_page: 20,
@@ -103,6 +106,15 @@ const formatDate = (dateString) => {
   const month = (date.getMonth() + 1).toString().padStart(2, '0');
   const year = date.getFullYear();
   return `${day}/${month}/${year}`;
+}
+
+const openModal = (assignment) => {
+  selectedAssignment.value = assignment
+  showModal.value = true
+}
+
+const closeModal = () => {
+  showModal.value = false
 }
 
 // Carica i dati iniziali
@@ -266,7 +278,7 @@ onMounted(async () => {
               </div>
             </td>
           </tr>
-          <tr v-else v-for="assignment in assignedWorkPhases" :key="assignment.id" class="hover:bg-gray-50 border-b border-gray-200">
+          <tr v-else v-for="assignment in assignedWorkPhases" :key="assignment.id" @click="openModal(assignment)" class="hover:bg-gray-100 border-b border-gray-200 cursor-pointer transition-colors">
             <td class="px-3 py-2 whitespace-nowrap text-xs text-gray-900 border-r border-gray-200">
               {{ assignment.work_phase?.FLASS || 'N/D' }}
             </td>
@@ -353,4 +365,11 @@ onMounted(async () => {
       </button>
     </div>
   </div>
+
+  <!-- Modal -->
+  <AssignedWorkPhaseModal 
+    :show="showModal" 
+    :assignment="selectedAssignment" 
+    @update:show="closeModal"
+  />
 </template>

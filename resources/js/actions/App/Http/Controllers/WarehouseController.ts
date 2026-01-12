@@ -1,7 +1,7 @@
 import { queryParams, type RouteQueryOptions, type RouteDefinition, type RouteFormDefinition, applyUrlDefaults } from './../../../../wayfinder'
 /**
 * @see \App\Http\Controllers\WarehouseController::index
- * @see app/Http/Controllers/WarehouseController.php:11
+ * @see app/Http/Controllers/WarehouseController.php:14
  * @route '/warehouse'
  */
 export const index = (options?: RouteQueryOptions): RouteDefinition<'get'> => ({
@@ -16,7 +16,7 @@ index.definition = {
 
 /**
 * @see \App\Http\Controllers\WarehouseController::index
- * @see app/Http/Controllers/WarehouseController.php:11
+ * @see app/Http/Controllers/WarehouseController.php:14
  * @route '/warehouse'
  */
 index.url = (options?: RouteQueryOptions) => {
@@ -25,7 +25,7 @@ index.url = (options?: RouteQueryOptions) => {
 
 /**
 * @see \App\Http\Controllers\WarehouseController::index
- * @see app/Http/Controllers/WarehouseController.php:11
+ * @see app/Http/Controllers/WarehouseController.php:14
  * @route '/warehouse'
  */
 index.get = (options?: RouteQueryOptions): RouteDefinition<'get'> => ({
@@ -34,7 +34,7 @@ index.get = (options?: RouteQueryOptions): RouteDefinition<'get'> => ({
 })
 /**
 * @see \App\Http\Controllers\WarehouseController::index
- * @see app/Http/Controllers/WarehouseController.php:11
+ * @see app/Http/Controllers/WarehouseController.php:14
  * @route '/warehouse'
  */
 index.head = (options?: RouteQueryOptions): RouteDefinition<'head'> => ({
@@ -44,7 +44,7 @@ index.head = (options?: RouteQueryOptions): RouteDefinition<'head'> => ({
 
     /**
 * @see \App\Http\Controllers\WarehouseController::index
- * @see app/Http/Controllers/WarehouseController.php:11
+ * @see app/Http/Controllers/WarehouseController.php:14
  * @route '/warehouse'
  */
     const indexForm = (options?: RouteQueryOptions): RouteFormDefinition<'get'> => ({
@@ -54,7 +54,7 @@ index.head = (options?: RouteQueryOptions): RouteDefinition<'head'> => ({
 
             /**
 * @see \App\Http\Controllers\WarehouseController::index
- * @see app/Http/Controllers/WarehouseController.php:11
+ * @see app/Http/Controllers/WarehouseController.php:14
  * @route '/warehouse'
  */
         indexForm.get = (options?: RouteQueryOptions): RouteFormDefinition<'get'> => ({
@@ -63,7 +63,7 @@ index.head = (options?: RouteQueryOptions): RouteDefinition<'head'> => ({
         })
             /**
 * @see \App\Http\Controllers\WarehouseController::index
- * @see app/Http/Controllers/WarehouseController.php:11
+ * @see app/Http/Controllers/WarehouseController.php:14
  * @route '/warehouse'
  */
         indexForm.head = (options?: RouteQueryOptions): RouteFormDefinition<'get'> => ({
@@ -79,7 +79,7 @@ index.head = (options?: RouteQueryOptions): RouteDefinition<'head'> => ({
     index.form = indexForm
 /**
 * @see \App\Http\Controllers\WarehouseController::list
- * @see app/Http/Controllers/WarehouseController.php:17
+ * @see app/Http/Controllers/WarehouseController.php:20
  * @route '/api/warehouse'
  */
 export const list = (options?: RouteQueryOptions): RouteDefinition<'get'> => ({
@@ -94,7 +94,7 @@ list.definition = {
 
 /**
 * @see \App\Http\Controllers\WarehouseController::list
- * @see app/Http/Controllers/WarehouseController.php:17
+ * @see app/Http/Controllers/WarehouseController.php:20
  * @route '/api/warehouse'
  */
 list.url = (options?: RouteQueryOptions) => {
@@ -103,7 +103,7 @@ list.url = (options?: RouteQueryOptions) => {
 
 /**
 * @see \App\Http\Controllers\WarehouseController::list
- * @see app/Http/Controllers/WarehouseController.php:17
+ * @see app/Http/Controllers/WarehouseController.php:20
  * @route '/api/warehouse'
  */
 list.get = (options?: RouteQueryOptions): RouteDefinition<'get'> => ({
@@ -112,7 +112,7 @@ list.get = (options?: RouteQueryOptions): RouteDefinition<'get'> => ({
 })
 /**
 * @see \App\Http\Controllers\WarehouseController::list
- * @see app/Http/Controllers/WarehouseController.php:17
+ * @see app/Http/Controllers/WarehouseController.php:20
  * @route '/api/warehouse'
  */
 list.head = (options?: RouteQueryOptions): RouteDefinition<'head'> => ({
@@ -122,7 +122,7 @@ list.head = (options?: RouteQueryOptions): RouteDefinition<'head'> => ({
 
     /**
 * @see \App\Http\Controllers\WarehouseController::list
- * @see app/Http/Controllers/WarehouseController.php:17
+ * @see app/Http/Controllers/WarehouseController.php:20
  * @route '/api/warehouse'
  */
     const listForm = (options?: RouteQueryOptions): RouteFormDefinition<'get'> => ({
@@ -132,7 +132,7 @@ list.head = (options?: RouteQueryOptions): RouteDefinition<'head'> => ({
 
             /**
 * @see \App\Http\Controllers\WarehouseController::list
- * @see app/Http/Controllers/WarehouseController.php:17
+ * @see app/Http/Controllers/WarehouseController.php:20
  * @route '/api/warehouse'
  */
         listForm.get = (options?: RouteQueryOptions): RouteFormDefinition<'get'> => ({
@@ -141,7 +141,7 @@ list.head = (options?: RouteQueryOptions): RouteDefinition<'head'> => ({
         })
             /**
 * @see \App\Http\Controllers\WarehouseController::list
- * @see app/Http/Controllers/WarehouseController.php:17
+ * @see app/Http/Controllers/WarehouseController.php:20
  * @route '/api/warehouse'
  */
         listForm.head = (options?: RouteQueryOptions): RouteFormDefinition<'get'> => ({
@@ -157,7 +157,7 @@ list.head = (options?: RouteQueryOptions): RouteDefinition<'head'> => ({
     list.form = listForm
 /**
 * @see \App\Http\Controllers\WarehouseController::getPositionProducts
- * @see app/Http/Controllers/WarehouseController.php:78
+ * @see app/Http/Controllers/WarehouseController.php:81
  * @route '/api/warehouse/positions/{position}/products'
  */
 export const getPositionProducts = (args: { position: string | number } | [position: string | number ] | string | number, options?: RouteQueryOptions): RouteDefinition<'get'> => ({
@@ -172,7 +172,7 @@ getPositionProducts.definition = {
 
 /**
 * @see \App\Http\Controllers\WarehouseController::getPositionProducts
- * @see app/Http/Controllers/WarehouseController.php:78
+ * @see app/Http/Controllers/WarehouseController.php:81
  * @route '/api/warehouse/positions/{position}/products'
  */
 getPositionProducts.url = (args: { position: string | number } | [position: string | number ] | string | number, options?: RouteQueryOptions) => {
@@ -200,7 +200,7 @@ getPositionProducts.url = (args: { position: string | number } | [position: stri
 
 /**
 * @see \App\Http\Controllers\WarehouseController::getPositionProducts
- * @see app/Http/Controllers/WarehouseController.php:78
+ * @see app/Http/Controllers/WarehouseController.php:81
  * @route '/api/warehouse/positions/{position}/products'
  */
 getPositionProducts.get = (args: { position: string | number } | [position: string | number ] | string | number, options?: RouteQueryOptions): RouteDefinition<'get'> => ({
@@ -209,7 +209,7 @@ getPositionProducts.get = (args: { position: string | number } | [position: stri
 })
 /**
 * @see \App\Http\Controllers\WarehouseController::getPositionProducts
- * @see app/Http/Controllers/WarehouseController.php:78
+ * @see app/Http/Controllers/WarehouseController.php:81
  * @route '/api/warehouse/positions/{position}/products'
  */
 getPositionProducts.head = (args: { position: string | number } | [position: string | number ] | string | number, options?: RouteQueryOptions): RouteDefinition<'head'> => ({
@@ -219,7 +219,7 @@ getPositionProducts.head = (args: { position: string | number } | [position: str
 
     /**
 * @see \App\Http\Controllers\WarehouseController::getPositionProducts
- * @see app/Http/Controllers/WarehouseController.php:78
+ * @see app/Http/Controllers/WarehouseController.php:81
  * @route '/api/warehouse/positions/{position}/products'
  */
     const getPositionProductsForm = (args: { position: string | number } | [position: string | number ] | string | number, options?: RouteQueryOptions): RouteFormDefinition<'get'> => ({
@@ -229,7 +229,7 @@ getPositionProducts.head = (args: { position: string | number } | [position: str
 
             /**
 * @see \App\Http\Controllers\WarehouseController::getPositionProducts
- * @see app/Http/Controllers/WarehouseController.php:78
+ * @see app/Http/Controllers/WarehouseController.php:81
  * @route '/api/warehouse/positions/{position}/products'
  */
         getPositionProductsForm.get = (args: { position: string | number } | [position: string | number ] | string | number, options?: RouteQueryOptions): RouteFormDefinition<'get'> => ({
@@ -238,7 +238,7 @@ getPositionProducts.head = (args: { position: string | number } | [position: str
         })
             /**
 * @see \App\Http\Controllers\WarehouseController::getPositionProducts
- * @see app/Http/Controllers/WarehouseController.php:78
+ * @see app/Http/Controllers/WarehouseController.php:81
  * @route '/api/warehouse/positions/{position}/products'
  */
         getPositionProductsForm.head = (args: { position: string | number } | [position: string | number ] | string | number, options?: RouteQueryOptions): RouteFormDefinition<'get'> => ({
@@ -254,7 +254,7 @@ getPositionProducts.head = (args: { position: string | number } | [position: str
     getPositionProducts.form = getPositionProductsForm
 /**
 * @see \App\Http\Controllers\WarehouseController::updatePosition
- * @see app/Http/Controllers/WarehouseController.php:204
+ * @see app/Http/Controllers/WarehouseController.php:284
  * @route '/api/warehouse/positions/{position}'
  */
 export const updatePosition = (args: { position: number | { id: number } } | [position: number | { id: number } ] | number | { id: number }, options?: RouteQueryOptions): RouteDefinition<'put'> => ({
@@ -269,7 +269,7 @@ updatePosition.definition = {
 
 /**
 * @see \App\Http\Controllers\WarehouseController::updatePosition
- * @see app/Http/Controllers/WarehouseController.php:204
+ * @see app/Http/Controllers/WarehouseController.php:284
  * @route '/api/warehouse/positions/{position}'
  */
 updatePosition.url = (args: { position: number | { id: number } } | [position: number | { id: number } ] | number | { id: number }, options?: RouteQueryOptions) => {
@@ -302,7 +302,7 @@ updatePosition.url = (args: { position: number | { id: number } } | [position: n
 
 /**
 * @see \App\Http\Controllers\WarehouseController::updatePosition
- * @see app/Http/Controllers/WarehouseController.php:204
+ * @see app/Http/Controllers/WarehouseController.php:284
  * @route '/api/warehouse/positions/{position}'
  */
 updatePosition.put = (args: { position: number | { id: number } } | [position: number | { id: number } ] | number | { id: number }, options?: RouteQueryOptions): RouteDefinition<'put'> => ({
@@ -312,7 +312,7 @@ updatePosition.put = (args: { position: number | { id: number } } | [position: n
 
     /**
 * @see \App\Http\Controllers\WarehouseController::updatePosition
- * @see app/Http/Controllers/WarehouseController.php:204
+ * @see app/Http/Controllers/WarehouseController.php:284
  * @route '/api/warehouse/positions/{position}'
  */
     const updatePositionForm = (args: { position: number | { id: number } } | [position: number | { id: number } ] | number | { id: number }, options?: RouteQueryOptions): RouteFormDefinition<'post'> => ({
@@ -327,7 +327,7 @@ updatePosition.put = (args: { position: number | { id: number } } | [position: n
 
             /**
 * @see \App\Http\Controllers\WarehouseController::updatePosition
- * @see app/Http/Controllers/WarehouseController.php:204
+ * @see app/Http/Controllers/WarehouseController.php:284
  * @route '/api/warehouse/positions/{position}'
  */
         updatePositionForm.put = (args: { position: number | { id: number } } | [position: number | { id: number } ] | number | { id: number }, options?: RouteQueryOptions): RouteFormDefinition<'post'> => ({
@@ -343,7 +343,7 @@ updatePosition.put = (args: { position: number | { id: number } } | [position: n
     updatePosition.form = updatePositionForm
 /**
 * @see \App\Http\Controllers\WarehouseController::store
- * @see app/Http/Controllers/WarehouseController.php:88
+ * @see app/Http/Controllers/WarehouseController.php:91
  * @route '/api/warehouse'
  */
 export const store = (options?: RouteQueryOptions): RouteDefinition<'post'> => ({
@@ -358,7 +358,7 @@ store.definition = {
 
 /**
 * @see \App\Http\Controllers\WarehouseController::store
- * @see app/Http/Controllers/WarehouseController.php:88
+ * @see app/Http/Controllers/WarehouseController.php:91
  * @route '/api/warehouse'
  */
 store.url = (options?: RouteQueryOptions) => {
@@ -367,7 +367,7 @@ store.url = (options?: RouteQueryOptions) => {
 
 /**
 * @see \App\Http\Controllers\WarehouseController::store
- * @see app/Http/Controllers/WarehouseController.php:88
+ * @see app/Http/Controllers/WarehouseController.php:91
  * @route '/api/warehouse'
  */
 store.post = (options?: RouteQueryOptions): RouteDefinition<'post'> => ({
@@ -377,7 +377,7 @@ store.post = (options?: RouteQueryOptions): RouteDefinition<'post'> => ({
 
     /**
 * @see \App\Http\Controllers\WarehouseController::store
- * @see app/Http/Controllers/WarehouseController.php:88
+ * @see app/Http/Controllers/WarehouseController.php:91
  * @route '/api/warehouse'
  */
     const storeForm = (options?: RouteQueryOptions): RouteFormDefinition<'post'> => ({
@@ -387,7 +387,7 @@ store.post = (options?: RouteQueryOptions): RouteDefinition<'post'> => ({
 
             /**
 * @see \App\Http\Controllers\WarehouseController::store
- * @see app/Http/Controllers/WarehouseController.php:88
+ * @see app/Http/Controllers/WarehouseController.php:91
  * @route '/api/warehouse'
  */
         storeForm.post = (options?: RouteQueryOptions): RouteFormDefinition<'post'> => ({
@@ -398,7 +398,7 @@ store.post = (options?: RouteQueryOptions): RouteDefinition<'post'> => ({
     store.form = storeForm
 /**
 * @see \App\Http\Controllers\WarehouseController::update
- * @see app/Http/Controllers/WarehouseController.php:139
+ * @see app/Http/Controllers/WarehouseController.php:167
  * @route '/api/warehouse/{warehouse}'
  */
 export const update = (args: { warehouse: number | { id: number } } | [warehouse: number | { id: number } ] | number | { id: number }, options?: RouteQueryOptions): RouteDefinition<'put'> => ({
@@ -413,7 +413,7 @@ update.definition = {
 
 /**
 * @see \App\Http\Controllers\WarehouseController::update
- * @see app/Http/Controllers/WarehouseController.php:139
+ * @see app/Http/Controllers/WarehouseController.php:167
  * @route '/api/warehouse/{warehouse}'
  */
 update.url = (args: { warehouse: number | { id: number } } | [warehouse: number | { id: number } ] | number | { id: number }, options?: RouteQueryOptions) => {
@@ -446,7 +446,7 @@ update.url = (args: { warehouse: number | { id: number } } | [warehouse: number 
 
 /**
 * @see \App\Http\Controllers\WarehouseController::update
- * @see app/Http/Controllers/WarehouseController.php:139
+ * @see app/Http/Controllers/WarehouseController.php:167
  * @route '/api/warehouse/{warehouse}'
  */
 update.put = (args: { warehouse: number | { id: number } } | [warehouse: number | { id: number } ] | number | { id: number }, options?: RouteQueryOptions): RouteDefinition<'put'> => ({
@@ -456,7 +456,7 @@ update.put = (args: { warehouse: number | { id: number } } | [warehouse: number 
 
     /**
 * @see \App\Http\Controllers\WarehouseController::update
- * @see app/Http/Controllers/WarehouseController.php:139
+ * @see app/Http/Controllers/WarehouseController.php:167
  * @route '/api/warehouse/{warehouse}'
  */
     const updateForm = (args: { warehouse: number | { id: number } } | [warehouse: number | { id: number } ] | number | { id: number }, options?: RouteQueryOptions): RouteFormDefinition<'post'> => ({
@@ -471,7 +471,7 @@ update.put = (args: { warehouse: number | { id: number } } | [warehouse: number 
 
             /**
 * @see \App\Http\Controllers\WarehouseController::update
- * @see app/Http/Controllers/WarehouseController.php:139
+ * @see app/Http/Controllers/WarehouseController.php:167
  * @route '/api/warehouse/{warehouse}'
  */
         updateForm.put = (args: { warehouse: number | { id: number } } | [warehouse: number | { id: number } ] | number | { id: number }, options?: RouteQueryOptions): RouteFormDefinition<'post'> => ({
@@ -487,7 +487,7 @@ update.put = (args: { warehouse: number | { id: number } } | [warehouse: number 
     update.form = updateForm
 /**
 * @see \App\Http\Controllers\WarehouseController::destroy
- * @see app/Http/Controllers/WarehouseController.php:186
+ * @see app/Http/Controllers/WarehouseController.php:238
  * @route '/api/warehouse/{warehouse}'
  */
 export const destroy = (args: { warehouse: number | { id: number } } | [warehouse: number | { id: number } ] | number | { id: number }, options?: RouteQueryOptions): RouteDefinition<'delete'> => ({
@@ -502,7 +502,7 @@ destroy.definition = {
 
 /**
 * @see \App\Http\Controllers\WarehouseController::destroy
- * @see app/Http/Controllers/WarehouseController.php:186
+ * @see app/Http/Controllers/WarehouseController.php:238
  * @route '/api/warehouse/{warehouse}'
  */
 destroy.url = (args: { warehouse: number | { id: number } } | [warehouse: number | { id: number } ] | number | { id: number }, options?: RouteQueryOptions) => {
@@ -535,7 +535,7 @@ destroy.url = (args: { warehouse: number | { id: number } } | [warehouse: number
 
 /**
 * @see \App\Http\Controllers\WarehouseController::destroy
- * @see app/Http/Controllers/WarehouseController.php:186
+ * @see app/Http/Controllers/WarehouseController.php:238
  * @route '/api/warehouse/{warehouse}'
  */
 destroy.delete = (args: { warehouse: number | { id: number } } | [warehouse: number | { id: number } ] | number | { id: number }, options?: RouteQueryOptions): RouteDefinition<'delete'> => ({
@@ -545,7 +545,7 @@ destroy.delete = (args: { warehouse: number | { id: number } } | [warehouse: num
 
     /**
 * @see \App\Http\Controllers\WarehouseController::destroy
- * @see app/Http/Controllers/WarehouseController.php:186
+ * @see app/Http/Controllers/WarehouseController.php:238
  * @route '/api/warehouse/{warehouse}'
  */
     const destroyForm = (args: { warehouse: number | { id: number } } | [warehouse: number | { id: number } ] | number | { id: number }, options?: RouteQueryOptions): RouteFormDefinition<'post'> => ({
@@ -560,7 +560,7 @@ destroy.delete = (args: { warehouse: number | { id: number } } | [warehouse: num
 
             /**
 * @see \App\Http\Controllers\WarehouseController::destroy
- * @see app/Http/Controllers/WarehouseController.php:186
+ * @see app/Http/Controllers/WarehouseController.php:238
  * @route '/api/warehouse/{warehouse}'
  */
         destroyForm.delete = (args: { warehouse: number | { id: number } } | [warehouse: number | { id: number } ] | number | { id: number }, options?: RouteQueryOptions): RouteFormDefinition<'post'> => ({
