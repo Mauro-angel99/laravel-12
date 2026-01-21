@@ -136,7 +136,7 @@ const openEditModal = (product) => {
     product_description: product.product_description || '',
     notes: product.notes || ''
   }
-  showProductsModal.value = false
+  // Non chiudere showProductsModal per permettere modali annidate
   showEditModal.value = true
 }
 
@@ -162,6 +162,13 @@ const updateWarehouse = async () => {
     const res = await axios.put(`/api/warehouse/${editingProduct.value.id}`, formData.value)
     closeEditModal()
     showMessageModal('success', 'Successo', res.data.message || 'Elemento aggiornato con successo')
+    
+    // Se la modale prodotti è aperta, ricarica solo i prodotti della posizione
+    if (showProductsModal.value && selectedPosition.value) {
+      const posRes = await axios.get(`/api/warehouse/positions/${selectedPosition.value.id}/products`)
+      selectedProducts.value = posRes.data.products
+    }
+    
     await fetchPositions(currentPage.value)
   } catch (error) {
     const errorMessage = error.response?.data?.message || 'Errore durante l\'aggiornamento'
@@ -176,6 +183,13 @@ const deleteWarehouse = async () => {
     const res = await axios.delete(`/api/warehouse/${editingProduct.value.id}`)
     closeEditModal()
     showMessageModal('success', 'Successo', res.data.message || 'Elemento eliminato con successo')
+    
+    // Se la modale prodotti è aperta, ricarica solo i prodotti della posizione
+    if (showProductsModal.value && selectedPosition.value) {
+      const posRes = await axios.get(`/api/warehouse/positions/${selectedPosition.value.id}/products`)
+      selectedProducts.value = posRes.data.products
+    }
+    
     await fetchPositions(currentPage.value)
   } catch (error) {
     const errorMessage = error.response?.data?.message || 'Errore durante l\'eliminazione'
@@ -505,7 +519,7 @@ onMounted(async () => {
     </div>
 
     <!-- Modal Modifica Merce -->
-    <div v-if="showEditModal" class="fixed inset-0 z-50 overflow-y-auto">
+    <div v-if="showEditModal" class="fixed inset-0 z-[60] overflow-y-auto">
       <div class="flex items-center justify-center min-h-screen px-4 pt-4 pb-20 text-center sm:block sm:p-0">
         <div 
           class="fixed inset-0 transition-opacity bg-gray-500 bg-opacity-75"
@@ -576,7 +590,7 @@ onMounted(async () => {
 
   <!-- Modal Conferma Eliminazione -->
   <Teleport to="body">
-    <div v-if="showDeleteModal" class="fixed inset-0 z-50 overflow-y-auto">
+    <div v-if="showDeleteModal" class="fixed inset-0 z-[70] overflow-y-auto">
       <div class="flex items-center justify-center min-h-screen px-4 pt-4 pb-20 text-center sm:block sm:p-0">
         <div 
           class="fixed inset-0 transition-opacity bg-gray-500 bg-opacity-75"
