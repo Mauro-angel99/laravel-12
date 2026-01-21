@@ -144,7 +144,7 @@ onMounted(() => {
         @click="openCreateModal"
         class="px-4 py-2 bg-copam-blue text-white text-sm font-medium rounded-md hover:bg-copam-blue/90 focus:outline-none focus:ring-2 focus:ring-copam-blue"
       >
-        Aggiungi Parametro
+        Aggiungi Lavorazione
       </button>
     </div>
 
@@ -178,7 +178,7 @@ onMounted(() => {
                                             Nessun parametro creato
                                         </h3>
                                         <p class="mt-1 text-xs text-gray-500">
-                                            Inizia creando un nuovo parametro di lavorazione.
+                                            Inizia creando un nuova Lavorazione.
                                         </p>
                                     </div>
                                 </td>
@@ -213,7 +213,7 @@ onMounted(() => {
             
             <div class="inline-block align-bottom bg-white rounded-lg px-4 pt-5 pb-4 text-left overflow-hidden shadow-xl transform transition-all sm:my-8 sm:align-middle sm:max-w-lg sm:w-full sm:p-6">
                 <h3 class="text-lg font-medium leading-6 text-gray-900 mb-4">
-                    Nuovo Parametro di Lavorazione
+                    Nuova Lavorazione
                 </h3>
                 
                 <form @submit.prevent="saveParameter" class="space-y-4">

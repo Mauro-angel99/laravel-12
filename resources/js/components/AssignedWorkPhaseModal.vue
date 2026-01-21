@@ -61,16 +61,8 @@
                     <p class="mt-1">{{ assignment?.work_phase?.FLSEQ || 'N/D' }}</p>
                   </div>
                   <div>
-                    <p class="text-sm font-medium text-gray-500">FLLAV</p>
-                    <p class="mt-1">{{ assignment?.work_phase?.FLLAV || 'N/D' }}</p>
-                  </div>
-                  <div>
                     <p class="text-sm font-medium text-gray-500">FLDES</p>
                     <p class="mt-1">{{ assignment?.work_phase?.FLDES || 'N/D' }}</p>
-                  </div>
-                  <div>
-                    <p class="text-sm font-medium text-gray-500">OPART</p>
-                    <p class="mt-1">{{ assignment?.work_phase?.OPART || 'N/D' }}</p>
                   </div>
                   <div>
                     <p class="text-sm font-medium text-gray-500">FLQTA</p>
@@ -122,23 +114,30 @@
               <!-- Tab Parametri -->
               <div v-show="activeTab === 'parametri'">
                 <div class="space-y-4">
-                  <div>
-                    <label class="block text-sm font-medium text-gray-700 mb-2">
-                      Seleziona Parametro di Lavorazione
-                    </label>
-                    <select
-                      v-model="selectedParameterId"
-                      class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-copam-blue focus:border-copam-blue"
-                    >
-                      <option :value="null">-- Seleziona un parametro --</option>
-                      <option
-                        v-for="parameter in parameters"
-                        :key="parameter.id"
-                        :value="parameter.id"
-                      >
-                        {{ parameter.name }}
-                      </option>
-                    </select>
+                  <!-- Campi informativi -->
+                  <div class="grid grid-cols-2 gap-4">
+                    <div>
+                      <label class="block text-sm font-medium text-gray-700 mb-2">
+                        Codice Lavorazione (FLLAV)
+                      </label>
+                      <input
+                        :value="assignment?.work_phase?.FLLAV || 'N/D'"
+                        type="text"
+                        readonly
+                        class="w-full px-3 py-2 border border-gray-300 rounded-md bg-gray-50 text-gray-600"
+                      />
+                    </div>
+                    <div>
+                      <label class="block text-sm font-medium text-gray-700 mb-2">
+                        Codice Articolo (OPART)
+                      </label>
+                      <input
+                        :value="assignment?.work_phase?.OPART || 'N/D'"
+                        type="text"
+                        readonly
+                        class="w-full px-3 py-2 border border-gray-300 rounded-md bg-gray-50 text-gray-600"
+                      />
+                    </div>
                   </div>
 
                   <!-- Form campi dinamici -->
@@ -171,9 +170,9 @@
                   </div>
 
                   <!-- Messaggio quando non ci sono campi -->
-                  <div v-else-if="selectedParameter && (!selectedParameter.fields || selectedParameter.fields.length === 0)" class="mt-6">
+                  <div v-else-if="!selectedParameter || !selectedParameter.fields || selectedParameter.fields.length === 0" class="mt-6">
                     <p class="text-sm text-gray-500 text-center py-4 bg-gray-50 rounded-md">
-                      Questo parametro non ha campi configurati
+                      Nessun parametro configurato per questa lavorazione
                     </p>
                   </div>
                 </div>
