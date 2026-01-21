@@ -8,6 +8,7 @@ use App\Http\Controllers\WorkPhaseController;
 use App\Http\Controllers\WorkPhaseAssignmentController;
 use App\Http\Controllers\WarehouseController;
 use App\Http\Controllers\ProcessingParametersController;
+use App\Http\Controllers\WorkParameterController;
 use App\Http\Controllers\UserController as ApiUserController;
 
 Route::middleware(['auth', 'role:admin'])->group(function () {
@@ -94,12 +95,21 @@ Route::middleware('auth')->group(function () {
 //         ->name('processing-parameters.index');
 // });
 
-// Settings routes
+// Work Parameters routes
 Route::middleware('auth')->group(function () {
     Route::get('/settings/general', function () {
         return view('settings.general');
-    })->name('settings.general');
+    })->name('general.edit');
+    
+    Route::get('/api/work-parameters', [WorkParameterController::class, 'index'])
+        ->name('work-parameters.index');
+    
+    Route::post('/api/work-parameters', [WorkParameterController::class, 'store'])
+        ->name('work-parameters.store');
+    
+    Route::put('/api/work-parameters/{workParameter}', [WorkParameterController::class, 'update'])
+        ->name('work-parameters.update');
+    
+    Route::delete('/api/work-parameters/{workParameter}', [WorkParameterController::class, 'destroy'])
+        ->name('work-parameters.destroy');
 });
-
-
-require __DIR__.'/auth.php';

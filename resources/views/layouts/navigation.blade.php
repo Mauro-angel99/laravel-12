@@ -55,7 +55,7 @@
                                     <x-dropdown-link :href="route('users.index')">
                                         {{ __('Utenti') }}
                                     </x-dropdown-link>
-                                    <x-dropdown-link :href="route('settings.general')">
+                                    <x-dropdown-link :href="route('general.edit')">
                                         {{ __('Generali') }}
                                     </x-dropdown-link>
                                 </x-slot>

@@ -9,15 +9,19 @@ import { Link } from '@inertiajs/vue3';
 const sidebarNavItems: NavItem[] = [
     {
         title: 'Profile',
-        href: route('profile.edit'),
+        href: '/settings/profile',
     },
     {
         title: 'Password',
-        href: route('password.edit'),
+        href: '/settings/password',
     },
     {
         title: 'Two-Factor Auth',
-        href: route('two-factor.show'),
+        href: '/settings/two-factor',
+    },
+    {
+        title: 'Impostazioni Generali',
+        href: '/settings/general',
     },
     // {
     //     title: 'Appearance',

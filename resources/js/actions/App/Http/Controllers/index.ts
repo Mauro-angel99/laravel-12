@@ -5,6 +5,8 @@ import ProfileController from './ProfileController'
 import WorkPhaseController from './WorkPhaseController'
 import WorkPhaseAssignmentController from './WorkPhaseAssignmentController'
 import WarehouseController from './WarehouseController'
+import WorkParameterController from './WorkParameterController'
+import Settings from './Settings'
 const Controllers = {
     Auth: Object.assign(Auth, Auth),
 Admin: Object.assign(Admin, Admin),
@@ -13,6 +15,8 @@ ProfileController: Object.assign(ProfileController, ProfileController),
 WorkPhaseController: Object.assign(WorkPhaseController, WorkPhaseController),
 WorkPhaseAssignmentController: Object.assign(WorkPhaseAssignmentController, WorkPhaseAssignmentController),
 WarehouseController: Object.assign(WarehouseController, WarehouseController),
+WorkParameterController: Object.assign(WorkParameterController, WorkParameterController),
+Settings: Object.assign(Settings, Settings),
 }
 
 export default Controllers
