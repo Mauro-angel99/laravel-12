@@ -261,6 +261,7 @@ onMounted(async () => {
             <th class="px-3 py-2 text-left text-xs font-bold uppercase tracking-wider border-r border-gray-200">FLSEQ</th>
             <th class="px-3 py-2 text-left text-xs font-bold uppercase tracking-wider border-r border-gray-200">FLLAV</th>
             <th class="px-3 py-2 text-left text-xs font-bold uppercase tracking-wider border-r border-gray-200">FLDES</th>
+            <th class="px-3 py-2 text-left text-xs font-bold uppercase tracking-wider border-r border-gray-200">OPART</th>
             <th class="px-3 py-2 text-left text-xs font-bold uppercase tracking-wider border-r border-gray-200">Assegnato a</th>
             <th class="px-3 py-2 text-left text-xs font-bold uppercase tracking-wider border-r border-gray-200">Data Assegnazione</th>
             <th class="px-3 py-2 text-left text-xs font-bold uppercase tracking-wider">Note</th>
@@ -268,7 +269,7 @@ onMounted(async () => {
         </thead>
         <tbody class="bg-white">
           <tr v-if="loading">
-            <td colspan="8" class="px-3 py-2 text-center text-xs text-gray-500">
+            <td colspan="9" class="px-3 py-2 text-center text-xs text-gray-500">
               <div class="flex items-center justify-center">
                 <svg class="animate-spin h-5 w-5 mr-3 text-gray-500" viewBox="0 0 24 24">
                   <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4" fill="none"></circle>
@@ -295,6 +296,9 @@ onMounted(async () => {
               {{ assignment.work_phase?.FLDES || 'N/D' }}
             </td>
             <td class="px-3 py-2 whitespace-nowrap text-xs text-gray-900 border-r border-gray-200">
+              {{ assignment.work_phase?.OPART || 'N/D' }}
+            </td>
+            <td class="px-3 py-2 whitespace-nowrap text-xs text-gray-900 border-r border-gray-200">
               {{ assignment.assigned_user?.name || 'N/D' }}
             </td>
             <td class="px-3 py-2 whitespace-nowrap text-xs text-gray-900 border-r border-gray-200">
@@ -305,7 +309,7 @@ onMounted(async () => {
             </td>
           </tr>
           <tr v-if="!loading && !assignedWorkPhases.length">
-            <td colspan="8" class="px-3 py-2 text-center">
+            <td colspan="9" class="px-3 py-2 text-center">
               <div class="text-center py-12">
                 <svg class="mx-auto h-12 w-12 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2"></path>

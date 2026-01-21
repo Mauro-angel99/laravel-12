@@ -79,10 +79,29 @@ class WorkPhaseAssignmentController extends Controller
             
             $workPhases = $workPhaseQuery->get()->keyBy('RECORD_ID');
             
-            // Aggiungi i dati delle work phases agli assignments e filtra
-            $filteredAssignments = $assignments->filter(function ($assignment) use ($workPhases) {
+            // Carica i dati OPART dalla vista A01_ORD_PRO_ALL usando IDOPR
+            $opartData = collect();
+            $idoprs = $workPhases->pluck('IDOPR')->filter()->unique()->toArray();
+            if (!empty($idoprs)) {
+                $opartData = DB::connection('sqlsrv_gestionale')
+                    ->table('A01_ORD_PRO_ALL')
+                    ->select('RECORD_ID', 'OPART')
+                    ->whereIn('RECORD_ID', $idoprs)
+                    ->get()
+                    ->keyBy('RECORD_ID');
+            }
+            
+            // Aggiungi i dati delle work phases e OPART agli assignments e filtra
+            $filteredAssignments = $assignments->filter(function ($assignment) use ($workPhases, $opartData) {
                 $workPhase = $workPhases->get($assignment->work_phase_id);
                 if ($workPhase) {
+                    // Aggiungi OPART se disponibile tramite IDOPR
+                    if (isset($workPhase->IDOPR) && $workPhase->IDOPR) {
+                        $opart = $opartData->get($workPhase->IDOPR);
+                        if ($opart && isset($opart->OPART)) {
+                            $workPhase->OPART = $opart->OPART;
+                        }
+                    }
                     $assignment->work_phase = $workPhase;
                     return true;
                 }
@@ -161,5 +180,56 @@ class WorkPhaseAssignmentController extends Controller
     public function destroy(WorkPhaseAssignment $workPhaseAssignment)
     {
         //
+    }
+
+    /**
+     * Update work parameters for an assignment
+     */
+    public function updateParameters(Request $request, $id)
+    {
+        $assignment = WorkPhaseAssignment::findOrFail($id);
+
+        $validated = $request->validate([
+            'job_code' => 'required|string',
+            'art_code' => 'required|string',
+            'parameter_values' => 'nullable|array',
+        ]);
+
+        // Trova o crea il record nella tabella job_parameter_values
+        $jobParameterValue = \App\Models\JobParameterValue::updateOrCreate(
+            [
+                'job_code' => $validated['job_code'],
+                'art_code' => $validated['art_code'],
+            ],
+            [
+                'parameter_values' => $validated['parameter_values'] ?? null,
+            ]
+        );
+
+        return response()->json([
+            'message' => 'Parametri aggiornati con successo',
+            'job_parameter_value' => $jobParameterValue
+        ]);
+    }
+
+    /**
+     * Get work parameters for a specific job and article
+     */
+    public function getParameters(Request $request)
+    {
+        $jobCode = $request->input('job_code');
+        $artCode = $request->input('art_code');
+
+        if (!$jobCode || !$artCode) {
+            return response()->json(['parameter_values' => null]);
+        }
+
+        $jobParameterValue = \App\Models\JobParameterValue::where('job_code', $jobCode)
+            ->where('art_code', $artCode)
+            ->first();
+
+        return response()->json([
+            'parameter_values' => $jobParameterValue ? $jobParameterValue->parameter_values : null
+        ]);
     }
 }

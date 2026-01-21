@@ -134,7 +134,7 @@ store.post = (options?: RouteQueryOptions): RouteDefinition<'post'> => ({
     store.form = storeForm
 /**
 * @see \App\Http\Controllers\WorkParameterController::update
- * @see app/Http/Controllers/WorkParameterController.php:47
+ * @see app/Http/Controllers/WorkParameterController.php:48
  * @route '/api/work-parameters/{workParameter}'
  */
 export const update = (args: { workParameter: number | { id: number } } | [workParameter: number | { id: number } ] | number | { id: number }, options?: RouteQueryOptions): RouteDefinition<'put'> => ({
@@ -149,7 +149,7 @@ update.definition = {
 
 /**
 * @see \App\Http\Controllers\WorkParameterController::update
- * @see app/Http/Controllers/WorkParameterController.php:47
+ * @see app/Http/Controllers/WorkParameterController.php:48
  * @route '/api/work-parameters/{workParameter}'
  */
 update.url = (args: { workParameter: number | { id: number } } | [workParameter: number | { id: number } ] | number | { id: number }, options?: RouteQueryOptions) => {
@@ -182,7 +182,7 @@ update.url = (args: { workParameter: number | { id: number } } | [workParameter:
 
 /**
 * @see \App\Http\Controllers\WorkParameterController::update
- * @see app/Http/Controllers/WorkParameterController.php:47
+ * @see app/Http/Controllers/WorkParameterController.php:48
  * @route '/api/work-parameters/{workParameter}'
  */
 update.put = (args: { workParameter: number | { id: number } } | [workParameter: number | { id: number } ] | number | { id: number }, options?: RouteQueryOptions): RouteDefinition<'put'> => ({
@@ -192,7 +192,7 @@ update.put = (args: { workParameter: number | { id: number } } | [workParameter:
 
     /**
 * @see \App\Http\Controllers\WorkParameterController::update
- * @see app/Http/Controllers/WorkParameterController.php:47
+ * @see app/Http/Controllers/WorkParameterController.php:48
  * @route '/api/work-parameters/{workParameter}'
  */
     const updateForm = (args: { workParameter: number | { id: number } } | [workParameter: number | { id: number } ] | number | { id: number }, options?: RouteQueryOptions): RouteFormDefinition<'post'> => ({
@@ -207,7 +207,7 @@ update.put = (args: { workParameter: number | { id: number } } | [workParameter:
 
             /**
 * @see \App\Http\Controllers\WorkParameterController::update
- * @see app/Http/Controllers/WorkParameterController.php:47
+ * @see app/Http/Controllers/WorkParameterController.php:48
  * @route '/api/work-parameters/{workParameter}'
  */
         updateForm.put = (args: { workParameter: number | { id: number } } | [workParameter: number | { id: number } ] | number | { id: number }, options?: RouteQueryOptions): RouteFormDefinition<'post'> => ({
@@ -223,7 +223,7 @@ update.put = (args: { workParameter: number | { id: number } } | [workParameter:
     update.form = updateForm
 /**
 * @see \App\Http\Controllers\WorkParameterController::destroy
- * @see app/Http/Controllers/WorkParameterController.php:64
+ * @see app/Http/Controllers/WorkParameterController.php:66
  * @route '/api/work-parameters/{workParameter}'
  */
 export const destroy = (args: { workParameter: number | { id: number } } | [workParameter: number | { id: number } ] | number | { id: number }, options?: RouteQueryOptions): RouteDefinition<'delete'> => ({
@@ -238,7 +238,7 @@ destroy.definition = {
 
 /**
 * @see \App\Http\Controllers\WorkParameterController::destroy
- * @see app/Http/Controllers/WorkParameterController.php:64
+ * @see app/Http/Controllers/WorkParameterController.php:66
  * @route '/api/work-parameters/{workParameter}'
  */
 destroy.url = (args: { workParameter: number | { id: number } } | [workParameter: number | { id: number } ] | number | { id: number }, options?: RouteQueryOptions) => {
@@ -271,7 +271,7 @@ destroy.url = (args: { workParameter: number | { id: number } } | [workParameter
 
 /**
 * @see \App\Http\Controllers\WorkParameterController::destroy
- * @see app/Http/Controllers/WorkParameterController.php:64
+ * @see app/Http/Controllers/WorkParameterController.php:66
  * @route '/api/work-parameters/{workParameter}'
  */
 destroy.delete = (args: { workParameter: number | { id: number } } | [workParameter: number | { id: number } ] | number | { id: number }, options?: RouteQueryOptions): RouteDefinition<'delete'> => ({
@@ -281,7 +281,7 @@ destroy.delete = (args: { workParameter: number | { id: number } } | [workParame
 
     /**
 * @see \App\Http\Controllers\WorkParameterController::destroy
- * @see app/Http/Controllers/WorkParameterController.php:64
+ * @see app/Http/Controllers/WorkParameterController.php:66
  * @route '/api/work-parameters/{workParameter}'
  */
     const destroyForm = (args: { workParameter: number | { id: number } } | [workParameter: number | { id: number } ] | number | { id: number }, options?: RouteQueryOptions): RouteFormDefinition<'post'> => ({
@@ -296,7 +296,7 @@ destroy.delete = (args: { workParameter: number | { id: number } } | [workParame
 
             /**
 * @see \App\Http\Controllers\WorkParameterController::destroy
- * @see app/Http/Controllers/WorkParameterController.php:64
+ * @see app/Http/Controllers/WorkParameterController.php:66
  * @route '/api/work-parameters/{workParameter}'
  */
         destroyForm.delete = (args: { workParameter: number | { id: number } } | [workParameter: number | { id: number } ] | number | { id: number }, options?: RouteQueryOptions): RouteFormDefinition<'post'> => ({

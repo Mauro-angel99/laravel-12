@@ -8,5 +8,10 @@ class WorkParameter extends Model
 {
     protected $fillable = [
         'name',
+        'fields',
+    ];
+
+    protected $casts = [
+        'fields' => 'array',
     ];
 }

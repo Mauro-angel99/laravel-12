@@ -57,6 +57,14 @@ Route::middleware('auth')->group(function () {
     // API per restituire i dati JSON
     Route::get('/api/assigned-work-phases', [WorkPhaseAssignmentController::class, 'list'])
         ->name('assigned-work-phases.list');
+    
+    // API per aggiornare i parametri di una lavorazione
+    Route::put('/api/work-phase-assignments/{id}/parameters', [WorkPhaseAssignmentController::class, 'updateParameters'])
+        ->name('work-phase-assignments.update-parameters');
+    
+    // API per recuperare i parametri di un job/articolo
+    Route::get('/api/job-parameter-values', [WorkPhaseAssignmentController::class, 'getParameters'])
+        ->name('job-parameter-values.get');
 });
 
 // Warehouse routes

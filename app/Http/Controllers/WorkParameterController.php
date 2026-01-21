@@ -23,6 +23,7 @@ class WorkParameterController extends Controller
     {
         $validated = $request->validate([
             'name' => 'required|string|max:255|unique:work_parameters,name',
+            'fields' => 'nullable|array',
         ]);
 
         $parameter = WorkParameter::create($validated);
@@ -48,6 +49,7 @@ class WorkParameterController extends Controller
     {
         $validated = $request->validate([
             'name' => 'required|string|max:255|unique:work_parameters,name,' . $workParameter->id,
+            'fields' => 'nullable|array',
         ]);
 
         $workParameter->update($validated);
