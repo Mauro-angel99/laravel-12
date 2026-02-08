@@ -11,7 +11,7 @@
             <div class="mt-3 text-center sm:mt-0 sm:text-left w-full">
               <div class="flex justify-between items-center">
                 <h3 class="text-lg leading-6 font-medium text-gray-900" id="modal-title">
-                  Dettagli Fase di Lavoro
+                  Fase di Lavoro
                 </h3>
               </div>
 
@@ -39,6 +39,17 @@
                     ]"
                   >
                     Parametri
+                  </button>
+                  <button
+                    @click="activeTab = 'files'"
+                    :class="[
+                      activeTab === 'files'
+                        ? 'border-copam-blue text-copam-blue'
+                        : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300',
+                      'whitespace-nowrap py-4 px-1 border-b-2 font-medium text-sm'
+                    ]"
+                  >
+                    Files
                   </button>
                 </nav>
               </div>
@@ -176,6 +187,11 @@
                     </p>
                   </div>
                 </div>
+              </div>
+
+              <!-- Tab Files -->
+              <div v-show="activeTab === 'files'" class="text-sm text-gray-600">
+                Nessun file disponibile.
               </div>
             </div>
             </div>
