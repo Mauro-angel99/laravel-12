@@ -9,6 +9,7 @@ use App\Http\Controllers\WorkPhaseAssignmentController;
 use App\Http\Controllers\WarehouseController;
 use App\Http\Controllers\ProcessingParametersController;
 use App\Http\Controllers\WorkParameterController;
+use App\Http\Controllers\FilePathSettingController;
 use App\Http\Controllers\UserController as ApiUserController;
 
 Route::middleware(['auth', 'role:admin'])->group(function () {
@@ -120,4 +121,10 @@ Route::middleware('auth')->group(function () {
     
     Route::delete('/api/work-parameters/{workParameter}', [WorkParameterController::class, 'destroy'])
         ->name('work-parameters.destroy');
+
+    Route::get('/api/file-path-settings', [FilePathSettingController::class, 'index'])
+        ->name('file-path-settings.index');
+
+    Route::put('/api/file-path-settings', [FilePathSettingController::class, 'update'])
+        ->name('file-path-settings.update');
 });

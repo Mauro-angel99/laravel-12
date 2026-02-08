@@ -6,6 +6,7 @@ import WorkPhaseController from './WorkPhaseController'
 import WorkPhaseAssignmentController from './WorkPhaseAssignmentController'
 import WarehouseController from './WarehouseController'
 import WorkParameterController from './WorkParameterController'
+import FilePathSettingController from './FilePathSettingController'
 import Settings from './Settings'
 const Controllers = {
     Auth: Object.assign(Auth, Auth),
@@ -16,6 +17,7 @@ WorkPhaseController: Object.assign(WorkPhaseController, WorkPhaseController),
 WorkPhaseAssignmentController: Object.assign(WorkPhaseAssignmentController, WorkPhaseAssignmentController),
 WarehouseController: Object.assign(WarehouseController, WarehouseController),
 WorkParameterController: Object.assign(WorkParameterController, WorkParameterController),
+FilePathSettingController: Object.assign(FilePathSettingController, FilePathSettingController),
 Settings: Object.assign(Settings, Settings),
 }
 
