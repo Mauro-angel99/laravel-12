@@ -1,7 +1,7 @@
 import { queryParams, type RouteQueryOptions, type RouteDefinition, type RouteFormDefinition } from './../../../../wayfinder'
 /**
 * @see \App\Http\Controllers\FilePathSettingController::index
- * @see app/Http/Controllers/FilePathSettingController.php:10
+ * @see app/Http/Controllers/FilePathSettingController.php:21
  * @route '/api/file-path-settings'
  */
 export const index = (options?: RouteQueryOptions): RouteDefinition<'get'> => ({
@@ -16,7 +16,7 @@ index.definition = {
 
 /**
 * @see \App\Http\Controllers\FilePathSettingController::index
- * @see app/Http/Controllers/FilePathSettingController.php:10
+ * @see app/Http/Controllers/FilePathSettingController.php:21
  * @route '/api/file-path-settings'
  */
 index.url = (options?: RouteQueryOptions) => {
@@ -25,7 +25,7 @@ index.url = (options?: RouteQueryOptions) => {
 
 /**
 * @see \App\Http\Controllers\FilePathSettingController::index
- * @see app/Http/Controllers/FilePathSettingController.php:10
+ * @see app/Http/Controllers/FilePathSettingController.php:21
  * @route '/api/file-path-settings'
  */
 index.get = (options?: RouteQueryOptions): RouteDefinition<'get'> => ({
@@ -34,7 +34,7 @@ index.get = (options?: RouteQueryOptions): RouteDefinition<'get'> => ({
 })
 /**
 * @see \App\Http\Controllers\FilePathSettingController::index
- * @see app/Http/Controllers/FilePathSettingController.php:10
+ * @see app/Http/Controllers/FilePathSettingController.php:21
  * @route '/api/file-path-settings'
  */
 index.head = (options?: RouteQueryOptions): RouteDefinition<'head'> => ({
@@ -44,7 +44,7 @@ index.head = (options?: RouteQueryOptions): RouteDefinition<'head'> => ({
 
     /**
 * @see \App\Http\Controllers\FilePathSettingController::index
- * @see app/Http/Controllers/FilePathSettingController.php:10
+ * @see app/Http/Controllers/FilePathSettingController.php:21
  * @route '/api/file-path-settings'
  */
     const indexForm = (options?: RouteQueryOptions): RouteFormDefinition<'get'> => ({
@@ -54,7 +54,7 @@ index.head = (options?: RouteQueryOptions): RouteDefinition<'head'> => ({
 
             /**
 * @see \App\Http\Controllers\FilePathSettingController::index
- * @see app/Http/Controllers/FilePathSettingController.php:10
+ * @see app/Http/Controllers/FilePathSettingController.php:21
  * @route '/api/file-path-settings'
  */
         indexForm.get = (options?: RouteQueryOptions): RouteFormDefinition<'get'> => ({
@@ -63,7 +63,7 @@ index.head = (options?: RouteQueryOptions): RouteDefinition<'head'> => ({
         })
             /**
 * @see \App\Http\Controllers\FilePathSettingController::index
- * @see app/Http/Controllers/FilePathSettingController.php:10
+ * @see app/Http/Controllers/FilePathSettingController.php:21
  * @route '/api/file-path-settings'
  */
         indexForm.head = (options?: RouteQueryOptions): RouteFormDefinition<'get'> => ({
@@ -79,7 +79,7 @@ index.head = (options?: RouteQueryOptions): RouteDefinition<'head'> => ({
     index.form = indexForm
 /**
 * @see \App\Http\Controllers\FilePathSettingController::update
- * @see app/Http/Controllers/FilePathSettingController.php:20
+ * @see app/Http/Controllers/FilePathSettingController.php:41
  * @route '/api/file-path-settings'
  */
 export const update = (options?: RouteQueryOptions): RouteDefinition<'put'> => ({
@@ -94,7 +94,7 @@ update.definition = {
 
 /**
 * @see \App\Http\Controllers\FilePathSettingController::update
- * @see app/Http/Controllers/FilePathSettingController.php:20
+ * @see app/Http/Controllers/FilePathSettingController.php:41
  * @route '/api/file-path-settings'
  */
 update.url = (options?: RouteQueryOptions) => {
@@ -103,7 +103,7 @@ update.url = (options?: RouteQueryOptions) => {
 
 /**
 * @see \App\Http\Controllers\FilePathSettingController::update
- * @see app/Http/Controllers/FilePathSettingController.php:20
+ * @see app/Http/Controllers/FilePathSettingController.php:41
  * @route '/api/file-path-settings'
  */
 update.put = (options?: RouteQueryOptions): RouteDefinition<'put'> => ({
@@ -113,7 +113,7 @@ update.put = (options?: RouteQueryOptions): RouteDefinition<'put'> => ({
 
     /**
 * @see \App\Http\Controllers\FilePathSettingController::update
- * @see app/Http/Controllers/FilePathSettingController.php:20
+ * @see app/Http/Controllers/FilePathSettingController.php:41
  * @route '/api/file-path-settings'
  */
     const updateForm = (options?: RouteQueryOptions): RouteFormDefinition<'post'> => ({
@@ -128,7 +128,7 @@ update.put = (options?: RouteQueryOptions): RouteDefinition<'put'> => ({
 
             /**
 * @see \App\Http\Controllers\FilePathSettingController::update
- * @see app/Http/Controllers/FilePathSettingController.php:20
+ * @see app/Http/Controllers/FilePathSettingController.php:41
  * @route '/api/file-path-settings'
  */
         updateForm.put = (options?: RouteQueryOptions): RouteFormDefinition<'post'> => ({

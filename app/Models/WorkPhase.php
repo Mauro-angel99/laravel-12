@@ -15,7 +15,20 @@ class WorkPhase extends Model
     // Se vuoi proteggere i campi, puoi usare $fillable
     protected $fillable = [
         'FLASS', 'IDOPR', 'FLSEQ', 'FLLAV', 'FLDES', 
-        'FLQTA', 'FLQTB', 'FLQTD', 'FLCON'
+        'FLQTA', 'FLQTB', 'FLQTD', 'FLCON', 'DTNUM',
+        'TEMPO', 'DTRAS', 'DRDES', 'DTRIC'
+    ];
+
+    protected $guarded = [
+        'RECORD_ID'
+    ];
+
+    protected $casts = [
+        'RECORD_ID' => 'integer',
+        'FLQTA' => 'decimal:2',
+        'FLQTB' => 'decimal:2',
+        'FLQTD' => 'decimal:2',
+        'TEMPO' => 'integer',
     ];
 
     /**

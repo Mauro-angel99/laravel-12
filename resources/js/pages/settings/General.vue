@@ -1,77 +1,57 @@
-<script setup>
+<script setup lang="ts">
 import { ref, onMounted } from 'vue';
 import axios from 'axios';
+import { useModal } from '@/composables/useModal';
+import { useWorkParameters, type WorkParameter } from '@/composables/useWorkParameters';
 
-const parameters = ref([]);
-const loading = ref(false);
+const { parameters, loading, fetchParameters, createParameter, updateParameter, deleteParameter } = useWorkParameters();
+const { modalState, showSuccess, showError, closeModal } = useModal();
+
 const showCreateModal = ref(false);
 const showEditModal = ref(false);
 const showDeleteModal = ref(false);
-const selectedParameter = ref(null);
-const formData = ref({
+const selectedParameter = ref<WorkParameter | null>(null);
+const formData = ref<{ name: string; fields: string[] }>({
     name: '',
     fields: []
 });
 const newFieldName = ref('');
 
-const filePathSettings = ref({
+interface FilePathSettings {
+    pdf_path: string;
+    image_path: string;
+}
+
+const filePathSettings = ref<FilePathSettings>({
     pdf_path: '',
     image_path: ''
 });
 const savingFilePaths = ref(false);
 
-const messageModal = ref({
-    show: false,
-    type: 'success',
-    title: '',
-    message: ''
-});
-
-const showMessageModal = (type, title, message) => {
-    messageModal.value = { show: true, type, title, message };
-};
-
-const closeMessageModal = () => {
-    messageModal.value.show = false;
-};
-
-const fetchParameters = async () => {
-    loading.value = true;
+const fetchFilePathSettings = async (): Promise<void> => {
     try {
-        const res = await axios.get('/api/work-parameters');
-        parameters.value = res.data;
-    } catch (error) {
-        console.error(error);
-        showMessageModal('error', 'Errore', 'Errore nel caricamento dei parametri');
-    } finally {
-        loading.value = false;
-    }
-};
-
-const fetchFilePathSettings = async () => {
-    try {
-        const res = await axios.get('/api/file-path-settings');
+        const res = await axios.get<FilePathSettings>('/api/file-path-settings');
         filePathSettings.value = {
             pdf_path: res.data?.pdf_path || '',
             image_path: res.data?.image_path || ''
         };
     } catch (error) {
         console.error(error);
-        showMessageModal('error', 'Errore', 'Errore nel caricamento dei percorsi file');
+        showError('Errore nel caricamento dei percorsi file');
     }
 };
 
-const openCreateModal = () => {
+const openCreateModal = (): void => {
     formData.value = { name: '', fields: [] };
     newFieldName.value = '';
     showCreateModal.value = true;
 };
 
-const closeCreateModal = () => {
+const closeCreateModal = (): void => {
     showCreateModal.value = false;
 };
 
-const openEditModal = (parameter) => {
+const openEditModal = (parameter: WorkParameter): void => {
     selectedParameter.value = parameter;
     formData.value = { 
         name: parameter.name,
@@ -81,80 +61,77 @@ const openEditModal = (parameter) => {
     showEditModal.value = true;
 };
 
-const closeEditModal = () => {
+const closeEditModal = (): void => {
     showEditModal.value = false;
     selectedParameter.value = null;
 };
 
-const addField = () => {
+const addField = (): void => {
     if (newFieldName.value.trim()) {
         formData.value.fields.push(newFieldName.value.trim());
         newFieldName.value = '';
     }
 };
 
-const removeField = (index) => {
+const removeField = (index: number): void => {
     formData.value.fields.splice(index, 1);
 };
 
-const openDeleteModal = (parameter) => {
+const openDeleteModal = (parameter: WorkParameter): void => {
     selectedParameter.value = parameter;
     showDeleteModal.value = true;
 };
 
-const closeDeleteModal = () => {
+const closeDeleteModal = (): void => {
     showDeleteModal.value = false;
     selectedParameter.value = null;
 };
 
-const saveParameter = async () => {
+const saveParameter = async (): Promise<void> => {
     try {
-        const res = await axios.post('/api/work-parameters', formData.value);
+        await createParameter(formData.value);
         closeCreateModal();
-        showMessageModal('success', 'Successo', res.data.message);
-        await fetchParameters();
-    } catch (error) {
+        showSuccess('Parametro creato con successo');
+    } catch (error: any) {
         const errorMessage = error.response?.data?.message || 'Errore durante il salvataggio';
-        showMessageModal('error', 'Errore', errorMessage);
+        showError(errorMessage);
     }
 };
 
-const updateParameter = async () => {
+const updateParameterHandler = async (): Promise<void> => {
     if (!selectedParameter.value) return;
     
     try {
-        const res = await axios.put(`/api/work-parameters/${selectedParameter.value.id}`, formData.value);
+        await updateParameter(selectedParameter.value.id, formData.value);
         closeEditModal();
-        showMessageModal('success', 'Successo', res.data.message);
-        await fetchParameters();
-    } catch (error) {
+        showSuccess('Parametro aggiornato con successo');
+    } catch (error: any) {
         const errorMessage = error.response?.data?.message || 'Errore durante l\'aggiornamento';
-        showMessageModal('error', 'Errore', errorMessage);
+        showError(errorMessage);
     }
 };
 
-const deleteParameter = async () => {
+const deleteParameterHandler = async (): Promise<void> => {
     if (!selectedParameter.value) return;
     
     try {
-        const res = await axios.delete(`/api/work-parameters/${selectedParameter.value.id}`);
+        await deleteParameter(selectedParameter.value.id);
         closeDeleteModal();
-        showMessageModal('success', 'Successo', res.data.message);
-        await fetchParameters();
-    } catch (error) {
+        showSuccess('Parametro eliminato con successo');
+    } catch (error: any) {
         const errorMessage = error.response?.data?.message || 'Errore durante l\'eliminazione';
-        showMessageModal('error', 'Errore', errorMessage);
+        showError(errorMessage);
     }
 };
 
-const saveFilePathSettings = async () => {
+const saveFilePathSettings = async (): Promise<void> => {
     savingFilePaths.value = true;
     try {
         const res = await axios.put('/api/file-path-settings', filePathSettings.value);
-        showMessageModal('success', 'Successo', res.data.message || 'Percorsi aggiornati');
-    } catch (error) {
+        showSuccess(res.data.message || 'Percorsi aggiornati');
+    } catch (error: any) {
         const errorMessage = error.response?.data?.message || 'Errore durante il salvataggio dei percorsi';
-        showMessageModal('error', 'Errore', errorMessage);
+        showError(errorMessage);
     } finally {
         savingFilePaths.value = false;
     }
@@ -390,7 +367,7 @@ onMounted(() => {
                     Modifica Parametro
                 </h3>
                 
-                <form @submit.prevent="updateParameter" class="space-y-4">
+                <form @submit.prevent="updateParameterHandler" class="space-y-4">
                     <div>
                         <label class="block text-sm font-medium text-gray-700 mb-1">Nome *</label>
                         <input
@@ -498,7 +475,7 @@ onMounted(() => {
                 
                 <div class="mt-5 sm:mt-4 sm:flex sm:flex-row-reverse">
                     <button
-                        @click="deleteParameter"
+                        @click="deleteParameterHandler"
                         class="w-full inline-flex justify-center rounded-md border border-transparent shadow-sm px-4 py-2 bg-red-600 text-base font-medium text-white hover:bg-red-700 focus:outline-none sm:ml-3 sm:w-auto sm:text-sm"
                     >
                         Elimina
@@ -515,17 +492,17 @@ onMounted(() => {
     </div>
 
     <!-- Modal Messaggio -->
-    <div v-if="messageModal.show" class="fixed inset-0 z-50 overflow-y-auto">
+    <div v-if="modalState.show" class="fixed inset-0 z-50 overflow-y-auto">
         <div class="flex items-center justify-center min-h-screen px-4 pt-4 pb-20 text-center sm:block sm:p-0">
-            <div class="fixed inset-0 transition-opacity bg-gray-500 bg-opacity-75" @click="closeMessageModal"></div>
+            <div class="fixed inset-0 transition-opacity bg-gray-500 bg-opacity-75" @click="closeModal"></div>
             
             <div class="inline-block align-bottom bg-white rounded-lg px-4 pt-5 pb-4 text-left overflow-hidden shadow-xl transform transition-all sm:my-8 sm:align-middle sm:max-w-sm sm:w-full sm:p-6">
                 <div>
                     <div :class="[
                         'mx-auto flex items-center justify-center h-12 w-12 rounded-full',
-                        messageModal.type === 'success' ? 'bg-green-100' : 'bg-red-100'
+                        modalState.type === 'success' ? 'bg-green-100' : 'bg-red-100'
                     ]">
-                        <svg v-if="messageModal.type === 'success'" class="h-6 w-6 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <svg v-if="modalState.type === 'success'" class="h-6 w-6 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path>
                         </svg>
                         <svg v-else class="h-6 w-6 text-red-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -534,18 +511,18 @@ onMounted(() => {
                     </div>
                     <div class="mt-3 text-center">
                         <h3 class="text-lg leading-6 font-medium text-gray-900">
-                            {{ messageModal.title }}
+                            {{ modalState.title }}
                         </h3>
                         <div class="mt-2">
                             <p class="text-sm text-gray-500">
-                                {{ messageModal.message }}
+                                {{ modalState.message }}
                             </p>
                         </div>
                     </div>
                 </div>
                 <div class="mt-5">
                     <button
-                        @click="closeMessageModal"
+                        @click="closeModal"
                         class="w-full inline-flex justify-center rounded-md border border-transparent shadow-sm px-4 py-2 bg-copam-blue text-base font-medium text-white hover:bg-copam-blue/90 focus:outline-none"
                     >
                         OK

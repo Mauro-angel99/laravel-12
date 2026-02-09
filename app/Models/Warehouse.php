@@ -19,6 +19,7 @@ class Warehouse extends Model
         'product_code',
         'product_description',
         'production_order',
+        'quantity',
         'notes',
         'pending',
         'pending_code',
@@ -27,14 +28,30 @@ class Warehouse extends Model
         'received_at',
     ];
 
+    protected $guarded = [
+        'id',
+        'created_at',
+        'updated_at',
+    ];
+
     protected $casts = [
         'pending' => 'boolean',
         'received_at' => 'datetime',
+        'quantity' => 'decimal:2',
+        'warehouse_position_id' => 'integer',
+        'created_by' => 'integer',
+        'updated_by' => 'integer',
     ];
 
-    public function position(): BelongsTo
+    public function warehousePosition(): BelongsTo
     {
         return $this->belongsTo(WarehousePosition::class, 'warehouse_position_id');
+    }
+
+    // Alias per retrocompatibilità
+    public function position(): BelongsTo
+    {
+        return $this->warehousePosition();
     }
 
     public function createdBy(): BelongsTo

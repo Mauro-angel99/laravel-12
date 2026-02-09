@@ -127,6 +127,46 @@ return [
             'path' => storage_path('logs/laravel.log'),
         ],
 
+        // Custom audit log channel
+        'audit' => [
+            'driver' => 'daily',
+            'path' => storage_path('logs/audit.log'),
+            'level' => env('LOG_LEVEL', 'info'),
+            'days' => env('LOG_AUDIT_DAYS', 90), // Keep 90 days of audit logs
+            'permission' => 0644,
+            'replace_placeholders' => true,
+        ],
+
+        // Custom security log channel
+        'security' => [
+            'driver' => 'daily',
+            'path' => storage_path('logs/security.log'),
+            'level' => 'warning',
+            'days' => env('LOG_SECURITY_DAYS', 180), // Keep 6 months of security logs
+            'permission' => 0600, // Only owner can read
+            'replace_placeholders' => true,
+        ],
+
+        // Performance log channel
+        'performance' => [
+            'driver' => 'daily',
+            'path' => storage_path('logs/performance.log'),
+            'level' => 'info',
+            'days' => env('LOG_PERFORMANCE_DAYS', 30),
+            'permission' => 0644,
+            'replace_placeholders' => true,
+        ],
+
+        // Database query log channel
+        'query' => [
+            'driver' => 'daily',
+            'path' => storage_path('logs/query.log'),
+            'level' => 'debug',
+            'days' => env('LOG_QUERY_DAYS', 7),
+            'permission' => 0644,
+            'replace_placeholders' => true,
+        ],
+
     ],
 
 ];

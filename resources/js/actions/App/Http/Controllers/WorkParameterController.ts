@@ -1,7 +1,7 @@
 import { queryParams, type RouteQueryOptions, type RouteDefinition, type RouteFormDefinition, applyUrlDefaults } from './../../../../wayfinder'
 /**
 * @see \App\Http\Controllers\WorkParameterController::index
- * @see app/Http/Controllers/WorkParameterController.php:13
+ * @see app/Http/Controllers/WorkParameterController.php:25
  * @route '/api/work-parameters'
  */
 export const index = (options?: RouteQueryOptions): RouteDefinition<'get'> => ({
@@ -16,7 +16,7 @@ index.definition = {
 
 /**
 * @see \App\Http\Controllers\WorkParameterController::index
- * @see app/Http/Controllers/WorkParameterController.php:13
+ * @see app/Http/Controllers/WorkParameterController.php:25
  * @route '/api/work-parameters'
  */
 index.url = (options?: RouteQueryOptions) => {
@@ -25,7 +25,7 @@ index.url = (options?: RouteQueryOptions) => {
 
 /**
 * @see \App\Http\Controllers\WorkParameterController::index
- * @see app/Http/Controllers/WorkParameterController.php:13
+ * @see app/Http/Controllers/WorkParameterController.php:25
  * @route '/api/work-parameters'
  */
 index.get = (options?: RouteQueryOptions): RouteDefinition<'get'> => ({
@@ -34,7 +34,7 @@ index.get = (options?: RouteQueryOptions): RouteDefinition<'get'> => ({
 })
 /**
 * @see \App\Http\Controllers\WorkParameterController::index
- * @see app/Http/Controllers/WorkParameterController.php:13
+ * @see app/Http/Controllers/WorkParameterController.php:25
  * @route '/api/work-parameters'
  */
 index.head = (options?: RouteQueryOptions): RouteDefinition<'head'> => ({
@@ -44,7 +44,7 @@ index.head = (options?: RouteQueryOptions): RouteDefinition<'head'> => ({
 
     /**
 * @see \App\Http\Controllers\WorkParameterController::index
- * @see app/Http/Controllers/WorkParameterController.php:13
+ * @see app/Http/Controllers/WorkParameterController.php:25
  * @route '/api/work-parameters'
  */
     const indexForm = (options?: RouteQueryOptions): RouteFormDefinition<'get'> => ({
@@ -54,7 +54,7 @@ index.head = (options?: RouteQueryOptions): RouteDefinition<'head'> => ({
 
             /**
 * @see \App\Http\Controllers\WorkParameterController::index
- * @see app/Http/Controllers/WorkParameterController.php:13
+ * @see app/Http/Controllers/WorkParameterController.php:25
  * @route '/api/work-parameters'
  */
         indexForm.get = (options?: RouteQueryOptions): RouteFormDefinition<'get'> => ({
@@ -63,7 +63,7 @@ index.head = (options?: RouteQueryOptions): RouteDefinition<'head'> => ({
         })
             /**
 * @see \App\Http\Controllers\WorkParameterController::index
- * @see app/Http/Controllers/WorkParameterController.php:13
+ * @see app/Http/Controllers/WorkParameterController.php:25
  * @route '/api/work-parameters'
  */
         indexForm.head = (options?: RouteQueryOptions): RouteFormDefinition<'get'> => ({
@@ -79,7 +79,7 @@ index.head = (options?: RouteQueryOptions): RouteDefinition<'head'> => ({
     index.form = indexForm
 /**
 * @see \App\Http\Controllers\WorkParameterController::store
- * @see app/Http/Controllers/WorkParameterController.php:22
+ * @see app/Http/Controllers/WorkParameterController.php:41
  * @route '/api/work-parameters'
  */
 export const store = (options?: RouteQueryOptions): RouteDefinition<'post'> => ({
@@ -94,7 +94,7 @@ store.definition = {
 
 /**
 * @see \App\Http\Controllers\WorkParameterController::store
- * @see app/Http/Controllers/WorkParameterController.php:22
+ * @see app/Http/Controllers/WorkParameterController.php:41
  * @route '/api/work-parameters'
  */
 store.url = (options?: RouteQueryOptions) => {
@@ -103,7 +103,7 @@ store.url = (options?: RouteQueryOptions) => {
 
 /**
 * @see \App\Http\Controllers\WorkParameterController::store
- * @see app/Http/Controllers/WorkParameterController.php:22
+ * @see app/Http/Controllers/WorkParameterController.php:41
  * @route '/api/work-parameters'
  */
 store.post = (options?: RouteQueryOptions): RouteDefinition<'post'> => ({
@@ -113,7 +113,7 @@ store.post = (options?: RouteQueryOptions): RouteDefinition<'post'> => ({
 
     /**
 * @see \App\Http\Controllers\WorkParameterController::store
- * @see app/Http/Controllers/WorkParameterController.php:22
+ * @see app/Http/Controllers/WorkParameterController.php:41
  * @route '/api/work-parameters'
  */
     const storeForm = (options?: RouteQueryOptions): RouteFormDefinition<'post'> => ({
@@ -123,7 +123,7 @@ store.post = (options?: RouteQueryOptions): RouteDefinition<'post'> => ({
 
             /**
 * @see \App\Http\Controllers\WorkParameterController::store
- * @see app/Http/Controllers/WorkParameterController.php:22
+ * @see app/Http/Controllers/WorkParameterController.php:41
  * @route '/api/work-parameters'
  */
         storeForm.post = (options?: RouteQueryOptions): RouteFormDefinition<'post'> => ({
@@ -134,7 +134,7 @@ store.post = (options?: RouteQueryOptions): RouteDefinition<'post'> => ({
     store.form = storeForm
 /**
 * @see \App\Http\Controllers\WorkParameterController::update
- * @see app/Http/Controllers/WorkParameterController.php:48
+ * @see app/Http/Controllers/WorkParameterController.php:83
  * @route '/api/work-parameters/{workParameter}'
  */
 export const update = (args: { workParameter: number | { id: number } } | [workParameter: number | { id: number } ] | number | { id: number }, options?: RouteQueryOptions): RouteDefinition<'put'> => ({
@@ -149,7 +149,7 @@ update.definition = {
 
 /**
 * @see \App\Http\Controllers\WorkParameterController::update
- * @see app/Http/Controllers/WorkParameterController.php:48
+ * @see app/Http/Controllers/WorkParameterController.php:83
  * @route '/api/work-parameters/{workParameter}'
  */
 update.url = (args: { workParameter: number | { id: number } } | [workParameter: number | { id: number } ] | number | { id: number }, options?: RouteQueryOptions) => {
@@ -182,7 +182,7 @@ update.url = (args: { workParameter: number | { id: number } } | [workParameter:
 
 /**
 * @see \App\Http\Controllers\WorkParameterController::update
- * @see app/Http/Controllers/WorkParameterController.php:48
+ * @see app/Http/Controllers/WorkParameterController.php:83
  * @route '/api/work-parameters/{workParameter}'
  */
 update.put = (args: { workParameter: number | { id: number } } | [workParameter: number | { id: number } ] | number | { id: number }, options?: RouteQueryOptions): RouteDefinition<'put'> => ({
@@ -192,7 +192,7 @@ update.put = (args: { workParameter: number | { id: number } } | [workParameter:
 
     /**
 * @see \App\Http\Controllers\WorkParameterController::update
- * @see app/Http/Controllers/WorkParameterController.php:48
+ * @see app/Http/Controllers/WorkParameterController.php:83
  * @route '/api/work-parameters/{workParameter}'
  */
     const updateForm = (args: { workParameter: number | { id: number } } | [workParameter: number | { id: number } ] | number | { id: number }, options?: RouteQueryOptions): RouteFormDefinition<'post'> => ({
@@ -207,7 +207,7 @@ update.put = (args: { workParameter: number | { id: number } } | [workParameter:
 
             /**
 * @see \App\Http\Controllers\WorkParameterController::update
- * @see app/Http/Controllers/WorkParameterController.php:48
+ * @see app/Http/Controllers/WorkParameterController.php:83
  * @route '/api/work-parameters/{workParameter}'
  */
         updateForm.put = (args: { workParameter: number | { id: number } } | [workParameter: number | { id: number } ] | number | { id: number }, options?: RouteQueryOptions): RouteFormDefinition<'post'> => ({
@@ -223,7 +223,7 @@ update.put = (args: { workParameter: number | { id: number } } | [workParameter:
     update.form = updateForm
 /**
 * @see \App\Http\Controllers\WorkParameterController::destroy
- * @see app/Http/Controllers/WorkParameterController.php:66
+ * @see app/Http/Controllers/WorkParameterController.php:118
  * @route '/api/work-parameters/{workParameter}'
  */
 export const destroy = (args: { workParameter: number | { id: number } } | [workParameter: number | { id: number } ] | number | { id: number }, options?: RouteQueryOptions): RouteDefinition<'delete'> => ({
@@ -238,7 +238,7 @@ destroy.definition = {
 
 /**
 * @see \App\Http\Controllers\WorkParameterController::destroy
- * @see app/Http/Controllers/WorkParameterController.php:66
+ * @see app/Http/Controllers/WorkParameterController.php:118
  * @route '/api/work-parameters/{workParameter}'
  */
 destroy.url = (args: { workParameter: number | { id: number } } | [workParameter: number | { id: number } ] | number | { id: number }, options?: RouteQueryOptions) => {
@@ -271,7 +271,7 @@ destroy.url = (args: { workParameter: number | { id: number } } | [workParameter
 
 /**
 * @see \App\Http\Controllers\WorkParameterController::destroy
- * @see app/Http/Controllers/WorkParameterController.php:66
+ * @see app/Http/Controllers/WorkParameterController.php:118
  * @route '/api/work-parameters/{workParameter}'
  */
 destroy.delete = (args: { workParameter: number | { id: number } } | [workParameter: number | { id: number } ] | number | { id: number }, options?: RouteQueryOptions): RouteDefinition<'delete'> => ({
@@ -281,7 +281,7 @@ destroy.delete = (args: { workParameter: number | { id: number } } | [workParame
 
     /**
 * @see \App\Http\Controllers\WorkParameterController::destroy
- * @see app/Http/Controllers/WorkParameterController.php:66
+ * @see app/Http/Controllers/WorkParameterController.php:118
  * @route '/api/work-parameters/{workParameter}'
  */
     const destroyForm = (args: { workParameter: number | { id: number } } | [workParameter: number | { id: number } ] | number | { id: number }, options?: RouteQueryOptions): RouteFormDefinition<'post'> => ({
@@ -296,7 +296,7 @@ destroy.delete = (args: { workParameter: number | { id: number } } | [workParame
 
             /**
 * @see \App\Http\Controllers\WorkParameterController::destroy
- * @see app/Http/Controllers/WorkParameterController.php:66
+ * @see app/Http/Controllers/WorkParameterController.php:118
  * @route '/api/work-parameters/{workParameter}'
  */
         destroyForm.delete = (args: { workParameter: number | { id: number } } | [workParameter: number | { id: number } ] | number | { id: number }, options?: RouteQueryOptions): RouteFormDefinition<'post'> => ({
