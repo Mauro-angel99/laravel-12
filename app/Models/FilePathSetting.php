@@ -8,6 +8,5 @@ class FilePathSetting extends Model
 {
     protected $fillable = [
         'pdf_path',
-        'image_path',
     ];
 }

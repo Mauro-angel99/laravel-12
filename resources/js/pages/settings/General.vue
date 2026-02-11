@@ -19,12 +19,10 @@ const newFieldName = ref('');
 
 interface FilePathSettings {
     pdf_path: string;
-    image_path: string;
 }
 
 const filePathSettings = ref<FilePathSettings>({
-    pdf_path: '',
-    image_path: ''
+    pdf_path: ''
 });
 const savingFilePaths = ref(false);
 
@@ -32,8 +30,7 @@ const fetchFilePathSettings = async (): Promise<void> => {
     try {
         const res = await axios.get<FilePathSettings>('/api/file-path-settings');
         filePathSettings.value = {
-            pdf_path: res.data?.pdf_path || '',
-            image_path: res.data?.image_path || ''
+            pdf_path: res.data?.pdf_path || ''
         };
     } catch (error) {
         console.error(error);
@@ -219,7 +216,7 @@ onMounted(() => {
     <div class="bg-white shadow rounded-lg p-3 mt-6">
         <div class="mb-3 flex justify-between items-center">
             <h3 class="text-lg font-medium leading-6 text-gray-900">
-                Percorsi Files
+                Percorsi
             </h3>
         </div>
 
@@ -239,17 +236,6 @@ onMounted(() => {
                                 v-model="filePathSettings.pdf_path"
                                 type="text"
                                 placeholder="Es. \\SERVER\\Documenti\\PDF"
-                                class="w-full px-3 py-2 text-xs border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-copam-blue focus:border-copam-blue"
-                            />
-                        </td>
-                    </tr>
-                    <tr class="border-b border-gray-200">
-                        <td class="px-3 py-2 whitespace-nowrap text-xs text-gray-900">Immagini</td>
-                        <td class="px-3 py-2">
-                            <input
-                                v-model="filePathSettings.image_path"
-                                type="text"
-                                placeholder="Es. \\SERVER\\Documenti\\IMG"
                                 class="w-full px-3 py-2 text-xs border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-copam-blue focus:border-copam-blue"
                             />
                         </td>

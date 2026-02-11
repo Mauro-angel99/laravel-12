@@ -11,6 +11,7 @@ use App\Http\Controllers\ProcessingParametersController;
 use App\Http\Controllers\WorkParameterController;
 use App\Http\Controllers\FilePathSettingController;
 use App\Http\Controllers\UserController as ApiUserController;
+use App\Http\Controllers\WorkPhaseImageController;
 
 Route::middleware(['auth', 'role:admin'])->group(function () {
     Route::prefix('admin')->group(function () {
@@ -127,4 +128,14 @@ Route::middleware('auth')->group(function () {
 
     Route::put('/api/file-path-settings', [FilePathSettingController::class, 'update'])
         ->name('file-path-settings.update');
+
+    // Work Phase Images routes
+    Route::get('/api/work-phase-images', [WorkPhaseImageController::class, 'index'])
+        ->name('work-phase-images.index');
+    
+    Route::post('/api/work-phase-images', [WorkPhaseImageController::class, 'store'])
+        ->name('work-phase-images.store');
+    
+    Route::delete('/api/work-phase-images/{workPhaseImage}', [WorkPhaseImageController::class, 'destroy'])
+        ->name('work-phase-images.destroy');
 });
