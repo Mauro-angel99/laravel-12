@@ -8,10 +8,11 @@ use App\Http\Controllers\WorkPhaseController;
 use App\Http\Controllers\WorkPhaseAssignmentController;
 use App\Http\Controllers\WarehouseController;
 use App\Http\Controllers\ProcessingParametersController;
-use App\Http\Controllers\WorkParameterController;
 use App\Http\Controllers\FilePathSettingController;
-use App\Http\Controllers\UserController as ApiUserController;
 use App\Http\Controllers\WorkPhaseImageController;
+use App\Http\Controllers\NonConformityController;
+use App\Http\Controllers\WorkParameterController;
+use App\Http\Controllers\UserController as ApiUserController;
 
 Route::middleware(['auth', 'role:admin'])->group(function () {
     Route::prefix('admin')->group(function () {
@@ -138,4 +139,8 @@ Route::middleware('auth')->group(function () {
     
     Route::delete('/api/work-phase-images/{workPhaseImage}', [WorkPhaseImageController::class, 'destroy'])
         ->name('work-phase-images.destroy');
+
+    // Non Conformity routes
+    Route::get('/api/non-conformities', [NonConformityController::class, 'index'])
+        ->name('non-conformities.index');
 });

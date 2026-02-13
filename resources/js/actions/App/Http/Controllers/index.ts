@@ -8,6 +8,7 @@ import WarehouseController from './WarehouseController'
 import WorkParameterController from './WorkParameterController'
 import FilePathSettingController from './FilePathSettingController'
 import WorkPhaseImageController from './WorkPhaseImageController'
+import NonConformityController from './NonConformityController'
 import Settings from './Settings'
 const Controllers = {
     Auth: Object.assign(Auth, Auth),
@@ -20,6 +21,7 @@ WarehouseController: Object.assign(WarehouseController, WarehouseController),
 WorkParameterController: Object.assign(WorkParameterController, WorkParameterController),
 FilePathSettingController: Object.assign(FilePathSettingController, FilePathSettingController),
 WorkPhaseImageController: Object.assign(WorkPhaseImageController, WorkPhaseImageController),
+NonConformityController: Object.assign(NonConformityController, NonConformityController),
 Settings: Object.assign(Settings, Settings),
 }
 
