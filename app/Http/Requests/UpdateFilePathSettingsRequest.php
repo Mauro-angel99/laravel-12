@@ -21,7 +21,6 @@ class UpdateFilePathSettingsRequest extends FormRequest
     {
         return [
             'pdf_path' => ['required', 'string', 'max:500'],
-            'image_path' => ['required', 'string', 'max:500']
         ];
     }
 
@@ -33,8 +32,6 @@ class UpdateFilePathSettingsRequest extends FormRequest
         return [
             'pdf_path.required' => 'Il percorso PDF è obbligatorio',
             'pdf_path.max' => 'Il percorso PDF non può superare i 500 caratteri',
-            'image_path.required' => 'Il percorso immagini è obbligatorio',
-            'image_path.max' => 'Il percorso immagini non può superare i 500 caratteri'
         ];
     }
 }
