@@ -894,16 +894,3 @@ const handleKeydown = (event) => {
   }
 };
 </script>
-
-<style scoped>
-/* Nascondi scrollbar per Chrome, Safari e Opera */
-.scrollbar-hide::-webkit-scrollbar {
-  display: none;
-}
-
-/* Nascondi scrollbar per IE, Edge e Firefox */
-.scrollbar-hide {
-  -ms-overflow-style: none;  /* IE e Edge */
-  scrollbar-width: none;  /* Firefox */
-}
-</style>
