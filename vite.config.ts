@@ -14,6 +14,7 @@ export default defineConfig({
             input: ['resources/js/app.ts', 'resources/js/app.js'],
             ssr: 'resources/js/ssr.ts',
             refresh: true,
+            detectTls: false,
         }),
         wayfinder({
             formVariants: true,
@@ -28,13 +29,13 @@ export default defineConfig({
         }),
     ],
     server: {
-        host: 'myproject.local',
+        host: 'localhost',
         port: 5173,
         strictPort: true,
         cors: true,
-        origin: 'http://myproject.local:5173',
+        origin: 'http://localhost:5173',
         hmr: {
-            host: 'myproject.local',
+            host: 'localhost',
             protocol: 'ws',
         },
     },
@@ -49,7 +50,7 @@ export default defineConfig({
         },
     },*/
     preview: {
-        host: 'myproject.local',
+        host: 'localhost',
         port: 4173,
         strictPort: true,
     },
