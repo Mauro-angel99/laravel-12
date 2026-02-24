@@ -233,208 +233,201 @@ onMounted(async () => {
 </script>
 
 <template>
-  <div class="bg-white shadow rounded-lg p-3">
-    <!-- Header con bottone Aggiungi e barra di ricerca -->
-    <div class="mb-3 flex flex-col sm:flex-row sm:justify-between sm:items-center gap-3">
-      <div class="flex flex-col sm:flex-row sm:items-center gap-3 sm:gap-4">
-        <button 
+  <div class="space-y-4">
+
+    <!-- Pannello filtri -->
+    <div class="bg-white rounded-xl shadow-sm border border-gray-200 overflow-hidden">
+      <div class="bg-copam-blue px-4 py-3 flex items-center gap-2">
+        <svg class="w-4 h-4 text-white/80" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 4a1 1 0 011-1h16a1 1 0 011 1v2a1 1 0 01-.293.707L13 13.414V19a1 1 0 01-.553.894l-4 2A1 1 0 017 21v-7.586L3.293 6.707A1 1 0 013 6V4z"/>
+        </svg>
+        <span class="text-sm font-semibold text-white">Magazzino</span>
+      </div>
+      <div class="px-4 py-3 flex flex-col sm:flex-row sm:items-center gap-3">
+        <button
           @click="openCreateModal"
-          class="px-4 py-2 bg-copam-blue text-white text-sm font-medium rounded-md hover:bg-copam-blue/90 focus:outline-none focus:ring-2 focus:ring-copam-blue w-full sm:w-auto"
+          class="inline-flex items-center gap-2 px-4 py-2 bg-copam-blue text-white text-sm font-medium rounded-lg hover:bg-copam-blue/90 focus:outline-none focus:ring-2 focus:ring-copam-blue transition-colors w-full sm:w-auto justify-center"
         >
+          <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"/>
+          </svg>
           Aggiungi Merce
         </button>
-        
-        <label class="flex items-center cursor-pointer">
+
+        <label class="flex items-center gap-2 cursor-pointer select-none">
           <input
             v-model="filterPending"
             @change="fetchPositions(1)"
             type="checkbox"
             class="sr-only peer"
           />
-          <div class="relative w-11 h-6 bg-gray-200 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-blue-300 rounded-full peer peer-checked:after:translate-x-full rtl:peer-checked:after:-translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:start-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-copam-blue"></div>
-          <span class="ms-3 text-sm font-medium text-gray-700">In Attesa</span>
+          <div class="relative w-10 h-5 bg-gray-200 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:start-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-4 after:w-4 after:transition-all peer-checked:bg-copam-blue"></div>
+          <span class="text-sm text-gray-700 font-medium">In Attesa</span>
         </label>
-      </div>
-      
-      <div class="flex-1 w-full sm:max-w-md">
-        <input 
-          v-model="searchQuery"
-          @input="handleSearch"
-          type="text"
-          placeholder="Cerca per posizione, per Codice merce, per Ord. Prod..."
-          class="w-full px-3 py-2 text-sm border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-copam-blue focus:border-copam-blue"
-        >
+
+        <div class="sm:ml-auto sm:max-w-md w-full">
+          <div class="relative">
+            <svg class="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-4.35-4.35M17 11A6 6 0 1 1 5 11a6 6 0 0 1 12 0z"/>
+            </svg>
+            <input
+              v-model="searchQuery"
+              @input="handleSearch"
+              type="text"
+              placeholder="Cerca posizione, codice merce, ord. prod..."
+              class="w-full pl-9 pr-3 py-2 text-sm border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-copam-blue focus:border-copam-blue"
+            />
+          </div>
+        </div>
       </div>
     </div>
 
-    <div class="overflow-x-auto">
-      <table class="w-full">
-        <thead class="bg-gray-50">
-          <tr class="border-b border-gray-200">
-            <th class="px-3 py-2 text-left text-xs font-bold uppercase tracking-wider border-r border-gray-200">
-              Posizione
-            </th>
-            <th class="px-3 py-2 text-left text-xs font-bold uppercase tracking-wider">N° Merci</th>
-          </tr>
-        </thead>
-        <tbody class="bg-white">
-          <tr v-if="loading">
-            <td colspan="2" class="px-3 py-2 text-center text-xs text-gray-500">
-              <div class="flex items-center justify-center">
-                <svg class="animate-spin h-5 w-5 mr-3 text-gray-500" viewBox="0 0 24 24">
-                  <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4" fill="none"></circle>
+    <!-- Tabella posizioni -->
+    <div class="bg-white rounded-xl shadow-sm border border-gray-200 overflow-hidden">
+      <div class="overflow-x-auto">
+        <table class="w-full text-sm">
+          <thead>
+            <tr class="bg-copam-blue text-white">
+              <th class="px-4 py-2.5 text-left font-semibold uppercase tracking-wider text-xs border-r border-blue-400/40">Posizione</th>
+              <th class="px-4 py-2.5 text-left font-semibold uppercase tracking-wider text-xs">N&deg; Merci</th>
+            </tr>
+          </thead>
+          <tbody class="divide-y divide-gray-100">
+            <tr v-if="loading">
+              <td colspan="2" class="px-4 py-10 text-center text-gray-400">
+                <svg class="animate-spin h-6 w-6 text-copam-blue mx-auto mb-2" fill="none" viewBox="0 0 24 24">
+                  <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
                   <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
                 </svg>
-                Caricamento...
-              </div>
-            </td>
-          </tr>
-          <tr 
-            v-else 
-            v-for="position in positions" 
-            :key="position.id" 
-            @click="openProductsModal(position)"
-            class="hover:bg-gray-100 border-b border-gray-200 cursor-pointer transition-colors"
-          >
-            <td class="px-3 py-2 whitespace-nowrap text-xs text-gray-900 border-r border-gray-200">
-              {{ position.warehouse_position }}
-            </td>
-            <td class="px-3 py-2 whitespace-nowrap text-xs text-gray-900">
-              {{ position.warehouses_count }}
-            </td>
-          </tr>
-          <tr v-if="!loading && !positions.length">
-            <td colspan="2" class="px-3 py-2 text-center">
-              <div class="text-center py-12">
-                <svg class="mx-auto h-12 w-12 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4"></path>
+                <span class="text-xs">Caricamento...</span>
+              </td>
+            </tr>
+            <tr
+              v-else
+              v-for="(position, index) in positions"
+              :key="position.id"
+              @click="openProductsModal(position)"
+              :class="[
+                'cursor-pointer transition-colors',
+                index % 2 === 0 ? 'bg-white hover:bg-blue-50' : 'bg-gray-50/60 hover:bg-blue-50'
+              ]"
+            >
+              <td class="px-4 py-2.5 whitespace-nowrap font-medium text-gray-800 border-r border-gray-100">{{ position.warehouse_position }}</td>
+              <td class="px-4 py-2.5 whitespace-nowrap text-gray-600">
+                <span class="inline-flex items-center px-2 py-0.5 rounded-full text-xs font-semibold bg-blue-100 text-copam-blue">
+                  {{ position.warehouses_count }}
+                </span>
+              </td>
+            </tr>
+            <tr v-if="!loading && !positions.length">
+              <td colspan="2" class="px-4 py-16 text-center">
+                <svg class="mx-auto h-12 w-12 text-gray-300 mb-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4"/>
                 </svg>
-                <h3 class="mt-2 text-xs font-medium text-gray-900">
+                <p class="text-sm font-medium text-gray-500">
                   {{ filterPending ? 'Nessuna posizione in attesa' : 'Nessuna posizione in magazzino' }}
-                </h3>
-                <p class="mt-1 text-xs text-gray-500">
+                </p>
+                <p class="text-xs text-gray-400 mt-1">
                   {{ filterPending ? 'Non ci sono posizioni registrate in attesa.' : 'Non ci sono posizioni registrate nel magazzino.' }}
                 </p>
-              </div>
-            </td>
-          </tr>
-        </tbody>
-      </table>
-    </div>
-
-    <!-- Informazioni paginazione -->
-    <div class="mt-4 flex justify-between items-center text-xs text-gray-600">
-      <div>
-        Mostrando {{ pagination.from }} - {{ pagination.to }} di {{ pagination.total }} record
+              </td>
+            </tr>
+          </tbody>
+        </table>
       </div>
-    </div>
-    
-    <!-- Controlli paginazione -->
-    <div class="mt-2 flex justify-center items-center space-x-2">
-      <button 
-        @click="goToPage(currentPage - 1)" 
-        :disabled="currentPage === 1"
-        class="px-3 py-1 text-xs border rounded disabled:opacity-50 disabled:cursor-not-allowed hover:bg-gray-50"
-      >
-        Precedente
-      </button>
-      
-      <span class="px-3 py-1 text-xs">
-        Pagina {{ currentPage }} di {{ pagination.last_page }}
-      </span>
-      
-      <button 
-        @click="goToPage(currentPage + 1)" 
-        :disabled="currentPage === pagination.last_page"
-        class="px-3 py-1 text-xs border rounded disabled:opacity-50 disabled:cursor-not-allowed hover:bg-gray-50"
-      >
-        Successiva
-      </button>
+
+      <!-- Paginazione integrata -->
+      <div class="border-t border-gray-100 px-4 py-3 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2 bg-gray-50/50">
+        <p class="text-xs text-gray-500">
+          Mostrando <span class="font-medium text-gray-700">{{ pagination.from }}</span> &ndash; <span class="font-medium text-gray-700">{{ pagination.to }}</span> di <span class="font-medium text-gray-700">{{ pagination.total }}</span> posizioni
+        </p>
+        <div class="flex items-center gap-1">
+          <button
+            @click="goToPage(1)"
+            :disabled="currentPage === 1"
+            class="px-2 py-1 text-xs rounded border border-gray-200 bg-white text-gray-600 hover:bg-gray-100 disabled:opacity-40 disabled:cursor-not-allowed transition-colors"
+          >&laquo;</button>
+          <button
+            @click="goToPage(currentPage - 1)"
+            :disabled="currentPage === 1"
+            class="px-2 py-1 text-xs rounded border border-gray-200 bg-white text-gray-600 hover:bg-gray-100 disabled:opacity-40 disabled:cursor-not-allowed transition-colors"
+          >&lsaquo; Prec.</button>
+          <span class="px-3 py-1 text-xs bg-copam-blue text-white rounded font-medium">{{ currentPage }} / {{ pagination.last_page }}</span>
+          <button
+            @click="goToPage(currentPage + 1)"
+            :disabled="currentPage === pagination.last_page"
+            class="px-2 py-1 text-xs rounded border border-gray-200 bg-white text-gray-600 hover:bg-gray-100 disabled:opacity-40 disabled:cursor-not-allowed transition-colors"
+          >Succ. &rsaquo;</button>
+          <button
+            @click="goToPage(pagination.last_page)"
+            :disabled="currentPage === pagination.last_page"
+            class="px-2 py-1 text-xs rounded border border-gray-200 bg-white text-gray-600 hover:bg-gray-100 disabled:opacity-40 disabled:cursor-not-allowed transition-colors"
+          >&raquo;</button>
+        </div>
+      </div>
     </div>
 
     <!-- Modal Creazione Merce -->
     <div v-if="showCreateModal" class="fixed inset-0 z-50 overflow-y-auto">
       <div class="flex items-center justify-center min-h-screen px-4 pt-4 pb-20 text-center sm:block sm:p-0">
-        <div 
-          class="fixed inset-0 transition-opacity bg-gray-500 bg-opacity-75"
-          @click="closeCreateModal"
-        ></div>
-
-        <div class="inline-block align-bottom bg-white rounded-lg px-4 pt-5 pb-4 text-left overflow-hidden shadow-xl transform transition-all sm:my-8 sm:align-middle sm:max-w-lg sm:w-full sm:p-6 max-w-md w-full">
-          <div class="mt-3">
-            <h3 class="text-lg font-medium leading-6 text-gray-900 mb-4">Aggiungi Nuova Merce</h3>
-            
-            <form @submit.prevent="saveWarehouse" class="space-y-4">
-              <div class="flex items-center gap-3 pt-2">
-                <label class="flex items-center cursor-pointer">
-                  <input
-                    v-model="formData.pending"
-                    type="checkbox"
-                    class="sr-only peer"
-                  />
-                  <div class="relative w-11 h-6 bg-gray-200 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-blue-300 rounded-full peer peer-checked:after:translate-x-full rtl:peer-checked:after:-translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:start-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-copam-blue"></div>
-                  <span class="ms-3 text-sm font-medium text-gray-700">In Attesa</span>
-                </label>
-              </div>
-
-              <div>
-                <label class="block text-sm font-medium text-gray-700 mb-1">Codice Attesa</label>
-                <input 
-                  v-model="formData.pending_code"
-                  type="text"
-                  :disabled="!formData.pending"
-                  class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-copam-blue focus:border-copam-blue disabled:bg-gray-100 disabled:cursor-not-allowed"
-                >
-              </div>
-
-              <div>
-                <label class="block text-sm font-medium text-gray-700 mb-1">
-                  Posizione {{ !formData.pending ? '*' : '' }}
-                </label>
-                <input 
-                  v-model="formData.warehouse_position"
-                  type="text"
-                  :required="!formData.pending"
-                  :disabled="formData.pending"
-                  class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-copam-blue focus:border-copam-blue disabled:bg-gray-100 disabled:cursor-not-allowed"
-                >
-              </div>
-
-              <div>
-                <label class="block text-sm font-medium text-gray-700 mb-1">Codice Merce</label>
-                <input 
-                  v-model="formData.product_code"
-                  type="text" 
-                  class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-copam-blue focus:border-copam-blue"
-                >
-              </div>
-
-              <div>
-                <label class="block text-sm font-medium text-gray-700 mb-1">Ord. Prod.</label>
-                <input 
-                  v-model="formData.production_order"
-                  type="text" 
-                  class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-copam-blue focus:border-copam-blue"
-                >
-              </div>
-
-              <div class="flex justify-end space-x-3 pt-4">
-                <button 
-                  type="button"
-                  @click="closeCreateModal"
-                  class="px-4 py-2 bg-gray-200 text-gray-700 text-sm font-medium rounded-md hover:bg-gray-300 focus:outline-none"
-                >
-                  Annulla
-                </button>
-                <button 
-                  type="submit"
-                  class="px-4 py-2 bg-green-600 text-white text-sm font-medium rounded-md hover:bg-green-700 focus:outline-none focus:ring-2 focus:ring-green-500"
-                >
-                  Salva
-                </button>
-              </div>
-            </form>
+        <div class="fixed inset-0 bg-gray-500 bg-opacity-75 transition-opacity" @click="closeCreateModal"></div>
+        <div class="inline-block align-bottom bg-white rounded-xl text-left overflow-hidden shadow-xl transform transition-all sm:my-8 sm:align-middle sm:max-w-lg sm:w-full">
+          <!-- Header -->
+          <div class="bg-copam-blue px-6 py-4 flex items-center justify-between">
+            <h3 class="text-base font-semibold text-white">Aggiungi Nuova Merce</h3>
+            <button @click="closeCreateModal" class="text-white/70 hover:text-white transition-colors">
+              <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/>
+              </svg>
+            </button>
           </div>
+          <!-- Body -->
+          <form @submit.prevent="saveWarehouse" class="px-6 py-5 space-y-4">
+            <div class="flex items-center gap-3">
+              <label class="flex items-center gap-2 cursor-pointer select-none">
+                <input v-model="formData.pending" type="checkbox" class="sr-only peer"/>
+                <div class="relative w-10 h-5 bg-gray-200 rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:start-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-4 after:w-4 after:transition-all peer-checked:bg-copam-blue"></div>
+                <span class="text-sm font-medium text-gray-700">In Attesa</span>
+              </label>
+            </div>
+
+            <div>
+              <label class="block text-xs font-semibold text-gray-500 uppercase tracking-wide mb-1">Codice Attesa</label>
+              <input v-model="formData.pending_code" type="text" :disabled="!formData.pending"
+                class="w-full px-3 py-2 text-sm border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-copam-blue focus:border-copam-blue disabled:bg-gray-100 disabled:cursor-not-allowed"/>
+            </div>
+
+            <div>
+              <label class="block text-xs font-semibold text-gray-500 uppercase tracking-wide mb-1">
+                Posizione {{ !formData.pending ? '*' : '' }}
+              </label>
+              <input v-model="formData.warehouse_position" type="text" :required="!formData.pending" :disabled="formData.pending"
+                class="w-full px-3 py-2 text-sm border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-copam-blue focus:border-copam-blue disabled:bg-gray-100 disabled:cursor-not-allowed"/>
+            </div>
+
+            <div>
+              <label class="block text-xs font-semibold text-gray-500 uppercase tracking-wide mb-1">Codice Merce</label>
+              <input v-model="formData.product_code" type="text"
+                class="w-full px-3 py-2 text-sm border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-copam-blue focus:border-copam-blue"/>
+            </div>
+
+            <div>
+              <label class="block text-xs font-semibold text-gray-500 uppercase tracking-wide mb-1">Ord. Prod.</label>
+              <input v-model="formData.production_order" type="text"
+                class="w-full px-3 py-2 text-sm border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-copam-blue focus:border-copam-blue"/>
+            </div>
+
+            <div class="flex justify-end gap-2 pt-2 border-t border-gray-100">
+              <button type="button" @click="closeCreateModal"
+                class="px-4 py-2 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-lg hover:bg-gray-50 transition-colors">
+                Annulla
+              </button>
+              <button type="submit"
+                class="px-4 py-2 text-sm font-medium text-white bg-copam-blue rounded-lg hover:bg-copam-blue/90 transition-colors focus:outline-none focus:ring-2 focus:ring-copam-blue">
+                Salva
+              </button>
+            </div>
+          </form>
         </div>
       </div>
     </div>
@@ -442,76 +435,78 @@ onMounted(async () => {
     <!-- Modal Lista Prodotti in Posizione -->
     <div v-if="showProductsModal" class="fixed inset-0 z-50 overflow-y-auto">
       <div class="flex items-center justify-center min-h-screen px-4 pt-4 pb-20 text-center sm:block sm:p-0">
-        <div 
-          class="fixed inset-0 transition-opacity bg-gray-500 bg-opacity-75"
-          @click="closeProductsModal"
-        ></div>
-
-        <div class="inline-block align-bottom bg-white rounded-lg px-4 pt-5 pb-4 text-left overflow-hidden shadow-xl transform transition-all sm:my-8 sm:align-middle sm:max-w-6xl sm:w-full sm:p-6 max-w-md w-full">
-          <div class="mt-3">
-            <h3 class="text-lg font-medium leading-6 text-gray-900 mb-4">
-              Merci in Posizione: {{ selectedPosition?.warehouse_position }}
-            </h3>
-            
-            <div class="overflow-x-auto">
-              <table class="w-full">
-                <thead class="bg-gray-50">
-                  <tr class="border-b border-gray-200">
-                    <th class="px-3 py-2 text-left text-xs font-bold uppercase tracking-wider border-r border-gray-200">Codice</th>
-                    <th class="px-3 py-2 text-left text-xs font-bold uppercase tracking-wider">Ord. Prod.</th>
+        <div class="fixed inset-0 bg-gray-500 bg-opacity-75 transition-opacity" @click="closeProductsModal"></div>
+        <div class="inline-block align-bottom bg-white rounded-xl text-left overflow-hidden shadow-xl transform transition-all sm:my-8 sm:align-middle sm:max-w-3xl sm:w-full">
+          <!-- Header -->
+          <div class="bg-copam-blue px-6 py-4 flex items-center justify-between">
+            <div class="flex items-center gap-2">
+              <h3 class="text-base font-semibold text-white">Posizione</h3>
+              <span class="bg-white/20 text-white text-xs font-mono px-2 py-0.5 rounded">{{ selectedPosition?.warehouse_position }}</span>
+            </div>
+            <button @click="closeProductsModal" class="text-white/70 hover:text-white transition-colors">
+              <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/>
+              </svg>
+            </button>
+          </div>
+          <!-- Body -->
+          <div class="px-6 py-5 space-y-5">
+            <div class="overflow-x-auto rounded-xl border border-gray-200 shadow-sm">
+              <table class="w-full text-sm">
+                <thead class="bg-copam-blue text-white">
+                  <tr>
+                    <th class="px-4 py-2.5 text-left text-xs font-semibold uppercase tracking-wider border-r border-blue-400/40">Codice Merce</th>
+                    <th class="px-4 py-2.5 text-left text-xs font-semibold uppercase tracking-wider">Ord. Prod.</th>
                   </tr>
                 </thead>
-                <tbody class="bg-white">
+                <tbody class="divide-y divide-gray-100">
                   <tr v-if="selectedProducts.length === 0">
-                    <td colspan="2" class="px-3 py-2 text-center text-xs text-gray-500">
-                      Nessuna merce in questa posizione
-                    </td>
+                    <td colspan="2" class="px-4 py-8 text-center text-xs text-gray-400">Nessuna merce in questa posizione</td>
                   </tr>
                   <tr
-                    v-for="product in selectedProducts"
+                    v-for="(product, index) in selectedProducts"
                     :key="product.id"
-                    class="hover:bg-gray-100 border-b border-gray-200 cursor-pointer transition-colors"
                     @click="openEditModal(product)"
+                    :class="[
+                      'cursor-pointer transition-colors',
+                      index % 2 === 0 ? 'bg-white hover:bg-blue-50' : 'bg-gray-50/60 hover:bg-blue-50'
+                    ]"
                   >
-                    <td class="px-3 py-2 whitespace-nowrap text-xs text-gray-900 border-r border-gray-200">
-                      {{ product.product_code || '-' }}
-                    </td>
-                    <td class="px-3 py-2 whitespace-nowrap text-xs text-gray-900">
-                      {{ product.production_order || '-' }}
-                    </td>
+                    <td class="px-4 py-2.5 whitespace-nowrap font-medium text-gray-800 border-r border-gray-100">{{ product.product_code || '&mdash;' }}</td>
+                    <td class="px-4 py-2.5 whitespace-nowrap text-gray-600">{{ product.production_order || '&mdash;' }}</td>
                   </tr>
                 </tbody>
               </table>
             </div>
 
-            <div class="mt-6 space-y-3">
-              <div>
-                <label class="block text-sm font-medium text-gray-700 mb-1">Modifica Posizione</label>
-                <div class="flex flex-col sm:flex-row gap-2">
-                  <input
-                    v-model="editingPositionName"
-                    type="text"
-                    class="w-full sm:w-1/2 px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-copam-blue focus:border-copam-blue text-sm"
-                    placeholder="Inserisci nuovo nome posizione"
-                  />
-                  <button
-                    @click="updatePositionName"
-                    :disabled="!editingPositionName || editingPositionName === selectedPosition?.warehouse_position"
-                    class="w-full sm:w-auto px-4 py-2 bg-copam-blue text-white text-sm font-medium rounded-md hover:bg-copam-blue/90 focus:outline-none focus:ring-2 focus:ring-copam-blue disabled:opacity-50 disabled:cursor-not-allowed"
-                  >
-                    Aggiorna
-                  </button>
-                </div>
-              </div>
-              
-              <div class="flex justify-end">
-                <button 
-                  @click="closeProductsModal"
-                  class="px-4 py-2 bg-gray-200 text-gray-700 text-sm font-medium rounded-md hover:bg-gray-300 focus:outline-none"
+            <!-- Modifica posizione -->
+            <div class="bg-gray-50 rounded-xl border border-gray-200 px-4 py-4">
+              <p class="text-xs font-semibold text-gray-500 uppercase tracking-wide mb-2">Rinomina Posizione</p>
+              <div class="flex flex-col sm:flex-row gap-2">
+                <input
+                  v-model="editingPositionName"
+                  type="text"
+                  class="flex-1 px-3 py-2 text-sm border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-copam-blue focus:border-copam-blue"
+                  placeholder="Inserisci nuovo nome posizione"
+                />
+                <button
+                  @click="updatePositionName"
+                  :disabled="!editingPositionName || editingPositionName === selectedPosition?.warehouse_position"
+                  class="px-4 py-2 text-sm font-medium text-white bg-copam-blue rounded-lg hover:bg-copam-blue/90 transition-colors disabled:opacity-50 disabled:cursor-not-allowed focus:outline-none focus:ring-2 focus:ring-copam-blue"
                 >
-                  Chiudi
+                  Aggiorna
                 </button>
               </div>
+            </div>
+
+            <div class="flex justify-end border-t border-gray-100 pt-4">
+              <button @click="closeProductsModal"
+                class="inline-flex items-center gap-2 px-4 py-2 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-lg hover:bg-gray-50 transition-colors">
+                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/>
+                </svg>
+                Chiudi
+              </button>
             </div>
           </div>
         </div>
@@ -521,68 +516,53 @@ onMounted(async () => {
     <!-- Modal Modifica Merce -->
     <div v-if="showEditModal" class="fixed inset-0 z-[60] overflow-y-auto">
       <div class="flex items-center justify-center min-h-screen px-4 pt-4 pb-20 text-center sm:block sm:p-0">
-        <div 
-          class="fixed inset-0 transition-opacity bg-gray-500 bg-opacity-75"
-          @click="closeEditModal"
-        ></div>
-
-        <div class="inline-block align-bottom bg-white rounded-lg px-4 pt-5 pb-4 text-left overflow-hidden shadow-xl transform transition-all sm:my-8 sm:align-middle sm:max-w-lg sm:w-full sm:p-6 max-w-md w-full">
-          <div class="mt-3">
-            <h3 class="text-lg font-medium leading-6 text-gray-900 mb-4">Modifica Merce</h3>
-            
-            <form @submit.prevent="updateWarehouse" class="space-y-4">
-              <div>
-                <label class="block text-sm font-medium text-gray-700 mb-1">Posizione *</label>
-                <input 
-                  v-model="formData.warehouse_position"
-                  type="text" 
-                  required
-                  class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-copam-blue focus:border-copam-blue"
-                >
-              </div>
-
-              <div>
-                <label class="block text-sm font-medium text-gray-700 mb-1">Codice Merce</label>
-                <input 
-                  v-model="formData.product_code"
-                  type="text" 
-                  class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-copam-blue focus:border-copam-blue"
-                >
-              </div>
-
-              <div>
-                <label class="block text-sm font-medium text-gray-700 mb-1">Ord. Prod.</label>
-                <input 
-                  v-model="formData.production_order"
-                  type="text" 
-                  class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-copam-blue focus:border-copam-blue"
-                >
-              </div>
-
-              <div class="flex flex-col space-y-2 pt-4">
-                <button 
-                  type="submit"
-                  class="w-full px-4 py-2 bg-copam-blue text-white text-sm font-medium rounded-md hover:bg-copam-blue/90 focus:outline-none focus:ring-2 focus:ring-copam-blue"
-                >
-                  Salva modifiche
-                </button>
-                <button 
-                  type="button"
-                  @click="openDeleteModal"
-                  class="w-full px-4 py-2 bg-red-600 text-white text-sm font-medium rounded-md hover:bg-red-700 focus:outline-none focus:ring-2 focus:ring-red-500"
-                >
-                  Elimina
-                </button>
-                <button 
-                  type="button"
-                  @click="closeEditModal"
-                  class="w-full px-4 py-2 bg-gray-200 text-gray-700 text-sm font-medium rounded-md hover:bg-gray-300 focus:outline-none"
-                >
-                  Chiudi
-                </button>
-              </div>
-            </form>
+        <div class="fixed inset-0 bg-gray-500 bg-opacity-75 transition-opacity" @click="closeEditModal"></div>
+        <div class="inline-block align-bottom bg-white rounded-xl text-left overflow-hidden shadow-xl transform transition-all sm:my-8 sm:align-middle sm:max-w-lg sm:w-full">
+          <!-- Header -->
+          <div class="bg-copam-blue px-6 py-4 flex items-center justify-between">
+            <h3 class="text-base font-semibold text-white">Modifica Merce</h3>
+            <button @click="closeEditModal" class="text-white/70 hover:text-white transition-colors">
+              <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/>
+              </svg>
+            </button>
           </div>
+          <!-- Body -->
+          <form @submit.prevent="updateWarehouse" class="px-6 py-5 space-y-4">
+            <div>
+              <label class="block text-xs font-semibold text-gray-500 uppercase tracking-wide mb-1">Posizione *</label>
+              <input v-model="formData.warehouse_position" type="text" required
+                class="w-full px-3 py-2 text-sm border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-copam-blue focus:border-copam-blue"/>
+            </div>
+            <div>
+              <label class="block text-xs font-semibold text-gray-500 uppercase tracking-wide mb-1">Codice Merce</label>
+              <input v-model="formData.product_code" type="text"
+                class="w-full px-3 py-2 text-sm border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-copam-blue focus:border-copam-blue"/>
+            </div>
+            <div>
+              <label class="block text-xs font-semibold text-gray-500 uppercase tracking-wide mb-1">Ord. Prod.</label>
+              <input v-model="formData.production_order" type="text"
+                class="w-full px-3 py-2 text-sm border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-copam-blue focus:border-copam-blue"/>
+            </div>
+
+            <div class="flex flex-col sm:flex-row sm:justify-end gap-2 pt-2 border-t border-gray-100">
+              <button type="button" @click="openDeleteModal"
+                class="w-full sm:w-auto px-4 py-2 text-sm font-medium text-white bg-red-600 rounded-lg hover:bg-red-700 transition-colors focus:outline-none focus:ring-2 focus:ring-red-500">
+                Elimina
+              </button>
+              <button type="submit"
+                class="w-full sm:w-auto px-4 py-2 text-sm font-medium text-white bg-copam-blue rounded-lg hover:bg-copam-blue/90 transition-colors focus:outline-none focus:ring-2 focus:ring-copam-blue">
+                Salva
+              </button>
+              <button type="button" @click="closeEditModal"
+                class="w-full sm:w-auto inline-flex items-center justify-center gap-2 px-4 py-2 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-lg hover:bg-gray-50 transition-colors">
+                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/>
+                </svg>
+                Chiudi
+              </button>
+            </div>
+          </form>
         </div>
       </div>
     </div>

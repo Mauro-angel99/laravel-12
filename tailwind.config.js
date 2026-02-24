@@ -16,6 +16,9 @@ export default {
             fontFamily: {
                 sans: ['Figtree', ...defaultTheme.fontFamily.sans],
             },
+            maxWidth: {
+                '8xl': '88rem',
+            },
             colors: {
                 'copam-blue': {
                     DEFAULT: 'rgba(4, 69, 133, 1)',

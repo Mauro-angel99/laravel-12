@@ -1,4 +1,4 @@
-<script setup>
+﻿<script setup>
 import { ref, watch, onMounted } from 'vue'
 import axios from 'axios'
 import WorkPhaseAssModal from './WorkPhaseAssModal.vue'
@@ -127,7 +127,13 @@ const goToPage = (page) => {
 
 const formatDate = (dateString) => {
   if (!dateString) return '';
+  // Supporta sia ISO "YYYY-MM-DD..." sia altri formati
+  const parts = String(dateString).substring(0, 10).split('-');
+  if (parts.length === 3 && parts[0].length === 4) {
+    return `${parts[2]}/${parts[1]}/${parts[0]}`;
+  }
   const date = new Date(dateString);
+  if (isNaN(date.getTime())) return '';
   const day = date.getDate().toString().padStart(2, '0');
   const month = (date.getMonth() + 1).toString().padStart(2, '0');
   const year = date.getFullYear();
@@ -262,118 +268,97 @@ const confirmSelected = async () => {
 </script>
 
 <template>
-  <div class="bg-white shadow rounded-lg p-3">
-    <div class="mb-6">
-      <!-- Search Bar and Filters -->
-      <div class="space-y-4">
-        <!-- First row: 3 search fields -->
-        <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
-          <div>
-            <label class="block text-xs font-bold mb-1">Codice Lav</label>
-            <input 
-              type="text"
-              v-model="searchFllav"
-              placeholder=""
-              class="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:ring-copam-blue focus:border-copam-blue sm:text-xs"
-            />
-          </div>
-          <div>
-            <label class="block text-xs font-bold mb-1">Data da</label>
-            <input
-              ref="dateFromPicker"
-              type="text"
-              v-model="dateFrom"
-              class="w-full border-gray-300 rounded-md shadow-sm focus:ring-copam-blue focus:border-copam-blue sm:text-xs"
-            />
-          </div>
-          <div>
-            <label class="block text-xs font-bold mb-1">Data a</label>
-            <input
-              ref="dateToPicker"
-              type="text"
-              v-model="dateTo"
-              class="w-full border-gray-300 rounded-md shadow-sm focus:ring-copam-blue focus:border-copam-blue sm:text-xs"
-            />
-          </div>
-          
-        </div>
+  <div class="space-y-4">
 
-        <!-- Second row: 2 search fields -->
-        <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+    <!-- â”€â”€ FILTRI â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ -->
+    <div class="bg-white rounded-xl shadow-sm border border-gray-200 overflow-hidden">
+      <!-- Header filtri -->
+      <div class="bg-copam-blue px-5 py-3 flex items-center justify-between">
+        <div class="flex items-center gap-2">
+          <svg class="h-4 w-4 text-blue-200" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 4a1 1 0 011-1h16a1 1 0 011 1v2a1 1 0 01-.293.707L13 13.414V19a1 1 0 01-.553.894l-4 2A1 1 0 017 21v-7.586L3.293 6.707A1 1 0 013 6V4z" />
+          </svg>
+          <span class="text-sm font-semibold text-white">Filtri di ricerca</span>
+        </div>
+        <button
+          v-if="searchFllav || searchDtras || searchDtric || searchDtnum || searchIdopr || showOnlyWorked || showOnlyAvailable || dateFrom || dateTo"
+          @click="clearAllFilters"
+          class="inline-flex items-center gap-1 text-xs text-blue-100 hover:text-white transition-colors"
+        >
+          <svg class="h-3.5 w-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+          </svg>
+          Cancella filtri
+        </button>
+      </div>
+
+      <!-- Corpo filtri -->
+      <div class="p-4 space-y-3">
+        <!-- Riga 1 -->
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-3">
           <div>
-            <label class="block text-xs font-bold mb-1">Rag. Soc.</label>
-            <input 
-              type="text"
-              v-model="searchDtras"
-              placeholder=""
-              class="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:ring-copam-blue focus:border-copam-blue sm:text-xs"
-            />
+            <label class="block text-[10px] font-bold uppercase tracking-wider text-gray-500 mb-1">Codice Lav.</label>
+            <input type="text" v-model="searchFllav"
+              class="w-full px-3 py-1.5 border border-gray-300 rounded-lg text-xs focus:ring-2 focus:ring-copam-blue focus:border-copam-blue" />
           </div>
           <div>
-            <label class="block text-xs font-bold mb-1">N. Ord. Cli.</label>
-            <input 
-              type="text"
-              v-model="searchDtric"
-              placeholder=""
-              class="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:ring-copam-blue focus:border-copam-blue sm:text-xs"
-            />
+            <label class="block text-[10px] font-bold uppercase tracking-wider text-gray-500 mb-1">Data da</label>
+            <input ref="dateFromPicker" type="text" v-model="dateFrom"
+              class="w-full px-3 py-1.5 border border-gray-300 rounded-lg text-xs focus:ring-2 focus:ring-copam-blue focus:border-copam-blue" />
           </div>
           <div>
-            <label class="block text-xs font-bold mb-1">N. Ns. Ord.</label>
-            <input 
-              type="text"
-              v-model="searchDtnum"
-              placeholder=""
-              class="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:ring-copam-blue focus:border-copam-blue sm:text-xs"
-            />
+            <label class="block text-[10px] font-bold uppercase tracking-wider text-gray-500 mb-1">Data a</label>
+            <input ref="dateToPicker" type="text" v-model="dateTo"
+              class="w-full px-3 py-1.5 border border-gray-300 rounded-lg text-xs focus:ring-2 focus:ring-copam-blue focus:border-copam-blue" />
           </div>
         </div>
 
-        <!-- Third row: Order production and switches -->
-        <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+        <!-- Riga 2 -->
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-3">
           <div>
-            <label class="block text-xs font-bold mb-1">Ord. Prod.</label>
-            <input 
-              type="text"
-              v-model="searchIdopr"
-              placeholder=""
-              class="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:ring-copam-blue focus:border-copam-blue sm:text-xs"
-            />
+            <label class="block text-[10px] font-bold uppercase tracking-wider text-gray-500 mb-1">Rag. Soc.</label>
+            <input type="text" v-model="searchDtras"
+              class="w-full px-3 py-1.5 border border-gray-300 rounded-lg text-xs focus:ring-2 focus:ring-copam-blue focus:border-copam-blue" />
           </div>
-          <div class="md:col-span-2 grid grid-cols-2 gap-4">
-            <div class="flex items-end">
-              <label class="inline-flex items-center cursor-pointer">
-                <input 
-                  type="checkbox" 
-                  v-model="showOnlyWorked" 
-                  class="sr-only peer"
-                >
-                <div class="relative w-11 h-6 bg-gray-200 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-blue-300 rounded-full peer peer-checked:after:translate-x-full rtl:peer-checked:after:-translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:start-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-copam-blue"></div>
-                <span class="ms-3 text-xs font-bold text-gray-900">Escludi i lavorati</span>
-              </label>
-            </div>
-            <div class="flex items-end">
-              <label class="inline-flex items-center cursor-pointer">
-                <input 
-                  type="checkbox" 
-                  v-model="showOnlyAvailable" 
-                  class="sr-only peer"
-                >
-                <div class="relative w-11 h-6 bg-gray-200 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-blue-300 rounded-full peer peer-checked:after:translate-x-full rtl:peer-checked:after:-translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:start-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-copam-blue"></div>
-                <span class="ms-3 text-xs font-bold text-gray-900">Solo i disponibili</span>
-              </label>
-            </div>
+          <div>
+            <label class="block text-[10px] font-bold uppercase tracking-wider text-gray-500 mb-1">N. Ord. Cli.</label>
+            <input type="text" v-model="searchDtric"
+              class="w-full px-3 py-1.5 border border-gray-300 rounded-lg text-xs focus:ring-2 focus:ring-copam-blue focus:border-copam-blue" />
+          </div>
+          <div>
+            <label class="block text-[10px] font-bold uppercase tracking-wider text-gray-500 mb-1">N. Ns. Ord.</label>
+            <input type="text" v-model="searchDtnum"
+              class="w-full px-3 py-1.5 border border-gray-300 rounded-lg text-xs focus:ring-2 focus:ring-copam-blue focus:border-copam-blue" />
           </div>
         </div>
 
-        <!-- Ordinamento e Action buttons -->
-        <div class="flex justify-between items-center gap-2">
+        <!-- Riga 3 -->
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-3 items-end">
           <div>
-            <label class="block text-xs font-bold mb-1">Ordinamento</label>
-            <select 
-              v-model="sortBy"
-              class="px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:ring-copam-blue focus:border-copam-blue text-xs"
-            >
+            <label class="block text-[10px] font-bold uppercase tracking-wider text-gray-500 mb-1">Ord. Prod.</label>
+            <input type="text" v-model="searchIdopr"
+              class="w-full px-3 py-1.5 border border-gray-300 rounded-lg text-xs focus:ring-2 focus:ring-copam-blue focus:border-copam-blue" />
+          </div>
+          <div class="flex items-center gap-6 pb-0.5">
+            <label class="inline-flex items-center cursor-pointer gap-2">
+              <div class="relative">
+                <input type="checkbox" v-model="showOnlyWorked" class="sr-only peer">
+                <div class="w-9 h-5 bg-gray-200 rounded-full peer peer-checked:bg-copam-blue peer-checked:after:translate-x-full after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:rounded-full after:h-4 after:w-4 after:transition-all after:border after:border-gray-300"></div>
+              </div>
+              <span class="text-xs font-medium text-gray-700">Escludi lavorati</span>
+            </label>
+            <label class="inline-flex items-center cursor-pointer gap-2">
+              <div class="relative">
+                <input type="checkbox" v-model="showOnlyAvailable" class="sr-only peer">
+                <div class="w-9 h-5 bg-gray-200 rounded-full peer peer-checked:bg-copam-blue peer-checked:after:translate-x-full after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:rounded-full after:h-4 after:w-4 after:transition-all after:border after:border-gray-300"></div>
+              </div>
+              <span class="text-xs font-medium text-gray-700">Solo disponibili</span>
+            </label>
+          </div>
+          <div>
+            <label class="block text-[10px] font-bold uppercase tracking-wider text-gray-500 mb-1">Ordinamento</label>
+            <select v-model="sortBy"
+              class="w-full px-3 py-1.5 border border-gray-300 rounded-lg text-xs focus:ring-2 focus:ring-copam-blue focus:border-copam-blue">
               <option value="drcon_asc">DRCON crescente</option>
               <option value="drcon_desc">DRCON decrescente</option>
               <option value="dtras_asc">DTRAS crescente</option>
@@ -382,263 +367,206 @@ const confirmSelected = async () => {
               <option value="ardmz_asc">ARDMZ crescente</option>
             </select>
           </div>
-          
-          <div class="flex gap-2">
-            <button 
-              v-if="searchFllav || searchDtras || searchDtric || searchDtnum || searchIdopr || showOnlyWorked || showOnlyAvailable || dateFrom || dateTo"
-              @click="clearAllFilters"
-              class="inline-flex items-center px-4 py-2 border border-gray-300 font-semibold text-xs font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-copam-blue"
-            >
-              <svg class="h-4 w-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
-              </svg>
-              Cancella filtri
-            </button>
-          </div>
         </div>
       </div>
-
-      <!-- Results info -->
-      <div v-if="searchFllav || searchDtras || searchDtric || searchDtnum || searchIdopr || showOnlyWorked || showOnlyAvailable || dateFrom || dateTo" class="mt-4 text-xs text-gray-600">
-        <span v-if="pagination.total > 0">
-          Trovati {{ pagination.total }} record{{ pagination.total === 1 ? 'o' : 'i' }}
-        </span>
-        <span v-else>
-          Nessun record trovato
-        </span>
-      </div>
     </div>
 
-    <div ref="tableContainer" class="overflow-x-auto">
-      <table class="w-full">
-        <thead class="bg-gray-50">
-          <tr class="border-b border-gray-200">
-            <th class="px-3 py-2 text-center text-xs font-bold uppercase tracking-wider border-r border-gray-200">#</th>
-            <th class="px-3 py-2 text-left text-xs font-bold uppercase tracking-wider border-r border-gray-200">DRCMM</th>
-            <th class="px-3 py-2 text-left text-xs font-bold uppercase tracking-wider border-r border-gray-200">DRCON</th>
-            <th class="px-3 py-2 text-left text-xs font-bold uppercase tracking-wider border-r border-gray-200">FLASS</th>
-            <th class="px-3 py-2 text-left text-xs font-bold uppercase tracking-wider border-r border-gray-200">IDOPR</th>
-            <th class="px-3 py-2 text-left text-xs font-bold uppercase tracking-wider border-r border-gray-200">FLSEQ</th>
-            <th class="px-3 py-2 text-left text-xs font-bold uppercase tracking-wider border-r border-gray-200">FLLAV</th>
-            <th class="px-3 py-2 text-left text-xs font-bold uppercase tracking-wider border-r border-gray-200">FLDES</th>
-            <th class="px-3 py-2 text-left text-xs font-bold uppercase tracking-wider border-r border-gray-200">DTRAS</th>
-            <th class="px-3 py-2 text-left text-xs font-bold uppercase tracking-wider border-r border-gray-200">DTRIC</th>
-            <th class="px-3 py-2 text-left text-xs font-bold uppercase tracking-wider border-r border-gray-200">DTNUM</th>
-            <th class="px-3 py-2 text-left text-xs font-bold uppercase tracking-wider">FLCON</th>
-          </tr>
-        </thead>
-        <tbody class="bg-white">
-          <tr v-if="loading">
-            <td colspan="12" class="px-3 py-2 text-center text-xs text-gray-500">
-              <div class="flex items-center justify-center">
-                <svg class="animate-spin h-5 w-5 mr-3 text-gray-500" viewBox="0 0 24 24">
-                  <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4" fill="none"></circle>
-                  <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
-                </svg>
-                Caricamento...
-              </div>
-            </td>
-          </tr>
-          <tr v-else v-for="phase in workPhases" :key="phase.RECORD_ID" @click="openModal(phase)" class="hover:bg-gray-100 border-b border-gray-200 cursor-pointer transition-colors">
-            <td class="px-3 py-2 whitespace-nowrap text-xs text-center border-r border-gray-200" @click.stop>
-              <div class="flex items-center justify-between gap-2">
-                <input type="checkbox" v-model="selected" :value="phase.RECORD_ID" class="rounded border-gray-300 text-copam-blue focus:ring-copam-blue" />
-                <div v-if="phase.is_assigned" class="relative group inline-flex">
-                  <svg class="h-5 w-5 text-green-600 cursor-default" fill="currentColor" viewBox="0 0 20 20">
-                    <path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd" />
+    <!-- â”€â”€ TABELLA â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ -->
+    <div class="bg-white rounded-xl shadow-sm border border-gray-200 overflow-hidden">
+
+      <!-- Info risultati -->
+      <div class="px-4 py-2 border-b border-gray-100 flex items-center justify-between bg-gray-50">
+        <span class="text-xs text-gray-500">
+          <span v-if="loading">Caricamento...</span>
+          <span v-else>
+            Mostrando <span class="font-semibold text-gray-700">{{ pagination.from }} - {{ pagination.to }}</span>
+            di <span class="font-semibold text-gray-700">{{ pagination.total }}</span> record
+          </span>
+        </span>
+        <span v-if="selected.length" class="text-xs font-semibold text-copam-blue">
+          {{ selected.length }} selezionat{{ selected.length === 1 ? 'o' : 'i' }}
+        </span>
+      </div>
+
+      <div ref="tableContainer" class="overflow-x-auto">
+        <table class="w-full text-xs">
+          <thead>
+            <tr class="bg-copam-blue text-white">
+              <th class="px-3 py-2.5 text-left font-semibold uppercase tracking-wider border-r border-blue-400/40 w-12">#</th>
+              <th class="px-3 py-2.5 text-left font-semibold uppercase tracking-wider border-r border-blue-400/40">DRCMM</th>
+              <th class="px-3 py-2.5 text-left font-semibold uppercase tracking-wider border-r border-blue-400/40">DRCON</th>
+              <th class="px-3 py-2.5 text-left font-semibold uppercase tracking-wider border-r border-blue-400/40">FLASS</th>
+              <th class="px-3 py-2.5 text-left font-semibold uppercase tracking-wider border-r border-blue-400/40">IDOPR</th>
+              <th class="px-3 py-2.5 text-left font-semibold uppercase tracking-wider border-r border-blue-400/40">FLSEQ</th>
+              <th class="px-3 py-2.5 text-left font-semibold uppercase tracking-wider border-r border-blue-400/40">FLLAV</th>
+              <th class="px-3 py-2.5 text-left font-semibold uppercase tracking-wider border-r border-blue-400/40">FLDES</th>
+              <th class="px-3 py-2.5 text-left font-semibold uppercase tracking-wider border-r border-blue-400/40">DTRAS</th>
+              <th class="px-3 py-2.5 text-left font-semibold uppercase tracking-wider border-r border-blue-400/40">DTRIC</th>
+              <th class="px-3 py-2.5 text-left font-semibold uppercase tracking-wider border-r border-blue-400/40">DTNUM</th>
+              <th class="px-3 py-2.5 text-left font-semibold uppercase tracking-wider">FLCON</th>
+            </tr>
+          </thead>
+          <tbody class="divide-y divide-gray-100">
+            <!-- Loading -->
+            <tr v-if="loading">
+              <td colspan="12" class="px-3 py-10 text-center text-gray-400">
+                <div class="flex items-center justify-center gap-2">
+                  <svg class="animate-spin h-5 w-5 text-copam-blue" viewBox="0 0 24 24">
+                    <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4" fill="none"></circle>
+                    <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
                   </svg>
-                  <div class="absolute bottom-full -left-4 mb-1 hidden group-hover:block z-50 pointer-events-none">
-                    <div class="bg-gray-800 text-white text-xs rounded px-2 py-1 whitespace-nowrap shadow-lg">
-                      {{ phase.assigned_user_name || 'Utente sconosciuto' }}
+                  <span class="text-xs">Caricamento...</span>
+                </div>
+              </td>
+            </tr>
+
+            <!-- Righe dati -->
+            <tr v-else v-for="(phase, index) in workPhases" :key="phase.RECORD_ID"
+              @click="openModal(phase)"
+              :class="[
+                'cursor-pointer transition-colors',
+                index % 2 === 0 ? 'bg-white hover:bg-blue-50' : 'bg-gray-50/60 hover:bg-blue-50'
+              ]">
+              <td class="px-3 py-2 text-left border-r border-gray-100" @click.stop>
+                <div class="flex items-center justify-start gap-1.5">
+                  <input type="checkbox" v-model="selected" :value="phase.RECORD_ID"
+                    class="rounded border-gray-300 text-copam-blue focus:ring-copam-blue" />
+                  <div v-if="phase.is_assigned" class="relative group inline-flex">
+                    <svg class="h-4 w-4 text-green-500 cursor-default" fill="currentColor" viewBox="0 0 20 20">
+                      <path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd" />
+                    </svg>
+                    <div class="absolute bottom-full -left-4 mb-1 hidden group-hover:block z-50 pointer-events-none">
+                      <div class="bg-gray-800 text-white text-xs rounded px-2 py-1 whitespace-nowrap shadow-lg">
+                        {{ phase.assigned_user_name || 'Utente sconosciuto' }}
+                      </div>
+                      <div class="w-2 h-2 bg-gray-800 rotate-45 ml-[22px] -mt-1"></div>
                     </div>
-                    <div class="w-2 h-2 bg-gray-800 rotate-45 ml-[22px] -mt-1"></div>
                   </div>
                 </div>
-              </div>
-            </td>
-            <td class="px-3 py-2 whitespace-nowrap text-xs text-gray-900 border-r border-gray-200">{{ phase.DRCMM }}</td>
-            <td class="px-3 py-2 whitespace-nowrap text-xs text-gray-900 border-r border-gray-200">{{ phase.DRCON }}</td>
-            <td class="px-3 py-2 whitespace-nowrap text-xs text-gray-900 border-r border-gray-200">{{ phase.FLASS }}</td>
-            <td class="px-3 py-2 whitespace-nowrap text-xs text-gray-900 border-r border-gray-200">{{ phase.IDOPR }}</td>
-            <td class="px-3 py-2 whitespace-nowrap text-xs text-gray-900 border-r border-gray-200">{{ phase.FLSEQ }}</td>
-            <td class="px-3 py-2 whitespace-nowrap text-xs text-gray-900 border-r border-gray-200">{{ phase.FLLAV }}</td>
-            <td class="px-3 py-2 whitespace-nowrap text-xs text-gray-900 border-r border-gray-200">{{ phase.FLDES }}</td>
-            <td class="px-3 py-2 whitespace-nowrap text-xs text-gray-900 border-r border-gray-200">{{ phase.DTRAS }}</td>
-            <td class="px-3 py-2 whitespace-nowrap text-xs text-gray-900 border-r border-gray-200">{{ phase.DTRIC }}</td>
-            <td class="px-3 py-2 whitespace-nowrap text-xs text-gray-900 border-r border-gray-200">{{ phase.DTNUM }}</td>
-            <td class="px-3 py-2 whitespace-nowrap text-xs text-gray-900">{{ formatDate(phase.FLCON) }}</td>
-          </tr>
-          <tr v-if="!loading && !workPhases.length">
-            <td colspan="12" class="px-3 py-2 text-center">
-              <div class="text-center py-12">
-                <svg class="mx-auto h-12 w-12 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2"></path>
+              </td>
+              <td class="px-3 py-2 whitespace-nowrap font-medium text-gray-800 border-r border-gray-100">{{ phase.DRCMM }}</td>
+              <td class="px-3 py-2 whitespace-nowrap text-gray-700 border-r border-gray-100">{{ formatDate(phase.DRCON) }}</td>
+              <td class="px-3 py-2 whitespace-nowrap text-gray-700 border-r border-gray-100">{{ phase.FLASS }}</td>
+              <td class="px-3 py-2 whitespace-nowrap text-gray-700 border-r border-gray-100">{{ phase.IDOPR }}</td>
+              <td class="px-3 py-2 whitespace-nowrap text-gray-700 border-r border-gray-100">{{ phase.FLSEQ }}</td>
+              <td class="px-3 py-2 whitespace-nowrap border-r border-gray-100">
+                <span class="inline-flex items-center px-2 py-0.5 rounded-full text-[10px] font-semibold bg-blue-100 text-copam-blue">{{ phase.FLLAV }}</span>
+              </td>
+              <td class="px-3 py-2 whitespace-nowrap text-gray-700 border-r border-gray-100">{{ phase.FLDES }}</td>
+              <td class="px-3 py-2 whitespace-nowrap text-gray-700 border-r border-gray-100">{{ phase.DTRAS }}</td>
+              <td class="px-3 py-2 whitespace-nowrap text-gray-700 border-r border-gray-100">{{ phase.DTRIC }}</td>
+              <td class="px-3 py-2 whitespace-nowrap text-gray-700 border-r border-gray-100">{{ phase.DTNUM }}</td>
+              <td class="px-3 py-2 whitespace-nowrap text-gray-700">{{ formatDate(phase.FLCON) }}</td>
+            </tr>
+
+            <!-- Empty state -->
+            <tr v-if="!loading && !workPhases.length">
+              <td colspan="12" class="px-3 py-16 text-center">
+                <svg class="mx-auto h-10 w-10 text-gray-300" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2" />
                 </svg>
-                <h3 class="mt-2 text-xs font-medium text-gray-900">Nessuna fase di lavoro trovata</h3>
-                <p class="mt-1 text-xs text-gray-500">
-                  {{ search ? 'Prova a modificare i termini di ricerca.' : 'Non ci sono fasi di lavoro disponibili.' }}
-                </p>
-              </div>
-            </td>
-          </tr>
-        </tbody>
-      </table>
-    </div>
+                <p class="mt-2 text-xs font-medium text-gray-400">Nessuna fase di lavoro trovata</p>
+              </td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
 
-    <!-- Informazioni paginazione -->
-    <div class="mt-4 flex flex-col sm:flex-row justify-between items-center gap-2 text-xs text-gray-600">
-      <div>
-        Mostrando {{ pagination.from }} - {{ pagination.to }} di {{ pagination.total }} record
-      </div>
-      <div>Selezionati: {{ selected.length }}</div>
-    </div>
-    
-    <!-- Controlli paginazione -->
-    <div class="mt-2 flex flex-wrap justify-center items-center gap-2">
-      <button 
-        @click="goToPage(1)" 
-        :disabled="currentPage === 1"
-        class="hidden md:inline-flex px-3 py-1 text-xs border rounded disabled:opacity-50 disabled:cursor-not-allowed hover:bg-gray-50"
-      >
-        Prima
-      </button>
-      <button 
-        @click="goToPage(currentPage - 1)" 
-        :disabled="currentPage === 1"
-        class="px-3 py-1 text-xs border rounded disabled:opacity-50 disabled:cursor-not-allowed hover:bg-gray-50"
-      >
-        Precedente
-      </button>
-      
-      <span class="px-3 py-1 text-xs">
-        Pagina {{ currentPage }} di {{ pagination.last_page }}
-      </span>
-      
-      <button 
-        @click="goToPage(currentPage + 1)" 
-        :disabled="currentPage === pagination.last_page"
-        class="px-3 py-1 text-xs border rounded disabled:opacity-50 disabled:cursor-not-allowed hover:bg-gray-50"
-      >
-        Successiva
-      </button>
-      <button 
-        @click="goToPage(pagination.last_page)" 
-        :disabled="currentPage === pagination.last_page"
-        class="hidden md:inline-flex px-3 py-1 text-xs border rounded disabled:opacity-50 disabled:cursor-not-allowed hover:bg-gray-50"
-      >
-        Ultima
-      </button>
-    </div>
-    
-    <!-- User selection and notes -->
-    <div class="mt-4 grid grid-cols-1 md:grid-cols-2 gap-4">
-      <div>
-        <label class="block text-xs font-bold text-gray-900 mb-1">
-          Seleziona Utente
-        </label>
-        <select
-          v-model="selectedUser"
-          class="mt-1 block w-full pl-3 pr-10 py-2 text-base border-gray-300 focus:outline-none focus:ring-copam-blue focus:border-copam-blue sm:text-xs rounded-md"
-        >
-          
-          <option v-for="user in users" :key="user.id" :value="user.id">
-            {{ user.name }}
-          </option>
-        </select>
-      </div>
-      <div>
-        <label class="block text-xs font-bold text-gray-900 mb-1">
-          Note
-        </label>
-        <textarea
-          v-model="notes"
-          rows="3"
-          class="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:ring-copam-blue focus:border-copam-blue sm:text-xs"
-          placeholder="Inserisci le note..."
-        ></textarea>
+      <!-- Paginazione -->
+      <div class="border-t border-gray-100 px-4 py-3 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2 bg-gray-50/50">
+        <p class="text-xs text-gray-500">
+          Mostrando <span class="font-medium text-gray-700">{{ pagination.from }}</span> &ndash; <span class="font-medium text-gray-700">{{ pagination.to }}</span> di <span class="font-medium text-gray-700">{{ pagination.total }}</span> record
+        </p>
+        <div class="flex items-center gap-1">
+          <button @click="goToPage(1)" :disabled="currentPage === 1"
+            class="px-2 py-1 text-xs rounded border border-gray-200 bg-white text-gray-600 hover:bg-gray-100 disabled:opacity-40 disabled:cursor-not-allowed transition-colors">
+            &laquo;
+          </button>
+          <button @click="goToPage(currentPage - 1)" :disabled="currentPage === 1"
+            class="px-2 py-1 text-xs rounded border border-gray-200 bg-white text-gray-600 hover:bg-gray-100 disabled:opacity-40 disabled:cursor-not-allowed transition-colors">
+            &lsaquo; Prec.
+          </button>
+          <span class="px-3 py-1 text-xs bg-copam-blue text-white rounded font-medium">{{ currentPage }} / {{ pagination.last_page }}</span>
+          <button @click="goToPage(currentPage + 1)" :disabled="currentPage === pagination.last_page"
+            class="px-2 py-1 text-xs rounded border border-gray-200 bg-white text-gray-600 hover:bg-gray-100 disabled:opacity-40 disabled:cursor-not-allowed transition-colors">
+            Succ. &rsaquo;
+          </button>
+          <button @click="goToPage(pagination.last_page)" :disabled="currentPage === pagination.last_page"
+            class="px-2 py-1 text-xs rounded border border-gray-200 bg-white text-gray-600 hover:bg-gray-100 disabled:opacity-40 disabled:cursor-not-allowed transition-colors">
+            &raquo;
+          </button>
+        </div>
       </div>
     </div>
 
-    <div class="mt-4 flex justify-end">
-      <button class="bg-green-500 text-white px-4 py-2 rounded" @click="confirmSelected">
-        Assegna
-      </button>
+    <!-- â”€â”€ ASSEGNAZIONE â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ -->
+    <div class="bg-white rounded-xl shadow-sm border border-gray-200 overflow-hidden">
+      <div class="bg-copam-blue px-5 py-3">
+        <span class="text-sm font-semibold text-white">Assegnazione fasi</span>
+        <span v-if="selected.length" class="ml-2 text-xs text-blue-200">({{ selected.length }} selezionat{{ selected.length === 1 ? 'a' : 'e' }})</span>
+      </div>
+      <div class="p-4 grid grid-cols-1 md:grid-cols-2 gap-4">
+        <div>
+          <label class="block text-[10px] font-bold uppercase tracking-wider text-gray-500 mb-1">Utente</label>
+          <select v-model="selectedUser"
+            class="w-full px-3 py-1.5 border border-gray-300 rounded-lg text-xs focus:ring-2 focus:ring-copam-blue focus:border-copam-blue">
+            <option value="" disabled>-- Seleziona utente --</option>
+            <option v-for="user in users" :key="user.id" :value="user.id">{{ user.name }}</option>
+          </select>
+        </div>
+        <div>
+          <label class="block text-[10px] font-bold uppercase tracking-wider text-gray-500 mb-1">Note</label>
+          <textarea v-model="notes" rows="2"
+            class="w-full px-3 py-1.5 border border-gray-300 rounded-lg text-xs focus:ring-2 focus:ring-copam-blue focus:border-copam-blue resize-none"
+            placeholder="Inserisci le note..."></textarea>
+        </div>
+      </div>
+      <div class="border-t border-gray-100 px-4 py-3 flex justify-end bg-gray-50">
+        <button @click="confirmSelected"
+          class="inline-flex items-center gap-2 px-5 py-2 rounded-lg text-sm font-semibold text-white bg-green-600 hover:bg-green-700 transition-colors shadow-sm">
+          <svg class="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7" />
+          </svg>
+          Assegna
+        </button>
+      </div>
     </div>
+
   </div>
 
-  <!-- Modal -->
-  <WorkPhaseAssModal 
+  <!-- Modal dettaglio fase -->
+  <WorkPhaseAssModal
     v-model:show="showModal"
     v-model:modelValue="selected"
     :phase="selectedPhase"
   />
 
-  <!-- Modal Messaggio di Conferma/Errore -->
+  <!-- Modal conferma/errore -->
   <Teleport to="body">
-    <div v-if="messageModal.show" class="fixed inset-0 z-50 overflow-y-auto">
-      <div class="flex items-center justify-center min-h-screen px-4 pt-4 pb-20 text-center sm:block sm:p-0">
-        <!-- Overlay -->
-        <div 
-          class="fixed inset-0 transition-opacity bg-gray-500 bg-opacity-75"
-          @click="closeMessageModal"
-        ></div>
-
-        <!-- Modal -->
-        <div class="inline-block align-bottom bg-white rounded-lg px-4 pt-5 pb-4 text-left overflow-hidden shadow-xl transform transition-all sm:my-8 sm:align-middle sm:max-w-lg sm:w-full sm:p-6">
-          <div class="sm:flex sm:items-start">
-            <!-- Icona -->
-            <div :class="[
-              'mx-auto flex-shrink-0 flex items-center justify-center h-12 w-12 rounded-full sm:mx-0 sm:h-10 sm:w-10',
-              messageModal.type === 'success' ? 'bg-green-100' : 'bg-red-100'
-            ]">
-              <svg 
-                v-if="messageModal.type === 'success'"
-                class="h-6 w-6 text-green-600" 
-                fill="none" 
-                stroke="currentColor" 
-                viewBox="0 0 24 24"
-              >
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path>
+    <div v-if="messageModal.show" class="fixed inset-0 z-50 flex items-center justify-center px-4">
+      <div class="fixed inset-0 bg-gray-900 bg-opacity-50" @click="closeMessageModal"></div>
+      <div class="relative bg-white rounded-xl shadow-2xl w-full max-w-sm overflow-hidden">
+        <div :class="['px-5 py-4', messageModal.type === 'success' ? 'bg-green-600' : 'bg-red-600']">
+          <div class="flex items-center gap-3">
+            <div class="flex-shrink-0 bg-white/20 rounded-full p-1.5">
+              <svg v-if="messageModal.type === 'success'" class="h-5 w-5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7" />
               </svg>
-              <svg 
-                v-else
-                class="h-6 w-6 text-red-600" 
-                fill="none" 
-                stroke="currentColor" 
-                viewBox="0 0 24 24"
-              >
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
+              <svg v-else class="h-5 w-5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
               </svg>
             </div>
-            
-            <!-- Contenuto -->
-            <div class="mt-3 text-center sm:mt-0 sm:ml-4 sm:text-left">
-              <h3 class="text-lg leading-6 font-medium text-gray-900">
-                {{ messageModal.title }}
-              </h3>
-              <div class="mt-2">
-                <p class="text-xs text-gray-500">
-                  {{ messageModal.message }}
-                </p>
-              </div>
-            </div>
+            <h3 class="text-sm font-semibold text-white">{{ messageModal.title }}</h3>
           </div>
-          
-          <!-- Pulsante -->
-          <div class="mt-5 sm:mt-4 sm:flex sm:flex-row-reverse">
-            <button 
-              type="button"
-              @click="closeMessageModal"
-              :class="[
-                'w-full inline-flex justify-center rounded-md border border-transparent shadow-sm px-4 py-2 text-base font-medium text-white focus:outline-none focus:ring-2 focus:ring-offset-2 sm:ml-3 sm:w-auto sm:text-xs',
-                messageModal.type === 'success' 
-                  ? 'bg-green-600 hover:bg-green-700 focus:ring-green-500' 
-                  : 'bg-red-600 hover:bg-red-700 focus:ring-red-500'
-              ]"
-            >
-              OK
-            </button>
-          </div>
+        </div>
+        <div class="px-5 py-4">
+          <p class="text-xs text-gray-600">{{ messageModal.message }}</p>
+        </div>
+        <div class="border-t border-gray-100 px-5 py-3 flex justify-end bg-gray-50">
+          <button @click="closeMessageModal"
+            :class="['px-4 py-1.5 rounded-lg text-xs font-semibold text-white transition-colors', messageModal.type === 'success' ? 'bg-green-600 hover:bg-green-700' : 'bg-red-600 hover:bg-red-700']">
+            OK
+          </button>
         </div>
       </div>
     </div>

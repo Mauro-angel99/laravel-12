@@ -6,19 +6,26 @@
       <div class="fixed inset-0 bg-gray-500 bg-opacity-75 transition-opacity" aria-hidden="true" @click="close"></div>
 
       <!-- Modal panel -->
-      <div class="inline-block align-bottom bg-white rounded-lg text-left overflow-hidden shadow-xl transform transition-all sm:my-8 sm:align-middle sm:max-w-4xl sm:w-full">
-        <div class="bg-white px-4 pt-5 pb-4 sm:p-6 sm:pb-4">
-          <div class="sm:flex sm:items-start">
-            <div class="mt-3 text-center sm:mt-0 sm:text-left w-full">
-              <div class="flex justify-between items-center">
-                <h3 class="text-lg leading-6 font-medium text-gray-900" id="modal-title">
-                  Fase di Lavoro
-                </h3>
-              </div>
+      <div class="inline-block align-bottom bg-white rounded-xl text-left overflow-hidden shadow-xl transform transition-all sm:my-8 sm:align-middle sm:max-w-4xl sm:w-full">
+        <!-- Header copam-blue -->
+        <div class="bg-copam-blue px-6 py-4 flex items-center justify-between">
+          <div class="flex items-center gap-3">
+            <h3 class="text-base font-semibold text-white" id="modal-title">Fase di Lavoro</h3>
+            <span v-if="assignment?.id" class="bg-white/20 text-white text-xs font-mono px-2 py-0.5 rounded">#{{ assignment.id }}</span>
+            <span v-if="assignment?.work_phase?.FLLAV" class="bg-white/20 text-white text-xs font-mono px-2 py-0.5 rounded">{{ assignment.work_phase.FLLAV }}</span>
+          </div>
+          <button @click="close" class="text-white/70 hover:text-white transition-colors">
+            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/>
+            </svg>
+          </button>
+        </div>
+        <div class="px-6 pt-4 pb-4">
+          <div class="w-full">
 
               <!-- Tabs -->
-              <div class="mt-4 border-b border-gray-200">
-                <nav class="-mb-px flex space-x-8" aria-label="Tabs">
+              <div class="border-b border-gray-200">
+                <nav class="-mb-px flex space-x-6" aria-label="Tabs">
                   <button
                     @click="activeTab = 'dettagli'"
                     :class="[
@@ -80,68 +87,121 @@
               <!-- Tab Content -->
               <div class="mt-4">
                 <!-- Tab Dettagli -->
-                <div v-show="activeTab === 'dettagli'" class="space-y-4">
-                  <div class="grid grid-cols-2 gap-4">
-                  <div>
-                    <p class="text-sm font-medium text-gray-500">FLASS</p>
-                    <p class="mt-1">{{ assignment?.work_phase?.FLASS || 'N/D' }}</p>
+                <div v-show="activeTab === 'dettagli'" class="space-y-3">
+
+                  <!-- Sezione: Identificazione -->
+                  <div class="bg-white border border-gray-200 rounded-xl shadow-sm overflow-hidden">
+                    <div class="bg-gray-50 px-4 py-2 border-b border-gray-200">
+                      <h4 class="text-xs font-semibold text-gray-500 uppercase tracking-wider">Identificazione</h4>
+                    </div>
+                    <div class="grid grid-cols-2 sm:grid-cols-4 gap-px bg-gray-100">
+                      <div class="bg-white px-4 py-3">
+                        <p class="text-xs text-gray-400 uppercase tracking-wide">FLASS</p>
+                        <p class="mt-0.5 text-sm font-medium text-gray-800">{{ assignment?.work_phase?.FLASS || '&mdash;' }}</p>
+                      </div>
+                      <div class="bg-white px-4 py-3">
+                        <p class="text-xs text-gray-400 uppercase tracking-wide">IDOPR</p>
+                        <p class="mt-0.5 text-sm font-medium text-gray-800">{{ assignment?.work_phase?.IDOPR || '&mdash;' }}</p>
+                      </div>
+                      <div class="bg-white px-4 py-3">
+                        <p class="text-xs text-gray-400 uppercase tracking-wide">FLSEQ</p>
+                        <p class="mt-0.5 text-sm font-medium text-gray-800">{{ assignment?.work_phase?.FLSEQ || '&mdash;' }}</p>
+                      </div>
+                      <div class="bg-white px-4 py-3">
+                        <p class="text-xs text-gray-400 uppercase tracking-wide">FLLAV</p>
+                        <p class="mt-0.5 text-sm font-medium text-gray-800">{{ assignment?.work_phase?.FLLAV || '&mdash;' }}</p>
+                      </div>
+                    </div>
                   </div>
-                  <div>
-                    <p class="text-sm font-medium text-gray-500">IDOPR</p>
-                    <p class="mt-1">{{ assignment?.work_phase?.IDOPR || 'N/D' }}</p>
+
+                  <!-- Sezione: Descrizione & Quantita -->
+                  <div class="bg-white border border-gray-200 rounded-xl shadow-sm overflow-hidden">
+                    <div class="bg-gray-50 px-4 py-2 border-b border-gray-200">
+                      <h4 class="text-xs font-semibold text-gray-500 uppercase tracking-wider">Descrizione &amp; Quantit&agrave;</h4>
+                    </div>
+                    <div class="px-4 py-3 border-b border-gray-100">
+                      <p class="text-xs text-gray-400 uppercase tracking-wide">FLDES</p>
+                      <p class="mt-0.5 text-sm font-medium text-gray-800">{{ assignment?.work_phase?.FLDES || '&mdash;' }}</p>
+                    </div>
+                    <div class="grid grid-cols-3 gap-px bg-gray-100">
+                      <div class="bg-white px-4 py-3 text-center">
+                        <p class="text-xs text-gray-400 uppercase tracking-wide">FLQTA</p>
+                        <span class="mt-1 inline-block bg-gray-100 text-gray-700 text-sm font-semibold px-3 py-0.5 rounded-full">{{ assignment?.work_phase?.FLQTA ?? '&mdash;' }}</span>
+                      </div>
+                      <div class="bg-white px-4 py-3 text-center">
+                        <p class="text-xs text-gray-400 uppercase tracking-wide">FLQTB</p>
+                        <span class="mt-1 inline-block bg-green-100 text-green-700 text-sm font-semibold px-3 py-0.5 rounded-full">{{ assignment?.work_phase?.FLQTB ?? '&mdash;' }}</span>
+                      </div>
+                      <div class="bg-white px-4 py-3 text-center">
+                        <p class="text-xs text-gray-400 uppercase tracking-wide">FLQTD</p>
+                        <span class="mt-1 inline-block bg-orange-100 text-orange-700 text-sm font-semibold px-3 py-0.5 rounded-full">{{ assignment?.work_phase?.FLQTD ?? '&mdash;' }}</span>
+                      </div>
+                    </div>
                   </div>
-                  <div>
-                    <p class="text-sm font-medium text-gray-500">FLSEQ</p>
-                    <p class="mt-1">{{ assignment?.work_phase?.FLSEQ || 'N/D' }}</p>
+
+                  <!-- Sezione: Materiale & Date -->
+                  <div class="bg-white border border-gray-200 rounded-xl shadow-sm overflow-hidden">
+                    <div class="bg-gray-50 px-4 py-2 border-b border-gray-200">
+                      <h4 class="text-xs font-semibold text-gray-500 uppercase tracking-wider">Materiale &amp; Date</h4>
+                    </div>
+                    <div class="grid grid-cols-2 sm:grid-cols-4 gap-px bg-gray-100">
+                      <div class="bg-white px-4 py-3">
+                        <p class="text-xs text-gray-400 uppercase tracking-wide">Materiale</p>
+                        <p class="mt-0.5 text-sm font-medium text-gray-800">{{ assignment?.work_phase?.MATERIALE || '&mdash;' }}</p>
+                      </div>
+                      <div class="bg-white px-4 py-3">
+                        <p class="text-xs text-gray-400 uppercase tracking-wide">Spessore</p>
+                        <p class="mt-0.5 text-sm font-medium text-gray-800">{{ assignment?.work_phase?.SPESSORE || '&mdash;' }}</p>
+                      </div>
+                      <div class="bg-white px-4 py-3">
+                        <p class="text-xs text-gray-400 uppercase tracking-wide">Data Consegna</p>
+                        <p class="mt-0.5 text-sm font-medium text-gray-800">{{ formatDate(assignment?.work_phase?.FLCON) || '&mdash;' }}</p>
+                      </div>
+                      <div class="bg-white px-4 py-3">
+                        <p class="text-xs text-gray-400 uppercase tracking-wide">FLCON (raw)</p>
+                        <p class="mt-0.5 text-sm font-medium text-gray-800">{{ assignment?.work_phase?.FLCON || '&mdash;' }}</p>
+                      </div>
+                    </div>
                   </div>
-                  <div>
-                    <p class="text-sm font-medium text-gray-500">FLDES</p>
-                    <p class="mt-1">{{ assignment?.work_phase?.FLDES || 'N/D' }}</p>
+
+                  <!-- Sezione: Lavorazioni Successive -->
+                  <div class="bg-white border border-gray-200 rounded-xl shadow-sm overflow-hidden">
+                    <div class="bg-gray-50 px-4 py-2 border-b border-gray-200">
+                      <h4 class="text-xs font-semibold text-gray-500 uppercase tracking-wider">Lavorazioni Successive</h4>
+                    </div>
+                    <div class="grid grid-cols-2 gap-px bg-gray-100">
+                      <div class="bg-white px-4 py-3">
+                        <p class="text-xs text-gray-400 uppercase tracking-wide">LAV_SUCC</p>
+                        <p class="mt-0.5 text-sm font-medium text-gray-800">{{ assignment?.work_phase?.LAV_SUCC || '&mdash;' }}</p>
+                      </div>
+                      <div class="bg-white px-4 py-3">
+                        <p class="text-xs text-gray-400 uppercase tracking-wide">LAV_SUCC_ASS</p>
+                        <p class="mt-0.5 text-sm font-medium text-gray-800">{{ assignment?.work_phase?.LAV_SUCC_ASS || '&mdash;' }}</p>
+                      </div>
+                    </div>
                   </div>
-                  <div>
-                    <p class="text-sm font-medium text-gray-500">FLQTA</p>
-                    <p class="mt-1">{{ assignment?.work_phase?.FLQTA || 'N/D' }}</p>
+
+                  <!-- Sezione: Assegnazione -->
+                  <div class="bg-white border border-gray-200 rounded-xl shadow-sm overflow-hidden">
+                    <div class="bg-gray-50 px-4 py-2 border-b border-gray-200">
+                      <h4 class="text-xs font-semibold text-gray-500 uppercase tracking-wider">Assegnazione</h4>
+                    </div>
+                    <div class="grid grid-cols-2 gap-px bg-gray-100">
+                      <div class="bg-white px-4 py-3">
+                        <p class="text-xs text-gray-400 uppercase tracking-wide">Assegnato a</p>
+                        <p class="mt-0.5 text-sm font-medium text-gray-800">{{ assignment?.assigned_user?.name || '&mdash;' }}</p>
+                      </div>
+                      <div class="bg-white px-4 py-3">
+                        <p class="text-xs text-gray-400 uppercase tracking-wide">Data Assegnazione</p>
+                        <p class="mt-0.5 text-sm font-medium text-gray-800">{{ formatDate(assignment?.created_at) || '&mdash;' }}</p>
+                      </div>
+                    </div>
+                    <div class="bg-white px-4 py-3 border-t border-gray-100">
+                      <p class="text-xs text-gray-400 uppercase tracking-wide">Note</p>
+                      <p class="mt-0.5 text-sm text-gray-700">{{ assignment?.notes || '&mdash;' }}</p>
+                    </div>
                   </div>
-                  <div>
-                    <p class="text-sm font-medium text-gray-500">FLQTB</p>
-                    <p class="mt-1">{{ assignment?.work_phase?.FLQTB || 'N/D' }}</p>
-                  </div>
-                  <div>
-                    <p class="text-sm font-medium text-gray-500">FLQTD</p>
-                    <p class="mt-1">{{ assignment?.work_phase?.FLQTD || 'N/D' }}</p>
-                  </div>
-                  <div>
-                    <p class="text-sm font-medium text-gray-500">Data Consegna</p>
-                    <p class="mt-1">{{ formatDate(assignment?.work_phase?.FLCON) }}</p>
-                  </div>
-                  <div>
-                    <p class="text-sm font-medium text-gray-500">MATERIALE</p>
-                    <p class="mt-1">{{ assignment?.work_phase?.MATERIALE || 'N/D' }}</p>
-                  </div>
-                  <div>
-                    <p class="text-sm font-medium text-gray-500">SPESSORE</p>
-                    <p class="mt-1">{{ assignment?.work_phase?.SPESSORE || 'N/D' }}</p>
-                  </div>
-                  <div>
-                    <p class="text-sm font-medium text-gray-500">LAV_SUCC</p>
-                    <p class="mt-1">{{ assignment?.work_phase?.LAV_SUCC || 'N/D' }}</p>
-                  </div>
-                  <div>
-                    <p class="text-sm font-medium text-gray-500">LAV_SUCC_ASS</p>
-                    <p class="mt-1">{{ assignment?.work_phase?.LAV_SUCC_ASS || 'N/D' }}</p>
-                  </div>
-                  <div>
-                    <p class="text-sm font-medium text-gray-500">Assegnato a</p>
-                    <p class="mt-1">{{ assignment?.assigned_user?.name || 'N/D' }}</p>
-                  </div>
-                  <div>
-                    <p class="text-sm font-medium text-gray-500">Data Assegnazione</p>
-                    <p class="mt-1">{{ formatDate(assignment?.created_at) }}</p>
-                  </div>
-                  <div class="col-span-2">
-                    <p class="text-sm font-medium text-gray-500">Note</p>
-                    <p class="mt-1">{{ assignment?.notes || '-' }}</p>
-                  </div>
+
                 </div>
               </div>
 
@@ -177,18 +237,20 @@
                   <!-- Form campi dinamici -->
                   <div v-if="selectedParameter && selectedParameter.fields && selectedParameter.fields.length > 0" class="mt-6 space-y-4">
                     <h4 class="text-sm font-medium text-gray-900 mb-3">Compila i campi del parametro</h4>
-                    <div
-                      v-for="(field, index) in selectedParameter.fields"
-                      :key="index"
-                    >
-                      <label class="block text-sm font-medium text-gray-700 mb-1">
-                        {{ field }}
-                      </label>
-                      <input
-                        v-model="parameterValues[field]"
-                        type="text"
-                        class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-copam-blue focus:border-copam-blue"
-                      />
+                    <div class="grid grid-cols-2 gap-4">
+                      <div
+                        v-for="(field, index) in selectedParameter.fields"
+                        :key="index"
+                      >
+                        <label class="block text-sm font-medium text-gray-700 mb-1">
+                          {{ field }}
+                        </label>
+                        <input
+                          v-model="parameterValues[field]"
+                          type="text"
+                          class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-copam-blue focus:border-copam-blue"
+                        />
+                      </div>
                     </div>
                     
                     <!-- Bottone Salva -->
@@ -369,14 +431,14 @@
                 </div>
 
                 <!-- NC Table -->
-                <div v-else-if="nonConformities.length > 0" class="overflow-x-auto">
+                <div v-else-if="nonConformities.length > 0" class="overflow-x-auto rounded-xl border border-gray-200 shadow-sm">
                   <table class="w-full">
-                    <thead class="bg-gray-50">
-                      <tr class="border-b border-gray-200">
-                        <th class="px-3 py-2 text-left text-xs font-bold uppercase tracking-wider border-r border-gray-200">NCRIL</th>
-                        <th class="px-3 py-2 text-left text-xs font-bold uppercase tracking-wider border-r border-gray-200">NCCLA</th>
-                        <th class="px-3 py-2 text-left text-xs font-bold uppercase tracking-wider border-r border-gray-200">NCART</th>
-                        <th class="px-3 py-2 text-left text-xs font-bold uppercase tracking-wider">Descrizione</th>
+                    <thead class="bg-copam-blue">
+                      <tr>
+                        <th class="px-3 py-2 text-left text-xs font-bold uppercase tracking-wider text-white border-r border-white/20">NCRIL</th>
+                        <th class="px-3 py-2 text-left text-xs font-bold uppercase tracking-wider text-white border-r border-white/20">NCCLA</th>
+                        <th class="px-3 py-2 text-left text-xs font-bold uppercase tracking-wider text-white border-r border-white/20">NCART</th>
+                        <th class="px-3 py-2 text-left text-xs font-bold uppercase tracking-wider text-white">Descrizione</th>
                       </tr>
                     </thead>
                     <tbody class="bg-white">
@@ -402,15 +464,16 @@
               </div>
             </div>
           </div>
-        </div>
-        </div>
         <!-- Modal Footer -->
-        <div class="bg-gray-50 px-4 py-3 sm:px-6 sm:flex sm:flex-row-reverse">
+        <div class="bg-gray-50 border-t border-gray-200 px-6 py-3 flex justify-end">
           <button 
             type="button" 
-            class="mt-3 w-full inline-flex justify-center rounded-md border border-gray-300 shadow-sm px-4 py-2 bg-white text-base font-medium text-gray-700 hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-copam-blue sm:mt-0 sm:w-auto sm:text-sm"
+            class="inline-flex items-center gap-2 rounded-lg border border-gray-300 shadow-sm px-4 py-2 bg-white text-sm font-medium text-gray-700 hover:bg-gray-100 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-copam-blue transition-colors"
             @click="close"
           >
+            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/>
+            </svg>
             Chiudi
           </button>
         </div>
@@ -555,7 +618,7 @@
       </button>
 
       <!-- Image -->
-      <div class="max-w-7xl max-h-full p-4">
+      <div class="max-w-8xl max-h-full p-4">
         <img
           :src="lightbox.currentImage?.url"
           :alt="lightbox.currentImage?.file_name"

@@ -16,9 +16,6 @@ class WorkPhaseService
     {
         return Cache::remember('users_available', 300, function () {
             return User::select('id', 'name', 'email')
-                ->whereHas('roles', function ($query) {
-                    $query->whereIn('name', ['operator', 'manager', 'admin']);
-                })
                 ->orderBy('name')
                 ->get()
                 ->toArray();
@@ -52,7 +49,7 @@ class WorkPhaseService
     {
         Cache::forget('users_available');
         Cache::forget('work_parameters_all');
-        
+
         // Clear individual parameter caches
         $parameterIds = WorkParameter::pluck('id');
         foreach ($parameterIds as $id) {
