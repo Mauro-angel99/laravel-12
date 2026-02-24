@@ -30,7 +30,7 @@ class WorkPhaseController extends Controller
         $page = $request->input('page', 1);
         $perPage = 20;
         $offset = ($page - 1) * $perPage;
-        
+
         try {
             // Query per contare il totale dei record
             $countQuery = 'SELECT COUNT(*) as total FROM dbo.A01_ORD_FAS f
@@ -178,7 +178,7 @@ class WorkPhaseController extends Controller
              */
 
 
-            
+
             // Query principale per i dati (senza ORDER BY)
             $query = 'SELECT 
                 f.RECORD_ID,
@@ -204,7 +204,7 @@ class WorkPhaseController extends Controller
             LEFT JOIN dbo.A01_DOC_VER_ALL d ON f.FLASS = d.DROPR';
             $params = [];
             $conditions = [];
-            
+
             // Filtro per ricerca testuale
             if (!empty($search)) {
                 $condition = '(f.FLDES LIKE ? OR f.FLASS LIKE ?)';
@@ -216,7 +216,7 @@ class WorkPhaseController extends Controller
                 $countParams[] = $searchParam;
                 $countParams[] = $searchParam;
             }
-            
+
             // Filtro per FLLAV (Codice Lav)
             if (!empty($fllav)) {
                 $condition = 'f.FLLAV LIKE ?';
@@ -226,7 +226,7 @@ class WorkPhaseController extends Controller
                 $params[] = $searchParam;
                 $countParams[] = $searchParam;
             }
-            
+
             // Filtro per DTRAS (Rag. Soc.)
             if (!empty($dtras)) {
                 $condition = 'd.DTRAS LIKE ?';
@@ -236,7 +236,7 @@ class WorkPhaseController extends Controller
                 $params[] = $searchParam;
                 $countParams[] = $searchParam;
             }
-            
+
             // Filtro per DTRIC (N. Ord. Cli.)
             if (!empty($dtric)) {
                 $condition = 'd.DTRIC LIKE ?';
@@ -246,7 +246,7 @@ class WorkPhaseController extends Controller
                 $params[] = $searchParam;
                 $countParams[] = $searchParam;
             }
-            
+
             // Filtro per DTNUM (N. Ns. Ord.)
             if (!empty($dtnum)) {
                 $condition = 'd.DTNUM LIKE ?';
@@ -256,7 +256,7 @@ class WorkPhaseController extends Controller
                 $params[] = $searchParam;
                 $countParams[] = $searchParam;
             }
-            
+
             // Filtro per IDOPR (Ord. Prod.)
             if (!empty($idopr)) {
                 $condition = 'f.IDOPR LIKE ?';
@@ -266,21 +266,21 @@ class WorkPhaseController extends Controller
                 $params[] = $searchParam;
                 $countParams[] = $searchParam;
             }
-            
+
             // Filtro per solo lavorati (FLQTB = 0)
             if (!empty($onlyWorked)) {
                 $condition = 'f.FLQTB = 0';
                 $conditions[] = $condition;
                 $countConditions[] = $condition;
             }
-            
+
             // Filtro per solo disponibili (FLQTD > 0 AND FLQTB = 0)
             if (!empty($onlyAvailable)) {
                 $condition = '(f.FLQTD > 0 AND f.FLQTB = 0)';
                 $conditions[] = $condition;
                 $countConditions[] = $condition;
             }
-            
+
             // Filtro per date
             if (!empty($dateFrom)) {
                 $condition = 'CONVERT(DATETIME, f.FLCON, 120) >= CONVERT(DATETIME, ?, 120)';
@@ -296,22 +296,22 @@ class WorkPhaseController extends Controller
                 $params[] = $dateTo . ' 23:59:59.999';
                 $countParams[] = $dateTo . ' 23:59:59.999';
             }
-            
+
             // Costruisci WHERE
             $whereClause = '';
             if (!empty($conditions)) {
                 $whereClause = ' WHERE ' . implode(' AND ', $conditions);
             }
-            
+
             // Conta totale
             $countQuery .= $whereClause;
             //\Log::info('Count Query: ' . $countQuery);
             //\Log::info('Count Params: ' . json_encode($countParams));
-            
+
             $totalResult = DB::connection('sqlsrv_gestionale')
                 ->select($countQuery, $countParams);
             $total = $totalResult[0]->total;
-            
+
             // Gestione ordinamento
             $orderBy = 'd.DRCON ASC, f.RECORD_ID DESC'; // Default
             switch ($sort) {
@@ -335,30 +335,40 @@ class WorkPhaseController extends Controller
                     $orderBy = 'd.DRCON ASC, f.RECORD_ID DESC';
                     break;
             }
-            
+
             // Aggiungi WHERE, ORDER BY e OFFSET/FETCH
             $query .= $whereClause . ' ORDER BY ' . $orderBy . ' OFFSET ? ROWS FETCH NEXT ? ROWS ONLY';
             $params[] = $offset;
             $params[] = $perPage;
-            
+
             //\Log::info('Main Query: ' . $query);
             //\Log::info('Main Params: ' . json_encode($params));
-            
+
             $dati = DB::connection('sqlsrv_gestionale')
                 ->select($query, $params);
-            
-            // Recupera gli ID delle fasi già assegnate dal database Laravel
-            $assignedPhaseIds = WorkPhaseAssignment::pluck('work_phase_id')->toArray();
-            
-            // Aggiungi il flag is_assigned a ogni record
+
+            // Recupera gli assignment con gli utenti associati
+            $workPhaseIds = array_column($dati, 'RECORD_ID');
+            $assignments = WorkPhaseAssignment::with('assignedUser')
+                ->whereIn('work_phase_id', $workPhaseIds)
+                ->get()
+                ->keyBy('work_phase_id');
+
+            // Aggiungi il flag is_assigned e i dati dell'utente a ogni record
             foreach ($dati as $record) {
-                $record->is_assigned = in_array($record->RECORD_ID, $assignedPhaseIds) ? 1 : 0;
+                if (isset($assignments[$record->RECORD_ID])) {
+                    $assignment = $assignments[$record->RECORD_ID];
+                    $record->is_assigned = 1;
+                    $record->assigned_user_name = $assignment->assignedUser->name ?? null;
+                } else {
+                    $record->is_assigned = 0;
+                    $record->assigned_user_name = null;
+                }
             }
-            
+
             $lastPage = ceil($total / $perPage);
             $from = $offset + 1;
             $to = min($offset + $perPage, $total);
-            
         } catch (\Exception $e) {
             //\Log::error('WorkPhase Error: ' . $e->getMessage());
             //\Log::error('WorkPhase Query: ' . $query);
