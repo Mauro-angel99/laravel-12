@@ -174,17 +174,17 @@ onMounted(async () => {
         <!-- Riga 1 -->
         <div class="grid grid-cols-1 md:grid-cols-3 gap-3">
           <div>
-            <label class="block text-[10px] font-bold uppercase tracking-wider text-gray-500 mb-1">Codice Lav.</label>
+            <label class="block text-[10px] font-bold uppercase tracking-wider text-gray-700 mb-1">Codice Lav.</label>
             <input type="text" v-model="searchFllav"
               class="w-full px-3 py-1.5 border border-gray-300 rounded-lg text-xs focus:ring-2 focus:ring-copam-blue focus:border-copam-blue" />
           </div>
           <div>
-            <label class="block text-[10px] font-bold uppercase tracking-wider text-gray-500 mb-1">Data da</label>
+            <label class="block text-[10px] font-bold uppercase tracking-wider text-gray-700 mb-1">Data da</label>
             <input ref="dateFromPicker" type="text" v-model="dateFrom"
               class="w-full px-3 py-1.5 border border-gray-300 rounded-lg text-xs focus:ring-2 focus:ring-copam-blue focus:border-copam-blue" />
           </div>
           <div>
-            <label class="block text-[10px] font-bold uppercase tracking-wider text-gray-500 mb-1">Data a</label>
+            <label class="block text-[10px] font-bold uppercase tracking-wider text-gray-700 mb-1">Data a</label>
             <input ref="dateToPicker" type="text" v-model="dateTo"
               class="w-full px-3 py-1.5 border border-gray-300 rounded-lg text-xs focus:ring-2 focus:ring-copam-blue focus:border-copam-blue" />
           </div>
@@ -193,17 +193,17 @@ onMounted(async () => {
         <!-- Riga 2 -->
         <div class="grid grid-cols-1 md:grid-cols-3 gap-3">
           <div>
-            <label class="block text-[10px] font-bold uppercase tracking-wider text-gray-500 mb-1">Rag. Soc.</label>
+            <label class="block text-[10px] font-bold uppercase tracking-wider text-gray-700 mb-1">Rag. Soc.</label>
             <input type="text" v-model="searchDtras"
               class="w-full px-3 py-1.5 border border-gray-300 rounded-lg text-xs focus:ring-2 focus:ring-copam-blue focus:border-copam-blue" />
           </div>
           <div>
-            <label class="block text-[10px] font-bold uppercase tracking-wider text-gray-500 mb-1">N. Ord. Cli.</label>
+            <label class="block text-[10px] font-bold uppercase tracking-wider text-gray-700 mb-1">N. Ord. Cli.</label>
             <input type="text" v-model="searchDtric"
               class="w-full px-3 py-1.5 border border-gray-300 rounded-lg text-xs focus:ring-2 focus:ring-copam-blue focus:border-copam-blue" />
           </div>
           <div>
-            <label class="block text-[10px] font-bold uppercase tracking-wider text-gray-500 mb-1">N. Ns. Ord.</label>
+            <label class="block text-[10px] font-bold uppercase tracking-wider text-gray-700 mb-1">N. Ns. Ord.</label>
             <input type="text" v-model="searchDtnum"
               class="w-full px-3 py-1.5 border border-gray-300 rounded-lg text-xs focus:ring-2 focus:ring-copam-blue focus:border-copam-blue" />
           </div>
@@ -212,7 +212,7 @@ onMounted(async () => {
         <!-- Riga 3 -->
         <div class="grid grid-cols-1 md:grid-cols-3 gap-3">
           <div>
-            <label class="block text-[10px] font-bold uppercase tracking-wider text-gray-500 mb-1">Ord. Prod.</label>
+            <label class="block text-[10px] font-bold uppercase tracking-wider text-gray-700 mb-1">Ord. Prod.</label>
             <input type="text" v-model="searchIdopr"
               class="w-full px-3 py-1.5 border border-gray-300 rounded-lg text-xs focus:ring-2 focus:ring-copam-blue focus:border-copam-blue" />
           </div>

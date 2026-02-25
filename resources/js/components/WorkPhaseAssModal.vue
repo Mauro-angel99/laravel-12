@@ -29,22 +29,22 @@
 
           <!-- Sezione Identificazione -->
           <div>
-            <p class="text-[10px] font-bold uppercase tracking-widest text-gray-400 mb-2">Identificazione</p>
+            <p class="text-[10px] font-bold uppercase tracking-widest text-gray-700 mb-2">Identificazione</p>
             <div class="grid grid-cols-2 gap-3">
               <div class="bg-gray-50 rounded-lg px-4 py-3">
-                <p class="text-[10px] font-semibold uppercase tracking-wider text-gray-400">Commessa</p>
+                <p class="text-[10px] font-semibold uppercase tracking-wider text-gray-700">Commessa</p>
                 <p class="text-sm font-semibold text-gray-800 mt-0.5">{{ phase?.FLASS || '—' }}</p>
               </div>
               <div class="bg-gray-50 rounded-lg px-4 py-3">
-                <p class="text-[10px] font-semibold uppercase tracking-wider text-gray-400">Ord. Prod.</p>
+                <p class="text-[10px] font-semibold uppercase tracking-wider text-gray-700">Ord. Prod.</p>
                 <p class="text-sm font-semibold text-gray-800 mt-0.5">{{ phase?.IDOPR || '—' }}</p>
               </div>
               <div class="bg-gray-50 rounded-lg px-4 py-3">
-                <p class="text-[10px] font-semibold uppercase tracking-wider text-gray-400">Sequenza</p>
+                <p class="text-[10px] font-semibold uppercase tracking-wider text-gray-700">Sequenza</p>
                 <p class="text-sm font-semibold text-gray-800 mt-0.5">{{ phase?.FLSEQ || '—' }}</p>
               </div>
               <div class="bg-gray-50 rounded-lg px-4 py-3">
-                <p class="text-[10px] font-semibold uppercase tracking-wider text-gray-400">Lavorazione</p>
+                <p class="text-[10px] font-semibold uppercase tracking-wider text-gray-700">Lavorazione</p>
                 <p class="text-sm font-semibold text-gray-800 mt-0.5">{{ phase?.FLLAV || '—' }}</p>
               </div>
             </div>
@@ -52,22 +52,22 @@
 
           <!-- Sezione Descrizione & Quantità -->
           <div>
-            <p class="text-[10px] font-bold uppercase tracking-widest text-gray-400 mb-2">Descrizione & Quantità</p>
+            <p class="text-[10px] font-bold uppercase tracking-widest text-gray-700 mb-2">Descrizione & Quantità</p>
             <div class="grid grid-cols-3 gap-3">
               <div class="col-span-3 bg-gray-50 rounded-lg px-4 py-3">
-                <p class="text-[10px] font-semibold uppercase tracking-wider text-gray-400">Descrizione</p>
+                <p class="text-[10px] font-semibold uppercase tracking-wider text-gray-700">Descrizione</p>
                 <p class="text-sm font-semibold text-gray-800 mt-0.5">{{ phase?.FLDES || '—' }}</p>
               </div>
               <div class="bg-gray-50 rounded-lg px-4 py-3 text-center">
-                <p class="text-[10px] font-semibold uppercase tracking-wider text-gray-400">Q.tà Totale</p>
+                <p class="text-[10px] font-semibold uppercase tracking-wider text-gray-700">Q.tà Totale</p>
                 <p class="text-lg font-bold text-gray-800 mt-0.5">{{ phase?.FLQTA ?? '—' }}</p>
               </div>
               <div class="bg-gray-50 rounded-lg px-4 py-3 text-center">
-                <p class="text-[10px] font-semibold uppercase tracking-wider text-gray-400">Q.tà Prodotta</p>
+                <p class="text-[10px] font-semibold uppercase tracking-wider text-gray-700">Q.tà Prodotta</p>
                 <p class="text-lg font-bold text-green-600 mt-0.5">{{ phase?.FLQTB ?? '—' }}</p>
               </div>
               <div class="bg-gray-50 rounded-lg px-4 py-3 text-center">
-                <p class="text-[10px] font-semibold uppercase tracking-wider text-gray-400">Q.tà Residua</p>
+                <p class="text-[10px] font-semibold uppercase tracking-wider text-gray-700">Q.tà Residua</p>
                 <p class="text-lg font-bold text-orange-500 mt-0.5">{{ phase?.FLQTD ?? '—' }}</p>
               </div>
             </div>
@@ -75,18 +75,18 @@
 
           <!-- Sezione Materiale & Date -->
           <div>
-            <p class="text-[10px] font-bold uppercase tracking-widest text-gray-400 mb-2">Materiale & Date</p>
+            <p class="text-[10px] font-bold uppercase tracking-widest text-gray-700 mb-2">Materiale & Date</p>
             <div class="grid grid-cols-2 gap-3">
               <div class="bg-gray-50 rounded-lg px-4 py-3">
-                <p class="text-[10px] font-semibold uppercase tracking-wider text-gray-400">Materiale</p>
+                <p class="text-[10px] font-semibold uppercase tracking-wider text-gray-700">Materiale</p>
                 <p class="text-sm font-semibold text-gray-800 mt-0.5">{{ phase?.MATERIALE || '—' }}</p>
               </div>
               <div class="bg-gray-50 rounded-lg px-4 py-3">
-                <p class="text-[10px] font-semibold uppercase tracking-wider text-gray-400">Spessore</p>
+                <p class="text-[10px] font-semibold uppercase tracking-wider text-gray-700">Spessore</p>
                 <p class="text-sm font-semibold text-gray-800 mt-0.5">{{ phase?.SPESSORE || '—' }}</p>
               </div>
               <div class="col-span-2 bg-gray-50 rounded-lg px-4 py-3">
-                <p class="text-[10px] font-semibold uppercase tracking-wider text-gray-400">Data Consegna</p>
+                <p class="text-[10px] font-semibold uppercase tracking-wider text-gray-700">Data Consegna</p>
                 <p class="text-sm font-semibold text-gray-800 mt-0.5">{{ formatDate(phase?.FLCON) || '—' }}</p>
               </div>
             </div>
@@ -94,14 +94,14 @@
 
           <!-- Sezione Lavorazioni Successive -->
           <div>
-            <p class="text-[10px] font-bold uppercase tracking-widest text-gray-400 mb-2">Lavorazioni Successive</p>
+            <p class="text-[10px] font-bold uppercase tracking-widest text-gray-700 mb-2">Lavorazioni Successive</p>
             <div class="grid grid-cols-2 gap-3">
               <div class="bg-gray-50 rounded-lg px-4 py-3">
-                <p class="text-[10px] font-semibold uppercase tracking-wider text-gray-400">Lav. Successiva</p>
+                <p class="text-[10px] font-semibold uppercase tracking-wider text-gray-700">Lav. Successiva</p>
                 <p class="text-sm font-semibold text-gray-800 mt-0.5">{{ phase?.LAV_SUCC || '—' }}</p>
               </div>
               <div class="bg-gray-50 rounded-lg px-4 py-3">
-                <p class="text-[10px] font-semibold uppercase tracking-wider text-gray-400">Lav. Succ. Ass.</p>
+                <p class="text-[10px] font-semibold uppercase tracking-wider text-gray-700">Lav. Succ. Ass.</p>
                 <p class="text-sm font-semibold text-gray-800 mt-0.5">{{ phase?.LAV_SUCC_ASS || '—' }}</p>
               </div>
             </div>

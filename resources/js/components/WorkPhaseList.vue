@@ -1,4 +1,4 @@
-﻿<script setup>
+<script setup>
 import { ref, watch, onMounted } from 'vue'
 import axios from 'axios'
 import WorkPhaseAssModal from './WorkPhaseAssModal.vue'
@@ -270,7 +270,7 @@ const confirmSelected = async () => {
 <template>
   <div class="space-y-4">
 
-    <!-- â”€â”€ FILTRI â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ -->
+    <!-- ── FILTRI ────────────────────────────────────────────── -->
     <div class="bg-white rounded-xl shadow-sm border border-gray-200 overflow-hidden">
       <!-- Header filtri -->
       <div class="bg-copam-blue px-5 py-3 flex items-center justify-between">
@@ -297,17 +297,17 @@ const confirmSelected = async () => {
         <!-- Riga 1 -->
         <div class="grid grid-cols-1 md:grid-cols-3 gap-3">
           <div>
-            <label class="block text-[10px] font-bold uppercase tracking-wider text-gray-500 mb-1">Codice Lav.</label>
+            <label class="block text-[10px] font-bold uppercase tracking-wider text-gray-700 mb-1">Codice Lav.</label>
             <input type="text" v-model="searchFllav"
               class="w-full px-3 py-1.5 border border-gray-300 rounded-lg text-xs focus:ring-2 focus:ring-copam-blue focus:border-copam-blue" />
           </div>
           <div>
-            <label class="block text-[10px] font-bold uppercase tracking-wider text-gray-500 mb-1">Data da</label>
+            <label class="block text-[10px] font-bold uppercase tracking-wider text-gray-700 mb-1">Data da</label>
             <input ref="dateFromPicker" type="text" v-model="dateFrom"
               class="w-full px-3 py-1.5 border border-gray-300 rounded-lg text-xs focus:ring-2 focus:ring-copam-blue focus:border-copam-blue" />
           </div>
           <div>
-            <label class="block text-[10px] font-bold uppercase tracking-wider text-gray-500 mb-1">Data a</label>
+            <label class="block text-[10px] font-bold uppercase tracking-wider text-gray-700 mb-1">Data a</label>
             <input ref="dateToPicker" type="text" v-model="dateTo"
               class="w-full px-3 py-1.5 border border-gray-300 rounded-lg text-xs focus:ring-2 focus:ring-copam-blue focus:border-copam-blue" />
           </div>
@@ -316,17 +316,17 @@ const confirmSelected = async () => {
         <!-- Riga 2 -->
         <div class="grid grid-cols-1 md:grid-cols-3 gap-3">
           <div>
-            <label class="block text-[10px] font-bold uppercase tracking-wider text-gray-500 mb-1">Rag. Soc.</label>
+            <label class="block text-[10px] font-bold uppercase tracking-wider text-gray-700 mb-1">Rag. Soc.</label>
             <input type="text" v-model="searchDtras"
               class="w-full px-3 py-1.5 border border-gray-300 rounded-lg text-xs focus:ring-2 focus:ring-copam-blue focus:border-copam-blue" />
           </div>
           <div>
-            <label class="block text-[10px] font-bold uppercase tracking-wider text-gray-500 mb-1">N. Ord. Cli.</label>
+            <label class="block text-[10px] font-bold uppercase tracking-wider text-gray-700 mb-1">N. Ord. Cli.</label>
             <input type="text" v-model="searchDtric"
               class="w-full px-3 py-1.5 border border-gray-300 rounded-lg text-xs focus:ring-2 focus:ring-copam-blue focus:border-copam-blue" />
           </div>
           <div>
-            <label class="block text-[10px] font-bold uppercase tracking-wider text-gray-500 mb-1">N. Ns. Ord.</label>
+            <label class="block text-[10px] font-bold uppercase tracking-wider text-gray-700 mb-1">N. Ns. Ord.</label>
             <input type="text" v-model="searchDtnum"
               class="w-full px-3 py-1.5 border border-gray-300 rounded-lg text-xs focus:ring-2 focus:ring-copam-blue focus:border-copam-blue" />
           </div>
@@ -335,7 +335,7 @@ const confirmSelected = async () => {
         <!-- Riga 3 -->
         <div class="grid grid-cols-1 md:grid-cols-3 gap-3 items-end">
           <div>
-            <label class="block text-[10px] font-bold uppercase tracking-wider text-gray-500 mb-1">Ord. Prod.</label>
+            <label class="block text-[10px] font-bold uppercase tracking-wider text-gray-700 mb-1">Ord. Prod.</label>
             <input type="text" v-model="searchIdopr"
               class="w-full px-3 py-1.5 border border-gray-300 rounded-lg text-xs focus:ring-2 focus:ring-copam-blue focus:border-copam-blue" />
           </div>
@@ -356,7 +356,7 @@ const confirmSelected = async () => {
             </label>
           </div>
           <div>
-            <label class="block text-[10px] font-bold uppercase tracking-wider text-gray-500 mb-1">Ordinamento</label>
+            <label class="block text-[10px] font-bold uppercase tracking-wider text-gray-700 mb-1">Ordinamento</label>
             <select v-model="sortBy"
               class="w-full px-3 py-1.5 border border-gray-300 rounded-lg text-xs focus:ring-2 focus:ring-copam-blue focus:border-copam-blue">
               <option value="drcon_asc">DRCON crescente</option>
@@ -371,7 +371,7 @@ const confirmSelected = async () => {
       </div>
     </div>
 
-    <!-- â”€â”€ TABELLA â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ -->
+    <!-- ── TABELLA ─────────────────────────────────────────────── -->
     <div class="bg-white rounded-xl shadow-sm border border-gray-200 overflow-hidden">
 
       <!-- Info risultati -->
@@ -499,7 +499,7 @@ const confirmSelected = async () => {
       </div>
     </div>
 
-    <!-- â”€â”€ ASSEGNAZIONE â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ -->
+    <!-- ── ASSEGNAZIONE ───────────────────────────────────────── -->
     <div class="bg-white rounded-xl shadow-sm border border-gray-200 overflow-hidden">
       <div class="bg-copam-blue px-5 py-3">
         <span class="text-sm font-semibold text-white">Assegnazione fasi</span>
@@ -507,7 +507,7 @@ const confirmSelected = async () => {
       </div>
       <div class="p-4 grid grid-cols-1 md:grid-cols-2 gap-4">
         <div>
-          <label class="block text-[10px] font-bold uppercase tracking-wider text-gray-500 mb-1">Utente</label>
+          <label class="block text-[10px] font-bold uppercase tracking-wider text-gray-700 mb-1">Utente</label>
           <select v-model="selectedUser"
             class="w-full px-3 py-1.5 border border-gray-300 rounded-lg text-xs focus:ring-2 focus:ring-copam-blue focus:border-copam-blue">
             <option value="" disabled>-- Seleziona utente --</option>
@@ -515,7 +515,7 @@ const confirmSelected = async () => {
           </select>
         </div>
         <div>
-          <label class="block text-[10px] font-bold uppercase tracking-wider text-gray-500 mb-1">Note</label>
+          <label class="block text-[10px] font-bold uppercase tracking-wider text-gray-700 mb-1">Note</label>
           <textarea v-model="notes" rows="2"
             class="w-full px-3 py-1.5 border border-gray-300 rounded-lg text-xs focus:ring-2 focus:ring-copam-blue focus:border-copam-blue resize-none"
             placeholder="Inserisci le note..."></textarea>

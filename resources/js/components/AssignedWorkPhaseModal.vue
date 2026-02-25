@@ -92,23 +92,23 @@
                   <!-- Sezione: Identificazione -->
                   <div class="bg-white border border-gray-200 rounded-xl shadow-sm overflow-hidden">
                     <div class="bg-gray-50 px-4 py-2 border-b border-gray-200">
-                      <h4 class="text-xs font-semibold text-gray-500 uppercase tracking-wider">Identificazione</h4>
+                      <h4 class="text-xs font-semibold text-gray-700 uppercase tracking-wider">Identificazione</h4>
                     </div>
                     <div class="grid grid-cols-2 sm:grid-cols-4 gap-px bg-gray-100">
                       <div class="bg-white px-4 py-3">
-                        <p class="text-xs text-gray-400 uppercase tracking-wide">FLASS</p>
+                        <p class="text-xs text-gray-700 uppercase tracking-wide">FLASS</p>
                         <p class="mt-0.5 text-sm font-medium text-gray-800">{{ assignment?.work_phase?.FLASS || '&mdash;' }}</p>
                       </div>
                       <div class="bg-white px-4 py-3">
-                        <p class="text-xs text-gray-400 uppercase tracking-wide">IDOPR</p>
+                        <p class="text-xs text-gray-700 uppercase tracking-wide">IDOPR</p>
                         <p class="mt-0.5 text-sm font-medium text-gray-800">{{ assignment?.work_phase?.IDOPR || '&mdash;' }}</p>
                       </div>
                       <div class="bg-white px-4 py-3">
-                        <p class="text-xs text-gray-400 uppercase tracking-wide">FLSEQ</p>
+                        <p class="text-xs text-gray-700 uppercase tracking-wide">FLSEQ</p>
                         <p class="mt-0.5 text-sm font-medium text-gray-800">{{ assignment?.work_phase?.FLSEQ || '&mdash;' }}</p>
                       </div>
                       <div class="bg-white px-4 py-3">
-                        <p class="text-xs text-gray-400 uppercase tracking-wide">FLLAV</p>
+                        <p class="text-xs text-gray-700 uppercase tracking-wide">FLLAV</p>
                         <p class="mt-0.5 text-sm font-medium text-gray-800">{{ assignment?.work_phase?.FLLAV || '&mdash;' }}</p>
                       </div>
                     </div>
@@ -117,23 +117,23 @@
                   <!-- Sezione: Descrizione & Quantita -->
                   <div class="bg-white border border-gray-200 rounded-xl shadow-sm overflow-hidden">
                     <div class="bg-gray-50 px-4 py-2 border-b border-gray-200">
-                      <h4 class="text-xs font-semibold text-gray-500 uppercase tracking-wider">Descrizione &amp; Quantit&agrave;</h4>
+                      <h4 class="text-xs font-semibold text-gray-700 uppercase tracking-wider">Descrizione &amp; Quantit&agrave;</h4>
                     </div>
                     <div class="px-4 py-3 border-b border-gray-100">
-                      <p class="text-xs text-gray-400 uppercase tracking-wide">FLDES</p>
+                      <p class="text-xs text-gray-700 uppercase tracking-wide">FLDES</p>
                       <p class="mt-0.5 text-sm font-medium text-gray-800">{{ assignment?.work_phase?.FLDES || '&mdash;' }}</p>
                     </div>
                     <div class="grid grid-cols-3 gap-px bg-gray-100">
                       <div class="bg-white px-4 py-3 text-center">
-                        <p class="text-xs text-gray-400 uppercase tracking-wide">FLQTA</p>
+                        <p class="text-xs text-gray-700 uppercase tracking-wide">FLQTA</p>
                         <span class="mt-1 inline-block bg-gray-100 text-gray-700 text-sm font-semibold px-3 py-0.5 rounded-full">{{ assignment?.work_phase?.FLQTA ?? '&mdash;' }}</span>
                       </div>
                       <div class="bg-white px-4 py-3 text-center">
-                        <p class="text-xs text-gray-400 uppercase tracking-wide">FLQTB</p>
+                        <p class="text-xs text-gray-700 uppercase tracking-wide">FLQTB</p>
                         <span class="mt-1 inline-block bg-green-100 text-green-700 text-sm font-semibold px-3 py-0.5 rounded-full">{{ assignment?.work_phase?.FLQTB ?? '&mdash;' }}</span>
                       </div>
                       <div class="bg-white px-4 py-3 text-center">
-                        <p class="text-xs text-gray-400 uppercase tracking-wide">FLQTD</p>
+                        <p class="text-xs text-gray-700 uppercase tracking-wide">FLQTD</p>
                         <span class="mt-1 inline-block bg-orange-100 text-orange-700 text-sm font-semibold px-3 py-0.5 rounded-full">{{ assignment?.work_phase?.FLQTD ?? '&mdash;' }}</span>
                       </div>
                     </div>
@@ -142,23 +142,23 @@
                   <!-- Sezione: Materiale & Date -->
                   <div class="bg-white border border-gray-200 rounded-xl shadow-sm overflow-hidden">
                     <div class="bg-gray-50 px-4 py-2 border-b border-gray-200">
-                      <h4 class="text-xs font-semibold text-gray-500 uppercase tracking-wider">Materiale &amp; Date</h4>
+                      <h4 class="text-xs font-semibold text-gray-700 uppercase tracking-wider">Materiale &amp; Date</h4>
                     </div>
                     <div class="grid grid-cols-2 sm:grid-cols-4 gap-px bg-gray-100">
                       <div class="bg-white px-4 py-3">
-                        <p class="text-xs text-gray-400 uppercase tracking-wide">Materiale</p>
+                        <p class="text-xs text-gray-700 uppercase tracking-wide">Materiale</p>
                         <p class="mt-0.5 text-sm font-medium text-gray-800">{{ assignment?.work_phase?.MATERIALE || '&mdash;' }}</p>
                       </div>
                       <div class="bg-white px-4 py-3">
-                        <p class="text-xs text-gray-400 uppercase tracking-wide">Spessore</p>
+                        <p class="text-xs text-gray-700 uppercase tracking-wide">Spessore</p>
                         <p class="mt-0.5 text-sm font-medium text-gray-800">{{ assignment?.work_phase?.SPESSORE || '&mdash;' }}</p>
                       </div>
                       <div class="bg-white px-4 py-3">
-                        <p class="text-xs text-gray-400 uppercase tracking-wide">Data Consegna</p>
+                        <p class="text-xs text-gray-700 uppercase tracking-wide">Data Consegna</p>
                         <p class="mt-0.5 text-sm font-medium text-gray-800">{{ formatDate(assignment?.work_phase?.FLCON) || '&mdash;' }}</p>
                       </div>
                       <div class="bg-white px-4 py-3">
-                        <p class="text-xs text-gray-400 uppercase tracking-wide">FLCON (raw)</p>
+                        <p class="text-xs text-gray-700 uppercase tracking-wide">FLCON (raw)</p>
                         <p class="mt-0.5 text-sm font-medium text-gray-800">{{ assignment?.work_phase?.FLCON || '&mdash;' }}</p>
                       </div>
                     </div>
@@ -167,15 +167,15 @@
                   <!-- Sezione: Lavorazioni Successive -->
                   <div class="bg-white border border-gray-200 rounded-xl shadow-sm overflow-hidden">
                     <div class="bg-gray-50 px-4 py-2 border-b border-gray-200">
-                      <h4 class="text-xs font-semibold text-gray-500 uppercase tracking-wider">Lavorazioni Successive</h4>
+                      <h4 class="text-xs font-semibold text-gray-700 uppercase tracking-wider">Lavorazioni Successive</h4>
                     </div>
                     <div class="grid grid-cols-2 gap-px bg-gray-100">
                       <div class="bg-white px-4 py-3">
-                        <p class="text-xs text-gray-400 uppercase tracking-wide">LAV_SUCC</p>
+                        <p class="text-xs text-gray-700 uppercase tracking-wide">LAV_SUCC</p>
                         <p class="mt-0.5 text-sm font-medium text-gray-800">{{ assignment?.work_phase?.LAV_SUCC || '&mdash;' }}</p>
                       </div>
                       <div class="bg-white px-4 py-3">
-                        <p class="text-xs text-gray-400 uppercase tracking-wide">LAV_SUCC_ASS</p>
+                        <p class="text-xs text-gray-700 uppercase tracking-wide">LAV_SUCC_ASS</p>
                         <p class="mt-0.5 text-sm font-medium text-gray-800">{{ assignment?.work_phase?.LAV_SUCC_ASS || '&mdash;' }}</p>
                       </div>
                     </div>
@@ -184,20 +184,20 @@
                   <!-- Sezione: Assegnazione -->
                   <div class="bg-white border border-gray-200 rounded-xl shadow-sm overflow-hidden">
                     <div class="bg-gray-50 px-4 py-2 border-b border-gray-200">
-                      <h4 class="text-xs font-semibold text-gray-500 uppercase tracking-wider">Assegnazione</h4>
+                      <h4 class="text-xs font-semibold text-gray-700 uppercase tracking-wider">Assegnazione</h4>
                     </div>
                     <div class="grid grid-cols-2 gap-px bg-gray-100">
                       <div class="bg-white px-4 py-3">
-                        <p class="text-xs text-gray-400 uppercase tracking-wide">Assegnato a</p>
+                        <p class="text-xs text-gray-700 uppercase tracking-wide">Assegnato a</p>
                         <p class="mt-0.5 text-sm font-medium text-gray-800">{{ assignment?.assigned_user?.name || '&mdash;' }}</p>
                       </div>
                       <div class="bg-white px-4 py-3">
-                        <p class="text-xs text-gray-400 uppercase tracking-wide">Data Assegnazione</p>
+                        <p class="text-xs text-gray-700 uppercase tracking-wide">Data Assegnazione</p>
                         <p class="mt-0.5 text-sm font-medium text-gray-800">{{ formatDate(assignment?.created_at) || '&mdash;' }}</p>
                       </div>
                     </div>
                     <div class="bg-white px-4 py-3 border-t border-gray-100">
-                      <p class="text-xs text-gray-400 uppercase tracking-wide">Note</p>
+                      <p class="text-xs text-gray-700 uppercase tracking-wide">Note</p>
                       <p class="mt-0.5 text-sm text-gray-700">{{ assignment?.notes || '&mdash;' }}</p>
                     </div>
                   </div>
@@ -450,7 +450,7 @@
                       </tr>
                     </tbody>
                   </table>
-                  <p class="mt-2 text-xs text-gray-500">Articolo: {{ assignment?.work_phase?.OPART }}</p>
+                  <p class="mt-2 px-3 text-xs text-gray-500">Articolo: {{ assignment?.work_phase?.OPART }}</p>
                 </div>
 
                 <!-- No NC -->
