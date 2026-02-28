@@ -41,14 +41,16 @@ Route::middleware('auth')->group(function () {
 });
 
 
-Route::middleware(['auth', 'role:admin'])->group(function () {
+Route::middleware('auth')->group(function () {
     // Pagina principale con Vue
     Route::get('/work-phases', [WorkPhaseController::class, 'index'])->name('workphases.index');
 
     // API per Vue: restituisce dati JSON
     Route::get('/api/work-phases', [WorkPhaseController::class, 'list'])->name('workphases.list');
+});
 
-    // API per assegnare i selezionati
+Route::middleware(['auth', 'role:admin'])->group(function () {
+    // API per assegnare i selezionati (solo admin)
     Route::post('/api/work-phases/assign', [WorkPhaseController::class, 'assign'])->name('workphases.assign');
 });
 
@@ -60,11 +62,11 @@ Route::middleware('auth')->group(function () {
     // API per restituire i dati JSON
     Route::get('/api/assigned-work-phases', [WorkPhaseAssignmentController::class, 'list'])
         ->name('assigned-work-phases.list');
-    
+
     // API per aggiornare i parametri di una lavorazione
     Route::put('/api/work-phase-assignments/{id}/parameters', [WorkPhaseAssignmentController::class, 'updateParameters'])
         ->name('work-phase-assignments.update-parameters');
-    
+
     // API per recuperare i parametri di un job/articolo
     Route::get('/api/job-parameter-values', [WorkPhaseAssignmentController::class, 'getParameters'])
         ->name('job-parameter-values.get');
@@ -78,23 +80,23 @@ Route::middleware('auth')->group(function () {
     // API per restituire i dati JSON
     Route::get('/api/warehouse', [WarehouseController::class, 'list'])
         ->name('warehouse.list');
-    
+
     // API per ottenere i prodotti di una posizione
     Route::get('/api/warehouse/positions/{position}/products', [WarehouseController::class, 'getPositionProducts'])
         ->name('warehouse.position.products');
-    
+
     // API per aggiornare il nome di una posizione
     Route::put('/api/warehouse/positions/{position}', [WarehouseController::class, 'updatePosition'])
         ->name('warehouse.position.update');
-    
+
     // API per creare un nuovo elemento
     Route::post('/api/warehouse', [WarehouseController::class, 'store'])
         ->name('warehouse.store');
-    
+
     // API per aggiornare un elemento
     Route::put('/api/warehouse/{warehouse}', [WarehouseController::class, 'update'])
         ->name('warehouse.update');
-    
+
     // API per eliminare un elemento
     Route::delete('/api/warehouse/{warehouse}', [WarehouseController::class, 'destroy'])
         ->name('warehouse.destroy');
@@ -111,16 +113,16 @@ Route::middleware('auth')->group(function () {
     Route::get('/settings/general', function () {
         return view('settings.general');
     })->name('general.edit');
-    
+
     Route::get('/api/work-parameters', [WorkParameterController::class, 'index'])
         ->name('work-parameters.index');
-    
+
     Route::post('/api/work-parameters', [WorkParameterController::class, 'store'])
         ->name('work-parameters.store');
-    
+
     Route::put('/api/work-parameters/{workParameter}', [WorkParameterController::class, 'update'])
         ->name('work-parameters.update');
-    
+
     Route::delete('/api/work-parameters/{workParameter}', [WorkParameterController::class, 'destroy'])
         ->name('work-parameters.destroy');
 
@@ -133,10 +135,10 @@ Route::middleware('auth')->group(function () {
     // Work Phase Images routes
     Route::get('/api/work-phase-images', [WorkPhaseImageController::class, 'index'])
         ->name('work-phase-images.index');
-    
+
     Route::post('/api/work-phase-images', [WorkPhaseImageController::class, 'store'])
         ->name('work-phase-images.store');
-    
+
     Route::delete('/api/work-phase-images/{workPhaseImage}', [WorkPhaseImageController::class, 'destroy'])
         ->name('work-phase-images.destroy');
 

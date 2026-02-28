@@ -1,7 +1,7 @@
 import { queryParams, type RouteQueryOptions, type RouteDefinition, type RouteFormDefinition } from './../../wayfinder'
 /**
 * @see \App\Http\Controllers\WorkPhaseAssignmentController::get
- * @see app/Http/Controllers/WorkPhaseAssignmentController.php:218
+ * @see app/Http/Controllers/WorkPhaseAssignmentController.php:252
  * @route '/api/job-parameter-values'
  */
 export const get = (options?: RouteQueryOptions): RouteDefinition<'get'> => ({
@@ -16,7 +16,7 @@ get.definition = {
 
 /**
 * @see \App\Http\Controllers\WorkPhaseAssignmentController::get
- * @see app/Http/Controllers/WorkPhaseAssignmentController.php:218
+ * @see app/Http/Controllers/WorkPhaseAssignmentController.php:252
  * @route '/api/job-parameter-values'
  */
 get.url = (options?: RouteQueryOptions) => {
@@ -25,7 +25,7 @@ get.url = (options?: RouteQueryOptions) => {
 
 /**
 * @see \App\Http\Controllers\WorkPhaseAssignmentController::get
- * @see app/Http/Controllers/WorkPhaseAssignmentController.php:218
+ * @see app/Http/Controllers/WorkPhaseAssignmentController.php:252
  * @route '/api/job-parameter-values'
  */
 get.get = (options?: RouteQueryOptions): RouteDefinition<'get'> => ({
@@ -34,7 +34,7 @@ get.get = (options?: RouteQueryOptions): RouteDefinition<'get'> => ({
 })
 /**
 * @see \App\Http\Controllers\WorkPhaseAssignmentController::get
- * @see app/Http/Controllers/WorkPhaseAssignmentController.php:218
+ * @see app/Http/Controllers/WorkPhaseAssignmentController.php:252
  * @route '/api/job-parameter-values'
  */
 get.head = (options?: RouteQueryOptions): RouteDefinition<'head'> => ({
@@ -44,7 +44,7 @@ get.head = (options?: RouteQueryOptions): RouteDefinition<'head'> => ({
 
     /**
 * @see \App\Http\Controllers\WorkPhaseAssignmentController::get
- * @see app/Http/Controllers/WorkPhaseAssignmentController.php:218
+ * @see app/Http/Controllers/WorkPhaseAssignmentController.php:252
  * @route '/api/job-parameter-values'
  */
     const getForm = (options?: RouteQueryOptions): RouteFormDefinition<'get'> => ({
@@ -54,7 +54,7 @@ get.head = (options?: RouteQueryOptions): RouteDefinition<'head'> => ({
 
             /**
 * @see \App\Http\Controllers\WorkPhaseAssignmentController::get
- * @see app/Http/Controllers/WorkPhaseAssignmentController.php:218
+ * @see app/Http/Controllers/WorkPhaseAssignmentController.php:252
  * @route '/api/job-parameter-values'
  */
         getForm.get = (options?: RouteQueryOptions): RouteFormDefinition<'get'> => ({
@@ -63,7 +63,7 @@ get.head = (options?: RouteQueryOptions): RouteDefinition<'head'> => ({
         })
             /**
 * @see \App\Http\Controllers\WorkPhaseAssignmentController::get
- * @see app/Http/Controllers/WorkPhaseAssignmentController.php:218
+ * @see app/Http/Controllers/WorkPhaseAssignmentController.php:252
  * @route '/api/job-parameter-values'
  */
         getForm.head = (options?: RouteQueryOptions): RouteFormDefinition<'get'> => ({

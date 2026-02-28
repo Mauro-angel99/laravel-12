@@ -1,7 +1,7 @@
 import { queryParams, type RouteQueryOptions, type RouteDefinition, type RouteFormDefinition, applyUrlDefaults } from './../../wayfinder'
 /**
 * @see \App\Http\Controllers\WorkPhaseAssignmentController::updateParameters
- * @see app/Http/Controllers/WorkPhaseAssignmentController.php:188
+ * @see app/Http/Controllers/WorkPhaseAssignmentController.php:222
  * @route '/api/work-phase-assignments/{id}/parameters'
  */
 export const updateParameters = (args: { id: string | number } | [id: string | number ] | string | number, options?: RouteQueryOptions): RouteDefinition<'put'> => ({
@@ -16,7 +16,7 @@ updateParameters.definition = {
 
 /**
 * @see \App\Http\Controllers\WorkPhaseAssignmentController::updateParameters
- * @see app/Http/Controllers/WorkPhaseAssignmentController.php:188
+ * @see app/Http/Controllers/WorkPhaseAssignmentController.php:222
  * @route '/api/work-phase-assignments/{id}/parameters'
  */
 updateParameters.url = (args: { id: string | number } | [id: string | number ] | string | number, options?: RouteQueryOptions) => {
@@ -44,7 +44,7 @@ updateParameters.url = (args: { id: string | number } | [id: string | number ] |
 
 /**
 * @see \App\Http\Controllers\WorkPhaseAssignmentController::updateParameters
- * @see app/Http/Controllers/WorkPhaseAssignmentController.php:188
+ * @see app/Http/Controllers/WorkPhaseAssignmentController.php:222
  * @route '/api/work-phase-assignments/{id}/parameters'
  */
 updateParameters.put = (args: { id: string | number } | [id: string | number ] | string | number, options?: RouteQueryOptions): RouteDefinition<'put'> => ({
@@ -54,7 +54,7 @@ updateParameters.put = (args: { id: string | number } | [id: string | number ] |
 
     /**
 * @see \App\Http\Controllers\WorkPhaseAssignmentController::updateParameters
- * @see app/Http/Controllers/WorkPhaseAssignmentController.php:188
+ * @see app/Http/Controllers/WorkPhaseAssignmentController.php:222
  * @route '/api/work-phase-assignments/{id}/parameters'
  */
     const updateParametersForm = (args: { id: string | number } | [id: string | number ] | string | number, options?: RouteQueryOptions): RouteFormDefinition<'post'> => ({
@@ -69,7 +69,7 @@ updateParameters.put = (args: { id: string | number } | [id: string | number ] |
 
             /**
 * @see \App\Http\Controllers\WorkPhaseAssignmentController::updateParameters
- * @see app/Http/Controllers/WorkPhaseAssignmentController.php:188
+ * @see app/Http/Controllers/WorkPhaseAssignmentController.php:222
  * @route '/api/work-phase-assignments/{id}/parameters'
  */
         updateParametersForm.put = (args: { id: string | number } | [id: string | number ] | string | number, options?: RouteQueryOptions): RouteFormDefinition<'post'> => ({

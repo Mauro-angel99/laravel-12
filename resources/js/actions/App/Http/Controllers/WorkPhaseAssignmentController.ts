@@ -157,7 +157,7 @@ list.head = (options?: RouteQueryOptions): RouteDefinition<'head'> => ({
     list.form = listForm
 /**
 * @see \App\Http\Controllers\WorkPhaseAssignmentController::updateParameters
- * @see app/Http/Controllers/WorkPhaseAssignmentController.php:188
+ * @see app/Http/Controllers/WorkPhaseAssignmentController.php:222
  * @route '/api/work-phase-assignments/{id}/parameters'
  */
 export const updateParameters = (args: { id: string | number } | [id: string | number ] | string | number, options?: RouteQueryOptions): RouteDefinition<'put'> => ({
@@ -172,7 +172,7 @@ updateParameters.definition = {
 
 /**
 * @see \App\Http\Controllers\WorkPhaseAssignmentController::updateParameters
- * @see app/Http/Controllers/WorkPhaseAssignmentController.php:188
+ * @see app/Http/Controllers/WorkPhaseAssignmentController.php:222
  * @route '/api/work-phase-assignments/{id}/parameters'
  */
 updateParameters.url = (args: { id: string | number } | [id: string | number ] | string | number, options?: RouteQueryOptions) => {
@@ -200,7 +200,7 @@ updateParameters.url = (args: { id: string | number } | [id: string | number ] |
 
 /**
 * @see \App\Http\Controllers\WorkPhaseAssignmentController::updateParameters
- * @see app/Http/Controllers/WorkPhaseAssignmentController.php:188
+ * @see app/Http/Controllers/WorkPhaseAssignmentController.php:222
  * @route '/api/work-phase-assignments/{id}/parameters'
  */
 updateParameters.put = (args: { id: string | number } | [id: string | number ] | string | number, options?: RouteQueryOptions): RouteDefinition<'put'> => ({
@@ -210,7 +210,7 @@ updateParameters.put = (args: { id: string | number } | [id: string | number ] |
 
     /**
 * @see \App\Http\Controllers\WorkPhaseAssignmentController::updateParameters
- * @see app/Http/Controllers/WorkPhaseAssignmentController.php:188
+ * @see app/Http/Controllers/WorkPhaseAssignmentController.php:222
  * @route '/api/work-phase-assignments/{id}/parameters'
  */
     const updateParametersForm = (args: { id: string | number } | [id: string | number ] | string | number, options?: RouteQueryOptions): RouteFormDefinition<'post'> => ({
@@ -225,7 +225,7 @@ updateParameters.put = (args: { id: string | number } | [id: string | number ] |
 
             /**
 * @see \App\Http\Controllers\WorkPhaseAssignmentController::updateParameters
- * @see app/Http/Controllers/WorkPhaseAssignmentController.php:188
+ * @see app/Http/Controllers/WorkPhaseAssignmentController.php:222
  * @route '/api/work-phase-assignments/{id}/parameters'
  */
         updateParametersForm.put = (args: { id: string | number } | [id: string | number ] | string | number, options?: RouteQueryOptions): RouteFormDefinition<'post'> => ({
@@ -241,7 +241,7 @@ updateParameters.put = (args: { id: string | number } | [id: string | number ] |
     updateParameters.form = updateParametersForm
 /**
 * @see \App\Http\Controllers\WorkPhaseAssignmentController::getParameters
- * @see app/Http/Controllers/WorkPhaseAssignmentController.php:218
+ * @see app/Http/Controllers/WorkPhaseAssignmentController.php:252
  * @route '/api/job-parameter-values'
  */
 export const getParameters = (options?: RouteQueryOptions): RouteDefinition<'get'> => ({
@@ -256,7 +256,7 @@ getParameters.definition = {
 
 /**
 * @see \App\Http\Controllers\WorkPhaseAssignmentController::getParameters
- * @see app/Http/Controllers/WorkPhaseAssignmentController.php:218
+ * @see app/Http/Controllers/WorkPhaseAssignmentController.php:252
  * @route '/api/job-parameter-values'
  */
 getParameters.url = (options?: RouteQueryOptions) => {
@@ -265,7 +265,7 @@ getParameters.url = (options?: RouteQueryOptions) => {
 
 /**
 * @see \App\Http\Controllers\WorkPhaseAssignmentController::getParameters
- * @see app/Http/Controllers/WorkPhaseAssignmentController.php:218
+ * @see app/Http/Controllers/WorkPhaseAssignmentController.php:252
  * @route '/api/job-parameter-values'
  */
 getParameters.get = (options?: RouteQueryOptions): RouteDefinition<'get'> => ({
@@ -274,7 +274,7 @@ getParameters.get = (options?: RouteQueryOptions): RouteDefinition<'get'> => ({
 })
 /**
 * @see \App\Http\Controllers\WorkPhaseAssignmentController::getParameters
- * @see app/Http/Controllers/WorkPhaseAssignmentController.php:218
+ * @see app/Http/Controllers/WorkPhaseAssignmentController.php:252
  * @route '/api/job-parameter-values'
  */
 getParameters.head = (options?: RouteQueryOptions): RouteDefinition<'head'> => ({
@@ -284,7 +284,7 @@ getParameters.head = (options?: RouteQueryOptions): RouteDefinition<'head'> => (
 
     /**
 * @see \App\Http\Controllers\WorkPhaseAssignmentController::getParameters
- * @see app/Http/Controllers/WorkPhaseAssignmentController.php:218
+ * @see app/Http/Controllers/WorkPhaseAssignmentController.php:252
  * @route '/api/job-parameter-values'
  */
     const getParametersForm = (options?: RouteQueryOptions): RouteFormDefinition<'get'> => ({
@@ -294,7 +294,7 @@ getParameters.head = (options?: RouteQueryOptions): RouteDefinition<'head'> => (
 
             /**
 * @see \App\Http\Controllers\WorkPhaseAssignmentController::getParameters
- * @see app/Http/Controllers/WorkPhaseAssignmentController.php:218
+ * @see app/Http/Controllers/WorkPhaseAssignmentController.php:252
  * @route '/api/job-parameter-values'
  */
         getParametersForm.get = (options?: RouteQueryOptions): RouteFormDefinition<'get'> => ({
@@ -303,7 +303,7 @@ getParameters.head = (options?: RouteQueryOptions): RouteDefinition<'head'> => (
         })
             /**
 * @see \App\Http\Controllers\WorkPhaseAssignmentController::getParameters
- * @see app/Http/Controllers/WorkPhaseAssignmentController.php:218
+ * @see app/Http/Controllers/WorkPhaseAssignmentController.php:252
  * @route '/api/job-parameter-values'
  */
         getParametersForm.head = (options?: RouteQueryOptions): RouteFormDefinition<'get'> => ({

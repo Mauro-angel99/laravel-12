@@ -15,20 +15,15 @@
                     <x-nav-link :href="route('dashboard')" :active="request()->routeIs('dashboard')">
                         {{ __('Dashboard') }}
                     </x-nav-link>
-                    @if (Auth::user()->hasRole('admin'))
-                        <x-nav-link :href="route('workphases.index')" :active="request()->routeIs('workphases.index')">
-                            {{ __('Gestione') }}
-                        </x-nav-link>
-                    @endif
+                    <x-nav-link :href="route('workphases.index')" :active="request()->routeIs('workphases.index')">
+                        {{ __('Gestione') }}
+                    </x-nav-link>
                     <x-nav-link :href="route('assigned-work-phases.index')" :active="request()->routeIs('assigned-work-phases.index')">
                         {{ __('Lavorazioni') }}
                     </x-nav-link>
-
-                    @if (Auth::user()->hasRole('admin'))
-                        <x-nav-link :href="route('warehouse.index')" :active="request()->routeIs('warehouse.index')">
-                            {{ __('Magazzino') }}
-                        </x-nav-link>
-                    @endif
+                    <x-nav-link :href="route('warehouse.index')" :active="request()->routeIs('warehouse.index')">
+                        {{ __('Magazzino') }}
+                    </x-nav-link>
 
                     {{-- @if (Auth::user()->hasRole('admin'))
                         <x-nav-link :href="route('processing-parameters.index')" :active="request()->routeIs('processing-parameters.index')">
@@ -56,9 +51,11 @@
                                 </x-slot>
 
                                 <x-slot name="content">
-                                    <x-dropdown-link :href="route('users.index')">
-                                        {{ __('Utenti') }}
-                                    </x-dropdown-link>
+                                    @if (Auth::user()->hasRole('admin'))
+                                        <x-dropdown-link :href="route('users.index')">
+                                            {{ __('Utenti') }}
+                                        </x-dropdown-link>
+                                    @endif
                                     <x-dropdown-link :href="route('general.edit')">
                                         {{ __('Generali') }}
                                     </x-dropdown-link>
@@ -129,19 +126,15 @@
             <x-responsive-nav-link :href="route('dashboard')" :active="request()->routeIs('dashboard')">
                 {{ __('Dashboard') }}
             </x-responsive-nav-link>
-            @if (Auth::user()->hasRole('admin'))
-                <x-responsive-nav-link :href="route('workphases.index')" :active="request()->routeIs('workphases.index')">
-                    {{ __('Gestione') }}
-                </x-responsive-nav-link>
-            @endif
+            <x-responsive-nav-link :href="route('workphases.index')" :active="request()->routeIs('workphases.index')">
+                {{ __('Gestione') }}
+            </x-responsive-nav-link>
             <x-responsive-nav-link :href="route('assigned-work-phases.index')" :active="request()->routeIs('assigned-work-phases.index')">
                 {{ __('Lavorazioni') }}
             </x-responsive-nav-link>
-            @if (Auth::user()->hasRole('admin'))
-                <x-responsive-nav-link :href="route('warehouse.index')" :active="request()->routeIs('warehouse.index')">
-                    {{ __('Magazzino') }}
-                </x-responsive-nav-link>
-            @endif
+            <x-responsive-nav-link :href="route('warehouse.index')" :active="request()->routeIs('warehouse.index')">
+                {{ __('Magazzino') }}
+            </x-responsive-nav-link>
             {{-- @if (Auth::user()->hasRole('admin'))
                 <x-responsive-nav-link :href="route('processing-parameters.index')" :active="request()->routeIs('processing-parameters.index')">
                     {{ __('Parametri di lavorazione') }}
@@ -150,6 +143,9 @@
             @if (Auth::user()->hasRole('admin'))
                 <x-responsive-nav-link :href="route('users.index')" :active="request()->routeIs('users.index')">
                     {{ __('Utenti') }}
+                </x-responsive-nav-link>
+                <x-responsive-nav-link :href="route('general.edit')" :active="request()->routeIs('general.edit')">
+                    {{ __('Impostazioni Generali') }}
                 </x-responsive-nav-link>
             @endif
         </div>

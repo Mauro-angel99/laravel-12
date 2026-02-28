@@ -6,6 +6,13 @@ import flatpickr from 'flatpickr'
 import 'flatpickr/dist/flatpickr.css'
 import { Italian } from 'flatpickr/dist/l10n/it.js'
 
+const props = defineProps({
+  isAdmin: {
+    type: Number,
+    default: 0
+  }
+})
+
 const assignedWorkPhases = ref([])
 const searchFllav = ref('')
 const searchDtras = ref('')
@@ -244,14 +251,14 @@ onMounted(async () => {
               <th class="px-3 py-2.5 text-left font-semibold uppercase tracking-wider border-r border-blue-400/40">FLLAV</th>
               <th class="px-3 py-2.5 text-left font-semibold uppercase tracking-wider border-r border-blue-400/40">FLDES</th>
               <th class="px-3 py-2.5 text-left font-semibold uppercase tracking-wider border-r border-blue-400/40">OPART</th>
-              <th class="px-3 py-2.5 text-left font-semibold uppercase tracking-wider border-r border-blue-400/40">Assegnato a</th>
+              <th v-if="isAdmin" class="px-3 py-2.5 text-left font-semibold uppercase tracking-wider border-r border-blue-400/40">Assegnato a</th>
               <th class="px-3 py-2.5 text-left font-semibold uppercase tracking-wider">Data Assegnazione</th>
             </tr>
           </thead>
           <tbody class="divide-y divide-gray-100">
             <!-- Loading -->
             <tr v-if="loading">
-              <td colspan="8" class="px-3 py-10 text-center text-gray-400">
+              <td :colspan="isAdmin ? 8 : 7" class="px-3 py-10 text-center text-gray-400">
                 <div class="flex items-center justify-center gap-2">
                   <svg class="animate-spin h-5 w-5 text-copam-blue" viewBox="0 0 24 24">
                     <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4" fill="none"></circle>
@@ -289,7 +296,7 @@ onMounted(async () => {
               <td class="px-3 py-2 whitespace-nowrap text-gray-700 border-r border-gray-100">
                 {{ assignment.work_phase?.OPART || 'N/D' }}
               </td>
-              <td class="px-3 py-2 whitespace-nowrap border-r border-gray-100">
+              <td v-if="isAdmin" class="px-3 py-2 whitespace-nowrap border-r border-gray-100">
                 <span class="inline-flex items-center gap-1 text-gray-700">
                   <svg class="h-3.5 w-3.5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
@@ -304,7 +311,7 @@ onMounted(async () => {
 
             <!-- Empty state -->
             <tr v-if="!loading && !assignedWorkPhases.length">
-              <td colspan="8" class="px-3 py-16 text-center">
+              <td :colspan="isAdmin ? 8 : 7" class="px-3 py-16 text-center">
                 <svg class="mx-auto h-10 w-10 text-gray-300" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2" />
                 </svg>

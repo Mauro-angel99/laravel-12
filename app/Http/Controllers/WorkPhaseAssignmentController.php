@@ -29,56 +29,82 @@ class WorkPhaseAssignmentController extends Controller
         $query = WorkPhaseAssignment::query();
 
         // Se non admin, limita ai propri record
-        if (!$user->hasRole('admin')) {
+        $isAdmin = $user->roles()->where('name', 'admin')->exists();
+        if (!$isAdmin) {
             $query->where('assigned_to', $user->id);
         }
 
-        $total = $query->count();
-        $assignments = $query->with(['assignedUser', 'assignedBy'])
-            ->offset($offset)
-            ->limit($perPage)
+        // Carica TUTTI gli assignments (senza paginazione) per poter filtrare
+        // correttamente sui dati SQL Server prima di paginare
+        $allAssignments = $query->with(['assignedUser', 'assignedBy'])
             ->orderBy('created_at', 'desc')
             ->get();
 
-        // Carica manualmente i dati delle work phases dal database SQL Server
-        $workPhaseIds = $assignments->pluck('work_phase_id')->unique()->toArray();
-        
+        $workPhaseIds = $allAssignments->pluck('work_phase_id')->unique()->toArray();
+
+        // Determina se almeno un filtro è attivo
+        $hasFilters = $request->filled('fllav')
+            || $request->filled('dtras')
+            || $request->filled('dtric')
+            || $request->filled('dtnum')
+            || $request->filled('idopr')
+            || $request->filled('date_from')
+            || $request->filled('date_to');
+
         if (!empty($workPhaseIds)) {
+            // Carica i dati SQL Server per arricchire (sempre) e filtrare (solo se ci sono filtri attivi)
             $workPhaseQuery = DB::connection('sqlsrv_gestionale')
                 ->table('A01_ORD_FAS')
                 ->whereIn('RECORD_ID', $workPhaseIds);
-            
-            // Applica filtri se presenti
-            if ($request->filled('fllav')) {
-                $workPhaseQuery->where('FLLAV', 'like', '%' . $request->input('fllav') . '%');
-            }
-            if ($request->filled('dtras')) {
-                $workPhaseQuery->where('DTRAS', 'like', '%' . $request->input('dtras') . '%');
-            }
-            if ($request->filled('dtric')) {
-                $workPhaseQuery->where('DTRIC', 'like', '%' . $request->input('dtric') . '%');
-            }
-            if ($request->filled('dtnum')) {
-                $workPhaseQuery->where('DTNUM', 'like', '%' . $request->input('dtnum') . '%');
-            }
-            if ($request->filled('idopr')) {
-                $workPhaseQuery->where('IDOPR', 'like', '%' . $request->input('idopr') . '%');
-            }
-            if ($request->filled('date_from')) {
-                $dateFrom = \DateTime::createFromFormat('d/m/Y', $request->input('date_from'));
-                if ($dateFrom) {
-                    $workPhaseQuery->where('DTORD', '>=', $dateFrom->format('Y-m-d'));
+
+            // Applica filtri su SQL Server solo se almeno uno è attivo
+            if ($hasFilters) {
+                if ($request->filled('fllav')) {
+                    $workPhaseQuery->where('FLLAV', 'like', '%' . $request->input('fllav') . '%');
+                }
+                if ($request->filled('dtras')) {
+                    $workPhaseQuery->where('DTRAS', 'like', '%' . $request->input('dtras') . '%');
+                }
+                if ($request->filled('dtric')) {
+                    $workPhaseQuery->where('DTRIC', 'like', '%' . $request->input('dtric') . '%');
+                }
+                if ($request->filled('dtnum')) {
+                    $workPhaseQuery->where('DTNUM', 'like', '%' . $request->input('dtnum') . '%');
+                }
+                if ($request->filled('idopr')) {
+                    $workPhaseQuery->where('IDOPR', 'like', '%' . $request->input('idopr') . '%');
+                }
+                if ($request->filled('date_from')) {
+                    $dateFrom = \DateTime::createFromFormat('d/m/Y', $request->input('date_from'));
+                    if ($dateFrom) {
+                        $workPhaseQuery->where('DTORD', '>=', $dateFrom->format('Y-m-d'));
+                    }
+                }
+                if ($request->filled('date_to')) {
+                    $dateTo = \DateTime::createFromFormat('d/m/Y', $request->input('date_to'));
+                    if ($dateTo) {
+                        $workPhaseQuery->where('DTORD', '<=', $dateTo->format('Y-m-d'));
+                    }
                 }
             }
-            if ($request->filled('date_to')) {
-                $dateTo = \DateTime::createFromFormat('d/m/Y', $request->input('date_to'));
-                if ($dateTo) {
-                    $workPhaseQuery->where('DTORD', '<=', $dateTo->format('Y-m-d'));
-                }
-            }
-            
+
             $workPhases = $workPhaseQuery->get()->keyBy('RECORD_ID');
-            
+
+            // Se ci sono filtri attivi ma nessun risultato su SQL Server → zero risultati
+            if ($hasFilters && $workPhases->isEmpty()) {
+                return response()->json([
+                    'data' => [],
+                    'pagination' => [
+                        'current_page' => $page,
+                        'per_page' => $perPage,
+                        'total' => 0,
+                        'last_page' => 1,
+                        'from' => 0,
+                        'to' => 0,
+                    ]
+                ]);
+            }
+
             // Carica i dati OPART dalla vista A01_ORD_PRO_ALL usando IDOPR
             $opartData = collect();
             $idoprs = $workPhases->pluck('IDOPR')->filter()->unique()->toArray();
@@ -90,12 +116,13 @@ class WorkPhaseAssignmentController extends Controller
                     ->get()
                     ->keyBy('RECORD_ID');
             }
-            
-            // Aggiungi i dati delle work phases e OPART agli assignments e filtra
-            $filteredAssignments = $assignments->filter(function ($assignment) use ($workPhases, $opartData) {
+
+            // Arricchisce gli assignments con i dati SQL Server.
+            // Se ci sono filtri attivi, esclude gli assignments che non hanno un work phase corrispondente.
+            // Se non ci sono filtri, mostra TUTTI gli assignments (anche quelli senza dati SQL Server).
+            $filteredAssignments = $allAssignments->map(function ($assignment) use ($workPhases, $opartData, $hasFilters) {
                 $workPhase = $workPhases->get($assignment->work_phase_id);
                 if ($workPhase) {
-                    // Aggiungi OPART se disponibile tramite IDOPR
                     if (isset($workPhase->IDOPR) && $workPhase->IDOPR) {
                         $opart = $opartData->get($workPhase->IDOPR);
                         if ($opart && isset($opart->OPART)) {
@@ -103,33 +130,40 @@ class WorkPhaseAssignmentController extends Controller
                         }
                     }
                     $assignment->work_phase = $workPhase;
-                    return true;
+                } elseif ($hasFilters) {
+                    // Con filtri attivi, escludi assignments senza corrispondenza
+                    return null;
                 }
-                return false;
-            })->values();
-            
+                return $assignment;
+            })->filter()->values();
+
+            // Paginazione sul risultato già filtrato
+            $total = $filteredAssignments->count();
+            $paginatedAssignments = $filteredAssignments->slice($offset, $perPage)->values();
+
             return response()->json([
-                'data' => $filteredAssignments,
+                'data' => $paginatedAssignments,
                 'pagination' => [
                     'current_page' => $page,
                     'per_page' => $perPage,
-                    'total' => $filteredAssignments->count(),
-                    'last_page' => ceil($filteredAssignments->count() / $perPage),
-                    'from' => $offset + 1,
-                    'to' => min($offset + $perPage, $filteredAssignments->count()),
+                    'total' => $total,
+                    'last_page' => max(1, ceil($total / $perPage)),
+                    'from' => $total > 0 ? $offset + 1 : 0,
+                    'to' => min($offset + $perPage, $total),
                 ]
             ]);
         }
 
+        // Nessun assignment trovato
         return response()->json([
-            'data' => $assignments,
+            'data' => [],
             'pagination' => [
                 'current_page' => $page,
                 'per_page' => $perPage,
-                'total' => $total,
-                'last_page' => ceil($total / $perPage),
-                'from' => $offset + 1,
-                'to' => min($offset + $perPage, $total),
+                'total' => 0,
+                'last_page' => 1,
+                'from' => 0,
+                'to' => 0,
             ]
         ]);
     }
