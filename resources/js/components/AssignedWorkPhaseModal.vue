@@ -24,8 +24,8 @@
           <div class="w-full">
 
               <!-- Tabs -->
-              <div class="border-b border-gray-200">
-                <nav class="-mb-px flex space-x-6" aria-label="Tabs">
+              <div class="border-b border-gray-200 overflow-x-auto">
+                <nav class="-mb-px flex space-x-6 min-w-max" aria-label="Tabs">
                   <button
                     @click="activeTab = 'dettagli'"
                     :class="[
@@ -146,6 +146,19 @@
                     </div>
                     <div class="grid grid-cols-2 sm:grid-cols-4 gap-px bg-gray-100">
                       <div class="bg-white px-4 py-3">
+                        <p class="text-xs text-gray-700 uppercase tracking-wide">Posizione</p>
+                        <p class="mt-0.5 text-sm font-medium text-gray-800">
+                          <span v-if="warehousePosition.length === 0">&mdash;</span>
+                          <span v-else class="flex flex-wrap gap-1">
+                            <span
+                              v-for="pos in warehousePosition"
+                              :key="pos"
+                              class="inline-block bg-blue-100 text-copam-blue text-xs font-semibold px-2 py-0.5 rounded"
+                            >{{ pos }}</span>
+                          </span>
+                        </p>
+                      </div>
+                      <div class="bg-white px-4 py-3">
                         <p class="text-xs text-gray-700 uppercase tracking-wide">Materiale</p>
                         <p class="mt-0.5 text-sm font-medium text-gray-800">{{ assignment?.work_phase?.MATERIALE || '&mdash;' }}</p>
                       </div>
@@ -156,10 +169,6 @@
                       <div class="bg-white px-4 py-3">
                         <p class="text-xs text-gray-700 uppercase tracking-wide">Data Consegna</p>
                         <p class="mt-0.5 text-sm font-medium text-gray-800">{{ formatDate(assignment?.work_phase?.FLCON) || '&mdash;' }}</p>
-                      </div>
-                      <div class="bg-white px-4 py-3">
-                        <p class="text-xs text-gray-700 uppercase tracking-wide">FLCON (raw)</p>
-                        <p class="mt-0.5 text-sm font-medium text-gray-800">{{ assignment?.work_phase?.FLCON || '&mdash;' }}</p>
                       </div>
                     </div>
                   </div>
@@ -707,6 +716,23 @@ const loadingPdf = ref(false);
 const nonConformities = ref([]);
 const loadingNC = ref(false);
 
+// Warehouse position state
+const warehousePosition = ref([]);
+
+const fetchWarehousePosition = async () => {
+  warehousePosition.value = [];
+  const idopr = props.assignment?.work_phase?.IDOPR;
+  if (!idopr) return;
+  try {
+    const res = await axios.get('/api/warehouse/position-by-order', {
+      params: { production_order: idopr }
+    });
+    warehousePosition.value = res.data.positions ?? [];
+  } catch {
+    // nessuna posizione trovata
+  }
+};
+
 // Lightbox state
 const lightbox = ref({
   show: false,
@@ -797,6 +823,7 @@ watch(() => props.show, async (newVal) => {
     await fetchImages();
     await checkPdf();
     await fetchNonConformities();
+    await fetchWarehousePosition();
   }
 });
 
@@ -817,6 +844,7 @@ const close = () => {
   images.value = []
   pdfUrl.value = null
   nonConformities.value = []
+  warehousePosition.value = []
 }
 
 const formatDate = (dateString) => {

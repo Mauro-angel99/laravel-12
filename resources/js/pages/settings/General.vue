@@ -19,10 +19,16 @@ const newFieldName = ref('');
 
 interface FilePathSettings {
     pdf_path: string;
+    opart_total_chars: number | null;
+    opart_remove_before: number | null;
+    opart_remove_after: number | null;
 }
 
 const filePathSettings = ref<FilePathSettings>({
-    pdf_path: ''
+    pdf_path: '',
+    opart_total_chars: null,
+    opart_remove_before: null,
+    opart_remove_after: null,
 });
 const savingFilePaths = ref(false);
 
@@ -30,7 +36,10 @@ const fetchFilePathSettings = async (): Promise<void> => {
     try {
         const res = await axios.get<FilePathSettings>('/api/file-path-settings');
         filePathSettings.value = {
-            pdf_path: res.data?.pdf_path || ''
+            pdf_path: res.data?.pdf_path || '',
+            opart_total_chars: res.data?.opart_total_chars ?? null,
+            opart_remove_before: res.data?.opart_remove_before ?? null,
+            opart_remove_after: res.data?.opart_remove_after ?? null,
         };
     } catch (error) {
         console.error(error);
@@ -255,6 +264,61 @@ onMounted(() => {
                 class="px-4 py-2 bg-copam-blue text-white text-sm font-medium rounded-md hover:bg-copam-blue/90 focus:outline-none focus:ring-2 focus:ring-copam-blue disabled:opacity-60 disabled:cursor-not-allowed"
             >
                 {{ savingFilePaths ? 'Salvataggio...' : 'Salva Percorsi' }}
+            </button>
+        </div>
+    </div>
+
+    <!-- Blocco Formattazione Codice Ord. Prod. -->
+    <div class="bg-white shadow rounded-lg p-3 mt-6">
+        <div class="mb-3 flex justify-between items-center">
+            <h3 class="text-lg font-medium leading-6 text-gray-900">
+                Formattazione "Codice Ord. Prod."
+            </h3>
+        </div>
+
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+            <div>
+                <label class="block text-xs font-bold uppercase tracking-wider text-gray-700 mb-1">
+                    N. caratteri codice formattato
+                </label>
+                <input
+                    v-model.number="filePathSettings.opart_total_chars"
+                    type="number"
+                    min="0"
+                    class="w-full px-3 py-2 text-xs border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-copam-blue focus:border-copam-blue"
+                />
+            </div>
+            <div>
+                <label class="block text-xs font-bold uppercase tracking-wider text-gray-700 mb-1">
+                    N. caratteri da rimuovere prima
+                </label>
+                <input
+                    v-model.number="filePathSettings.opart_remove_before"
+                    type="number"
+                    min="0"
+                    class="w-full px-3 py-2 text-xs border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-copam-blue focus:border-copam-blue"
+                />
+            </div>
+            <div>
+                <label class="block text-xs font-bold uppercase tracking-wider text-gray-700 mb-1">
+                    N. caratteri da rimuovere dopo
+                </label>
+                <input
+                    v-model.number="filePathSettings.opart_remove_after"
+                    type="number"
+                    min="0"
+                    class="w-full px-3 py-2 text-xs border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-copam-blue focus:border-copam-blue"
+                />
+            </div>
+        </div>
+
+        <div class="mt-4 flex justify-end">
+            <button
+                @click="saveFilePathSettings"
+                :disabled="savingFilePaths"
+                class="px-4 py-2 bg-copam-blue text-white text-sm font-medium rounded-md hover:bg-copam-blue/90 focus:outline-none focus:ring-2 focus:ring-copam-blue disabled:opacity-60 disabled:cursor-not-allowed"
+            >
+                {{ savingFilePaths ? 'Salvataggio...' : 'Salva Formattazione' }}
             </button>
         </div>
     </div>

@@ -25,7 +25,9 @@ class FilePathSettingController extends Controller
 
             return response()->json($setting ?? [
                 'pdf_path' => '',
-                'image_path' => '',
+                'opart_total_chars' => null,
+                'opart_remove_before' => null,
+                'opart_remove_after' => null,
             ]);
         } catch (\Exception $e) {
             Log::error('File path settings fetch error', ['error' => $e->getMessage()]);
@@ -41,7 +43,7 @@ class FilePathSettingController extends Controller
     public function update(UpdateFilePathSettingsRequest $request): JsonResponse
     {
         DB::beginTransaction();
-        
+
         try {
             $validated = $request->validated();
             $setting = FilePathSetting::first();
@@ -66,12 +68,12 @@ class FilePathSettingController extends Controller
             ]);
         } catch (\Exception $e) {
             DB::rollBack();
-            
+
             $this->auditLogger->logCritical('File path settings update failed', [
                 'error' => $e->getMessage(),
                 'data' => $request->validated()
             ]);
-            
+
             return response()->json([
                 'error' => 'Errore durante l\'aggiornamento dei percorsi'
             ], 500);

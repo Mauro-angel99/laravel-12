@@ -213,7 +213,7 @@ store.post = (options?: RouteQueryOptions): RouteDefinition<'post'> => ({
     store.form = storeForm
 /**
 * @see \App\Http\Controllers\WarehouseController::update
- * @see app/Http/Controllers/WarehouseController.php:167
+ * @see app/Http/Controllers/WarehouseController.php:166
  * @route '/api/warehouse/{warehouse}'
  */
 export const update = (args: { warehouse: number | { id: number } } | [warehouse: number | { id: number } ] | number | { id: number }, options?: RouteQueryOptions): RouteDefinition<'put'> => ({
@@ -228,7 +228,7 @@ update.definition = {
 
 /**
 * @see \App\Http\Controllers\WarehouseController::update
- * @see app/Http/Controllers/WarehouseController.php:167
+ * @see app/Http/Controllers/WarehouseController.php:166
  * @route '/api/warehouse/{warehouse}'
  */
 update.url = (args: { warehouse: number | { id: number } } | [warehouse: number | { id: number } ] | number | { id: number }, options?: RouteQueryOptions) => {
@@ -261,7 +261,7 @@ update.url = (args: { warehouse: number | { id: number } } | [warehouse: number 
 
 /**
 * @see \App\Http\Controllers\WarehouseController::update
- * @see app/Http/Controllers/WarehouseController.php:167
+ * @see app/Http/Controllers/WarehouseController.php:166
  * @route '/api/warehouse/{warehouse}'
  */
 update.put = (args: { warehouse: number | { id: number } } | [warehouse: number | { id: number } ] | number | { id: number }, options?: RouteQueryOptions): RouteDefinition<'put'> => ({
@@ -271,7 +271,7 @@ update.put = (args: { warehouse: number | { id: number } } | [warehouse: number 
 
     /**
 * @see \App\Http\Controllers\WarehouseController::update
- * @see app/Http/Controllers/WarehouseController.php:167
+ * @see app/Http/Controllers/WarehouseController.php:166
  * @route '/api/warehouse/{warehouse}'
  */
     const updateForm = (args: { warehouse: number | { id: number } } | [warehouse: number | { id: number } ] | number | { id: number }, options?: RouteQueryOptions): RouteFormDefinition<'post'> => ({
@@ -286,7 +286,7 @@ update.put = (args: { warehouse: number | { id: number } } | [warehouse: number 
 
             /**
 * @see \App\Http\Controllers\WarehouseController::update
- * @see app/Http/Controllers/WarehouseController.php:167
+ * @see app/Http/Controllers/WarehouseController.php:166
  * @route '/api/warehouse/{warehouse}'
  */
         updateForm.put = (args: { warehouse: number | { id: number } } | [warehouse: number | { id: number } ] | number | { id: number }, options?: RouteQueryOptions): RouteFormDefinition<'post'> => ({
@@ -302,7 +302,7 @@ update.put = (args: { warehouse: number | { id: number } } | [warehouse: number 
     update.form = updateForm
 /**
 * @see \App\Http\Controllers\WarehouseController::destroy
- * @see app/Http/Controllers/WarehouseController.php:238
+ * @see app/Http/Controllers/WarehouseController.php:255
  * @route '/api/warehouse/{warehouse}'
  */
 export const destroy = (args: { warehouse: number | { id: number } } | [warehouse: number | { id: number } ] | number | { id: number }, options?: RouteQueryOptions): RouteDefinition<'delete'> => ({
@@ -317,7 +317,7 @@ destroy.definition = {
 
 /**
 * @see \App\Http\Controllers\WarehouseController::destroy
- * @see app/Http/Controllers/WarehouseController.php:238
+ * @see app/Http/Controllers/WarehouseController.php:255
  * @route '/api/warehouse/{warehouse}'
  */
 destroy.url = (args: { warehouse: number | { id: number } } | [warehouse: number | { id: number } ] | number | { id: number }, options?: RouteQueryOptions) => {
@@ -350,7 +350,7 @@ destroy.url = (args: { warehouse: number | { id: number } } | [warehouse: number
 
 /**
 * @see \App\Http\Controllers\WarehouseController::destroy
- * @see app/Http/Controllers/WarehouseController.php:238
+ * @see app/Http/Controllers/WarehouseController.php:255
  * @route '/api/warehouse/{warehouse}'
  */
 destroy.delete = (args: { warehouse: number | { id: number } } | [warehouse: number | { id: number } ] | number | { id: number }, options?: RouteQueryOptions): RouteDefinition<'delete'> => ({
@@ -360,7 +360,7 @@ destroy.delete = (args: { warehouse: number | { id: number } } | [warehouse: num
 
     /**
 * @see \App\Http\Controllers\WarehouseController::destroy
- * @see app/Http/Controllers/WarehouseController.php:238
+ * @see app/Http/Controllers/WarehouseController.php:255
  * @route '/api/warehouse/{warehouse}'
  */
     const destroyForm = (args: { warehouse: number | { id: number } } | [warehouse: number | { id: number } ] | number | { id: number }, options?: RouteQueryOptions): RouteFormDefinition<'post'> => ({
@@ -375,7 +375,7 @@ destroy.delete = (args: { warehouse: number | { id: number } } | [warehouse: num
 
             /**
 * @see \App\Http\Controllers\WarehouseController::destroy
- * @see app/Http/Controllers/WarehouseController.php:238
+ * @see app/Http/Controllers/WarehouseController.php:255
  * @route '/api/warehouse/{warehouse}'
  */
         destroyForm.delete = (args: { warehouse: number | { id: number } } | [warehouse: number | { id: number } ] | number | { id: number }, options?: RouteQueryOptions): RouteFormDefinition<'post'> => ({

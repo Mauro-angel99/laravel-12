@@ -14,6 +14,23 @@ const pagination = ref({
   to: 0
 })
 
+const opartFormatSettings = ref({
+  opart_total_chars: null,
+  opart_remove_before: null,
+  opart_remove_after: null,
+})
+
+const formatOpart = (value) => {
+  if (!value) return value
+  const { opart_total_chars, opart_remove_before, opart_remove_after } = opartFormatSettings.value
+  if (!opart_total_chars) return value
+  const str = value.toString()
+  if (str.length <= opart_total_chars) return str
+  const removeBefore = opart_remove_before || 0
+  const removeAfter = opart_remove_after || 0
+  return str.slice(removeBefore, str.length - removeAfter)
+}
+
 const searchQuery = ref('')
 const filterPending = ref(false)
 const showCreateModal = ref(false)
@@ -147,7 +164,11 @@ const closeEditModal = () => {
 
 const saveWarehouse = async () => {
   try {
-    const res = await axios.post('/api/warehouse', formData.value)
+    const payload = {
+      ...formData.value,
+      production_order: formatOpart(formData.value.production_order)
+    }
+    const res = await axios.post('/api/warehouse', payload)
     closeCreateModal()
     showMessageModal('success', 'Successo', res.data.message || 'Elemento aggiunto con successo')
     await fetchPositions(currentPage.value)
@@ -186,8 +207,17 @@ const deleteWarehouse = async () => {
     
     // Se la modale prodotti è aperta, ricarica solo i prodotti della posizione
     if (showProductsModal.value && selectedPosition.value) {
-      const posRes = await axios.get(`/api/warehouse/positions/${selectedPosition.value.id}/products`)
-      selectedProducts.value = posRes.data.products
+      try {
+        const posRes = await axios.get(`/api/warehouse/positions/${selectedPosition.value.id}/products`)
+        selectedProducts.value = posRes.data.products
+        // Se la posizione è rimasta vuota, chiudi la modale
+        if (selectedProducts.value.length === 0) {
+          closeProductsModal()
+        }
+      } catch {
+        // La posizione è stata eliminata (era l'ultimo prodotto): chiudi la modale
+        closeProductsModal()
+      }
     }
     
     await fetchPositions(currentPage.value)
@@ -229,6 +259,16 @@ const updatePositionName = async () => {
 
 onMounted(async () => {
   await fetchPositions()
+  try {
+    const res = await axios.get('/api/file-path-settings')
+    opartFormatSettings.value = {
+      opart_total_chars: res.data?.opart_total_chars ?? null,
+      opart_remove_before: res.data?.opart_remove_before ?? null,
+      opart_remove_after: res.data?.opart_remove_after ?? null,
+    }
+  } catch (e) {
+    console.error('Errore caricamento impostazioni formattazione', e)
+  }
 })
 </script>
 

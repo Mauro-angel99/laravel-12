@@ -21,17 +21,20 @@ class UpdateFilePathSettingsRequest extends FormRequest
     {
         return [
             'pdf_path' => ['required', 'string', 'max:500'],
+            'opart_total_chars' => ['nullable', 'integer', 'min:0'],
+            'opart_remove_before' => ['nullable', 'integer', 'min:0'],
+            'opart_remove_after' => ['nullable', 'integer', 'min:0'],
         ];
     }
 
-    /**
-     * Get custom messages for validator errors.
-     */
     public function messages(): array
     {
         return [
             'pdf_path.required' => 'Il percorso PDF è obbligatorio',
             'pdf_path.max' => 'Il percorso PDF non può superare i 500 caratteri',
+            'opart_total_chars.integer' => 'Il numero di caratteri deve essere un numero intero',
+            'opart_remove_before.integer' => 'Il numero di caratteri da rimuovere prima deve essere un numero intero',
+            'opart_remove_after.integer' => 'Il numero di caratteri da rimuovere dopo deve essere un numero intero',
         ];
     }
 }

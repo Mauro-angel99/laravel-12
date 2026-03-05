@@ -22,7 +22,7 @@ class WarehouseController extends Controller
         $page = $request->input('page', 1);
         $perPage = 20;
         $offset = ($page - 1) * $perPage;
-        
+
         $search = $request->input('search');
         $pending = $request->input('pending');
 
@@ -33,19 +33,19 @@ class WarehouseController extends Controller
         // Filtro per stato pending
         if ($pending !== null) {
             $pendingBool = (bool) $pending;
-            $query->whereHas('warehouses', function($wq) use ($pendingBool) {
+            $query->whereHas('warehouses', function ($wq) use ($pendingBool) {
                 $wq->where('pending', $pendingBool);
             });
         }
 
         // Filtri di ricerca
         if (!empty($search)) {
-            $query->where(function($q) use ($search) {
+            $query->where(function ($q) use ($search) {
                 $q->where('warehouse_position', 'like', '%' . $search . '%')
-                  ->orWhereHas('warehouses', function($wq) use ($search) {
-                      $wq->where('product_code', 'like', '%' . $search . '%')
-                         ->orWhere('production_order', 'like', '%' . $search . '%');
-                  });
+                    ->orWhereHas('warehouses', function ($wq) use ($search) {
+                        $wq->where('product_code', 'like', '%' . $search . '%')
+                            ->orWhere('production_order', 'like', '%' . $search . '%');
+                    });
             });
         }
 
@@ -57,7 +57,7 @@ class WarehouseController extends Controller
 
         // Se il filtro pending è attivo, aggiungi il pending_code alla risposta
         if ($pending !== null && (bool) $pending) {
-            $positions->each(function($position) {
+            $positions->each(function ($position) {
                 // Prendi il primo warehouse con pending_code non nullo
                 $warehouse = $position->warehouses()->where('pending', true)->first();
                 $position->pending_code = $warehouse ? $warehouse->pending_code : null;
@@ -81,7 +81,7 @@ class WarehouseController extends Controller
     public function getPositionProducts($positionId)
     {
         $position = WarehousePosition::with('warehouses.position')->findOrFail($positionId);
-        
+
         return response()->json([
             'position' => $position,
             'products' => $position->warehouses,
@@ -149,14 +149,13 @@ class WarehouseController extends Controller
                 'message' => 'Merce aggiunta al magazzino con successo',
                 'data' => $warehouse->load('position')
             ], 201);
-
         } catch (\Exception $e) {
             DB::rollBack();
             Log::error('Error creating warehouse item: ' . $e->getMessage(), [
                 'user_id' => Auth::id(),
                 'data' => $validated
             ]);
-            
+
             return response()->json([
                 'success' => false,
                 'message' => 'Errore durante l\'inserimento della merce'
@@ -220,19 +219,37 @@ class WarehouseController extends Controller
                 'message' => 'Merce aggiornata con successo',
                 'data' => $warehouse->load('position')
             ]);
-
         } catch (\Exception $e) {
             DB::rollBack();
             Log::error('Error updating warehouse item: ' . $e->getMessage(), [
                 'warehouse_id' => $warehouse->id,
                 'user_id' => Auth::id()
             ]);
-            
+
             return response()->json([
                 'success' => false,
                 'message' => 'Errore durante l\'aggiornamento della merce'
             ], 500);
         }
+    }
+
+    public function getPositionByProductionOrder(Request $request)
+    {
+        $productionOrder = $request->query('production_order');
+
+        if (!$productionOrder) {
+            return response()->json(['positions' => []]);
+        }
+
+        $positions = Warehouse::with('warehousePosition')
+            ->where('production_order', $productionOrder)
+            ->get()
+            ->map(fn($w) => $w->warehousePosition?->warehouse_position)
+            ->filter()
+            ->unique()
+            ->values();
+
+        return response()->json(['positions' => $positions]);
     }
 
     public function destroy(Warehouse $warehouse)
@@ -265,14 +282,13 @@ class WarehouseController extends Controller
                 'success' => true,
                 'message' => 'Merce eliminata dal magazzino con successo'
             ]);
-
         } catch (\Exception $e) {
             DB::rollBack();
             Log::error('Error deleting warehouse item: ' . $e->getMessage(), [
                 'warehouse_id' => $warehouse->id,
                 'user_id' => Auth::id()
             ]);
-            
+
             return response()->json([
                 'success' => false,
                 'message' => 'Errore durante l\'eliminazione della merce'
@@ -317,10 +333,10 @@ class WarehouseController extends Controller
                         'updated_by' => Auth::id(),
                     ]);
                 }
-                
+
                 // Elimina la vecchia posizione vuota
                 $position->delete();
-                
+
                 $position = $existingPosition;
             } else {
                 // Altrimenti aggiorna normalmente il nome della posizione
@@ -353,14 +369,13 @@ class WarehouseController extends Controller
                 'message' => 'Posizione aggiornata con successo',
                 'data' => $position
             ]);
-
         } catch (\Exception $e) {
             DB::rollBack();
             Log::error('Error updating warehouse position: ' . $e->getMessage(), [
                 'position_id' => $position->id,
                 'user_id' => Auth::id()
             ]);
-            
+
             return response()->json([
                 'success' => false,
                 'message' => 'Errore durante l\'aggiornamento della posizione'
