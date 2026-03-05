@@ -52,38 +52,61 @@ class WorkPhaseAssignmentController extends Controller
             || $request->filled('date_to');
 
         if (!empty($workPhaseIds)) {
-            // Carica i dati SQL Server per arricchire (sempre) e filtrare (solo se ci sono filtri attivi)
+            // Carica i dati SQL Server con JOIN su A01_DOC_VER_ALL per avere DTRAS, DTRIC, DTNUM, DRCON
             $workPhaseQuery = DB::connection('sqlsrv_gestionale')
-                ->table('A01_ORD_FAS')
-                ->whereIn('RECORD_ID', $workPhaseIds);
+                ->table('A01_ORD_FAS as f')
+                ->leftJoin('A01_DOC_VER_ALL as d', 'f.FLASS', '=', 'd.DROPR')
+                ->select(
+                    'f.RECORD_ID',
+                    'f.FLASS',
+                    'f.IDOPR',
+                    'f.FLSEQ',
+                    'f.FLLAV',
+                    'f.FLDES',
+                    'f.FLQTA',
+                    'f.FLQTB',
+                    'f.FLQTD',
+                    'f.FLCON',
+                    'd.DTRAS',
+                    'd.DTRIC',
+                    'd.DTNUM',
+                    'd.DRCON'
+                )
+                ->whereIn('f.RECORD_ID', $workPhaseIds);
 
             // Applica filtri su SQL Server solo se almeno uno è attivo
             if ($hasFilters) {
                 if ($request->filled('fllav')) {
-                    $workPhaseQuery->where('FLLAV', 'like', '%' . $request->input('fllav') . '%');
+                    $workPhaseQuery->where('f.FLLAV', 'like', '%' . $request->input('fllav') . '%');
                 }
                 if ($request->filled('dtras')) {
-                    $workPhaseQuery->where('DTRAS', 'like', '%' . $request->input('dtras') . '%');
+                    $workPhaseQuery->where('d.DTRAS', 'like', '%' . $request->input('dtras') . '%');
                 }
                 if ($request->filled('dtric')) {
-                    $workPhaseQuery->where('DTRIC', 'like', '%' . $request->input('dtric') . '%');
+                    $workPhaseQuery->where('d.DTRIC', 'like', '%' . $request->input('dtric') . '%');
                 }
                 if ($request->filled('dtnum')) {
-                    $workPhaseQuery->where('DTNUM', 'like', '%' . $request->input('dtnum') . '%');
+                    $workPhaseQuery->where('d.DTNUM', 'like', '%' . $request->input('dtnum') . '%');
                 }
                 if ($request->filled('idopr')) {
-                    $workPhaseQuery->where('IDOPR', 'like', '%' . $request->input('idopr') . '%');
+                    $workPhaseQuery->where('f.IDOPR', 'like', '%' . $request->input('idopr') . '%');
                 }
                 if ($request->filled('date_from')) {
                     $dateFrom = \DateTime::createFromFormat('d/m/Y', $request->input('date_from'));
                     if ($dateFrom) {
-                        $workPhaseQuery->where('DTORD', '>=', $dateFrom->format('Y-m-d'));
+                        $workPhaseQuery->whereRaw(
+                            "CONVERT(DATETIME, f.FLCON, 120) >= CONVERT(DATETIME, ?, 120)",
+                            [$dateFrom->format('Y-m-d') . ' 00:00:00.000']
+                        );
                     }
                 }
                 if ($request->filled('date_to')) {
                     $dateTo = \DateTime::createFromFormat('d/m/Y', $request->input('date_to'));
                     if ($dateTo) {
-                        $workPhaseQuery->where('DTORD', '<=', $dateTo->format('Y-m-d'));
+                        $workPhaseQuery->whereRaw(
+                            "CONVERT(DATETIME, f.FLCON, 120) <= CONVERT(DATETIME, ?, 120)",
+                            [$dateTo->format('Y-m-d') . ' 23:59:59.999']
+                        );
                     }
                 }
             }

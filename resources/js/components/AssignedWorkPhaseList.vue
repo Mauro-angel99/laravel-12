@@ -250,7 +250,10 @@ onMounted(async () => {
               <th class="px-3 py-2.5 text-left font-semibold uppercase tracking-wider border-r border-blue-400/40">FLSEQ</th>
               <th class="px-3 py-2.5 text-left font-semibold uppercase tracking-wider border-r border-blue-400/40">FLLAV</th>
               <th class="px-3 py-2.5 text-left font-semibold uppercase tracking-wider border-r border-blue-400/40">FLDES</th>
-              <th class="px-3 py-2.5 text-left font-semibold uppercase tracking-wider border-r border-blue-400/40">OPART</th>
+              <th class="px-3 py-2.5 text-left font-semibold uppercase tracking-wider border-r border-blue-400/40">Rag. Soc.</th>
+              <th class="px-3 py-2.5 text-left font-semibold uppercase tracking-wider border-r border-blue-400/40">N. Ord. Cli.</th>
+              <th class="px-3 py-2.5 text-left font-semibold uppercase tracking-wider border-r border-blue-400/40">N. Ns. Ord.</th>
+              <th class="px-3 py-2.5 text-left font-semibold uppercase tracking-wider border-r border-blue-400/40">Cons.</th>
               <th v-if="isAdmin" class="px-3 py-2.5 text-left font-semibold uppercase tracking-wider border-r border-blue-400/40">Assegnato a</th>
               <th class="px-3 py-2.5 text-left font-semibold uppercase tracking-wider">Data Assegnazione</th>
             </tr>
@@ -258,7 +261,7 @@ onMounted(async () => {
           <tbody class="divide-y divide-gray-100">
             <!-- Loading -->
             <tr v-if="loading">
-              <td :colspan="isAdmin ? 8 : 7" class="px-3 py-10 text-center text-gray-400">
+              <td :colspan="isAdmin ? 11 : 10" class="px-3 py-10 text-center text-gray-400">
                 <div class="flex items-center justify-center gap-2">
                   <svg class="animate-spin h-5 w-5 text-copam-blue" viewBox="0 0 24 24">
                     <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4" fill="none"></circle>
@@ -294,7 +297,16 @@ onMounted(async () => {
                 {{ assignment.work_phase?.FLDES || 'N/D' }}
               </td>
               <td class="px-3 py-2 whitespace-nowrap text-gray-700 border-r border-gray-100">
-                {{ assignment.work_phase?.OPART || 'N/D' }}
+                {{ assignment.work_phase?.DTRAS || '—' }}
+              </td>
+              <td class="px-3 py-2 whitespace-nowrap text-gray-700 border-r border-gray-100">
+                {{ assignment.work_phase?.DTRIC || '—' }}
+              </td>
+              <td class="px-3 py-2 whitespace-nowrap text-gray-700 border-r border-gray-100">
+                {{ assignment.work_phase?.DTNUM || '—' }}
+              </td>
+              <td class="px-3 py-2 whitespace-nowrap text-gray-700 border-r border-gray-100">
+                {{ formatDate(assignment.work_phase?.DRCON) || '—' }}
               </td>
               <td v-if="isAdmin" class="px-3 py-2 whitespace-nowrap border-r border-gray-100">
                 <span class="inline-flex items-center gap-1 text-gray-700">
@@ -311,7 +323,7 @@ onMounted(async () => {
 
             <!-- Empty state -->
             <tr v-if="!loading && !assignedWorkPhases.length">
-              <td :colspan="isAdmin ? 8 : 7" class="px-3 py-16 text-center">
+              <td :colspan="isAdmin ? 11 : 10" class="px-3 py-16 text-center">
                 <svg class="mx-auto h-10 w-10 text-gray-300" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2" />
                 </svg>

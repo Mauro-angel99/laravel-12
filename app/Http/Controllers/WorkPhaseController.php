@@ -283,18 +283,24 @@ class WorkPhaseController extends Controller
 
             // Filtro per date
             if (!empty($dateFrom)) {
-                $condition = 'CONVERT(DATETIME, f.FLCON, 120) >= CONVERT(DATETIME, ?, 120)';
-                $conditions[] = $condition;
-                $countConditions[] = $condition;
-                $params[] = $dateFrom . ' 00:00:00.000';
-                $countParams[] = $dateFrom . ' 00:00:00.000';
+                $dateFromParsed = \DateTime::createFromFormat('d/m/Y', $dateFrom);
+                if ($dateFromParsed) {
+                    $condition = 'CONVERT(DATETIME, f.FLCON, 120) >= CONVERT(DATETIME, ?, 120)';
+                    $conditions[] = $condition;
+                    $countConditions[] = $condition;
+                    $params[] = $dateFromParsed->format('Y-m-d') . ' 00:00:00.000';
+                    $countParams[] = $dateFromParsed->format('Y-m-d') . ' 00:00:00.000';
+                }
             }
             if (!empty($dateTo)) {
-                $condition = 'CONVERT(DATETIME, f.FLCON, 120) <= CONVERT(DATETIME, ?, 120)';
-                $conditions[] = $condition;
-                $countConditions[] = $condition;
-                $params[] = $dateTo . ' 23:59:59.999';
-                $countParams[] = $dateTo . ' 23:59:59.999';
+                $dateToParsed = \DateTime::createFromFormat('d/m/Y', $dateTo);
+                if ($dateToParsed) {
+                    $condition = 'CONVERT(DATETIME, f.FLCON, 120) <= CONVERT(DATETIME, ?, 120)';
+                    $conditions[] = $condition;
+                    $countConditions[] = $condition;
+                    $params[] = $dateToParsed->format('Y-m-d') . ' 23:59:59.999';
+                    $countParams[] = $dateToParsed->format('Y-m-d') . ' 23:59:59.999';
+                }
             }
 
             // Costruisci WHERE
