@@ -30,20 +30,19 @@ return [
     */
 
     'connections' => [
-        
+
         'sqlsrv_gestionale' => [
             'driver' => 'sqlsrv',
-            // 'server_name' => 'sqlsrv', // Per Laravel 10+, usa 'sqlsrv'
-            'host' => 'localhost', // L'istanza è sul tuo PC
-            'port' => '1433', // Porta standard di MSSQL 1433
-            'database' => 'CONCEPT', // Nome che hai dato in SSMS
+            'host' => env('DB_GESTIONALE_HOST', 'localhost\\SQLEXPRESS'),
+            'port' => env('DB_GESTIONALE_PORT', ''),
+            'database' => env('DB_GESTIONALE_DATABASE', 'CONCEPT'),
             'username' => env('DB_GESTIONALE_USERNAME', ''),
             'password' => env('DB_GESTIONALE_PASSWORD', ''),
-            'charset' => 'utf8',
+            'charset' => env('DB_GESTIONALE_CHARSET', 'utf8'),
             'prefix' => '',
             'prefix_indexes' => true,
-            'encrypt' => 'no', // O 'yes' se necessario, ma 'no' per locale
-            'trust_server_certificate' => true, // Importante per l'errore che avevi prima
+            'encrypt' => env('DB_GESTIONALE_ENCRYPT', 'no'),
+            'trust_server_certificate' => env('DB_GESTIONALE_TRUST_SERVER_CERTIFICATE', true),
         ],
 
         'sqlite' => [
@@ -162,7 +161,7 @@ return [
 
         'options' => [
             'cluster' => env('REDIS_CLUSTER', 'redis'),
-            'prefix' => env('REDIS_PREFIX', Str::slug(env('APP_NAME', 'laravel'), '_').'_database_'),
+            'prefix' => env('REDIS_PREFIX', Str::slug(env('APP_NAME', 'laravel'), '_') . '_database_'),
             'persistent' => env('REDIS_PERSISTENT', false),
         ],
 
