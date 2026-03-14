@@ -27,11 +27,11 @@ Route::middleware(['auth'])->group(function () {
 });
 
 Route::get('/', function () {
-    return redirect()->route('assigned-work-phases.index');
+    return redirect()->route('workphases.index');
 })->middleware(['auth', 'verified']);
 
 Route::get('/dashboard', function () {
-    return redirect()->route('assigned-work-phases.index');
+    return redirect()->route('workphases.index');
 })->middleware(['auth', 'verified'])->name('dashboard');
 
 Route::middleware('auth')->group(function () {
