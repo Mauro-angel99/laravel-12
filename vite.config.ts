@@ -16,9 +16,9 @@ export default defineConfig({
             refresh: true,
             detectTls: false,
         }),
-        wayfinder({
+        /*wayfinder({
             formVariants: true,
-        }),
+        }),*/
         vue({
             template: {
                 transformAssetUrls: {
