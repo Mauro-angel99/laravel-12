@@ -6,6 +6,7 @@ use App\Models\FilePathSetting;
 use App\Http\Requests\UpdateFilePathSettingsRequest;
 use App\Services\AuditLogger;
 use Illuminate\Http\JsonResponse;
+use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
 
@@ -63,7 +64,7 @@ class FilePathSettingController extends Controller
             DB::commit();
 
             return response()->json([
-                'message' => 'Percorsi aggiornati con successo',
+                'message' => 'Impostazioni aggiornate con successo',
                 'data' => $setting,
             ]);
         } catch (\Exception $e) {
@@ -76,6 +77,46 @@ class FilePathSettingController extends Controller
 
             return response()->json([
                 'error' => 'Errore durante l\'aggiornamento dei percorsi'
+            ], 500);
+        }
+    }
+
+    /**
+     * Update only formatting settings.
+     */
+    public function updateFormatting(Request $request): JsonResponse
+    {
+        $validated = $request->validate([
+            'opart_total_chars'  => ['nullable', 'integer', 'min:0'],
+            'opart_remove_before' => ['nullable', 'integer', 'min:0'],
+            'opart_remove_after'  => ['nullable', 'integer', 'min:0'],
+        ]);
+
+        DB::beginTransaction();
+
+        try {
+            $setting = FilePathSetting::first();
+
+            if (!$setting) {
+                $setting = FilePathSetting::create($validated);
+            } else {
+                $setting->update($validated);
+            }
+
+            $this->auditLogger->logSecurity('Formatting settings updated', ['settings' => $validated]);
+
+            DB::commit();
+
+            return response()->json([
+                'message' => 'Formattazione aggiornata con successo',
+                'data' => $setting,
+            ]);
+        } catch (\Exception $e) {
+            DB::rollBack();
+            Log::error('Formatting settings update failed', ['error' => $e->getMessage()]);
+
+            return response()->json([
+                'error' => 'Errore durante l\'aggiornamento della formattazione'
             ], 500);
         }
     }

@@ -20,7 +20,7 @@ class UpdateFilePathSettingsRequest extends FormRequest
     public function rules(): array
     {
         return [
-            'pdf_path' => ['required', 'string', 'max:500'],
+            'pdf_path' => ['sometimes', 'string', 'max:500'],
             'opart_total_chars' => ['nullable', 'integer', 'min:0'],
             'opart_remove_before' => ['nullable', 'integer', 'min:0'],
             'opart_remove_after' => ['nullable', 'integer', 'min:0'],

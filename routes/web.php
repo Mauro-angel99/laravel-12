@@ -136,6 +136,9 @@ Route::middleware('auth')->group(function () {
     Route::put('/api/file-path-settings', [FilePathSettingController::class, 'update'])
         ->name('file-path-settings.update');
 
+    Route::put('/api/file-path-settings/formatting', [FilePathSettingController::class, 'updateFormatting'])
+        ->name('file-path-settings.update-formatting');
+
     // Work Phase Images routes
     Route::get('/api/work-phase-images', [WorkPhaseImageController::class, 'index'])
         ->name('work-phase-images.index');

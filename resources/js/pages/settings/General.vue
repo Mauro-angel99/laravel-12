@@ -31,6 +31,7 @@ const filePathSettings = ref<FilePathSettings>({
     opart_remove_after: null,
 });
 const savingFilePaths = ref(false);
+const savingFormatting = ref(false);
 
 const fetchFilePathSettings = async (): Promise<void> => {
     try {
@@ -133,13 +134,30 @@ const deleteParameterHandler = async (): Promise<void> => {
 const saveFilePathSettings = async (): Promise<void> => {
     savingFilePaths.value = true;
     try {
-        const res = await axios.put('/api/file-path-settings', filePathSettings.value);
+        const res = await axios.put('/api/file-path-settings', { pdf_path: filePathSettings.value.pdf_path });
         showSuccess(res.data.message || 'Percorsi aggiornati');
     } catch (error: any) {
         const errorMessage = error.response?.data?.message || 'Errore durante il salvataggio dei percorsi';
         showError(errorMessage);
     } finally {
         savingFilePaths.value = false;
+    }
+};
+
+const saveFormattingSettings = async (): Promise<void> => {
+    savingFormatting.value = true;
+    try {
+        const res = await axios.put('/api/file-path-settings/formatting', {
+            opart_total_chars: filePathSettings.value.opart_total_chars,
+            opart_remove_before: filePathSettings.value.opart_remove_before,
+            opart_remove_after: filePathSettings.value.opart_remove_after,
+        });
+        showSuccess(res.data.message || 'Formattazione aggiornata');
+    } catch (error: any) {
+        const errorMessage = error.response?.data?.message || 'Errore durante il salvataggio della formattazione';
+        showError(errorMessage);
+    } finally {
+        savingFormatting.value = false;
     }
 };
 
@@ -259,6 +277,7 @@ onMounted(() => {
 
         <div class="mt-4 flex justify-end">
             <button
+                type="button"
                 @click="saveFilePathSettings"
                 :disabled="savingFilePaths"
                 class="px-4 py-2 bg-copam-blue text-white text-sm font-medium rounded-md hover:bg-copam-blue/90 focus:outline-none focus:ring-2 focus:ring-copam-blue disabled:opacity-60 disabled:cursor-not-allowed"
@@ -314,11 +333,12 @@ onMounted(() => {
 
         <div class="mt-4 flex justify-end">
             <button
-                @click="saveFilePathSettings"
-                :disabled="savingFilePaths"
+                type="button"
+                @click.stop="saveFormattingSettings"
+                :disabled="savingFormatting"
                 class="px-4 py-2 bg-copam-blue text-white text-sm font-medium rounded-md hover:bg-copam-blue/90 focus:outline-none focus:ring-2 focus:ring-copam-blue disabled:opacity-60 disabled:cursor-not-allowed"
             >
-                {{ savingFilePaths ? 'Salvataggio...' : 'Salva Formattazione' }}
+                {{ savingFormatting ? 'Salvataggio...' : 'Salva Formattazione' }}
             </button>
         </div>
     </div>
