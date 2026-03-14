@@ -11,7 +11,7 @@ export default defineConfig({
     },
     plugins: [
         laravel({
-            input: ['resources/js/app.ts', 'resources/js/app.js'],
+            input: ['resources/css/app.css', 'resources/js/app.ts', 'resources/js/app.js'],
             ssr: 'resources/js/ssr.ts',
             refresh: true,
             detectTls: false,

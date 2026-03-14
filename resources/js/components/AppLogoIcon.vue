@@ -14,7 +14,7 @@ defineProps<Props>();
 
 <template>
     <img
-        src="/images/copam-metal-logo.png"
+        src="/images/copam-metall-logo.png"
         alt="Copam Metall"
         :class="className"
         v-bind="$attrs"

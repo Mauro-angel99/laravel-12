@@ -1,1 +1,1 @@
-<img src="{{ asset('images/copam-metal-logo.png') }}" alt="Copam Metall" {{ $attributes }} />
+<img src="{{ asset('images/copam-metall-logo.png') }}" alt="Copam Metall" {{ $attributes }} />
