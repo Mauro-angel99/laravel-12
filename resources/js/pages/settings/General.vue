@@ -33,6 +33,11 @@ const filePathSettings = ref<FilePathSettings>({
 const savingFilePaths = ref(false);
 const savingFormatting = ref(false);
 
+// --- Aggiornamento applicazione ---
+const updating = ref(false);
+const updateResult = ref<{ success: boolean; message: string } | null>(null);
+const updateOutput = ref<{ cmd: string; out: string }[]>([]);
+
 const fetchFilePathSettings = async (): Promise<void> => {
     try {
         const res = await axios.get<FilePathSettings>('/api/file-path-settings');
@@ -158,6 +163,25 @@ const saveFormattingSettings = async (): Promise<void> => {
         showError(errorMessage);
     } finally {
         savingFormatting.value = false;
+    }
+};
+
+const runUpdate = async (): Promise<void> => {
+    updating.value = true;
+    updateResult.value = null;
+    updateOutput.value = [];
+    try {
+        const res = await axios.post<{ success: boolean; message: string; output: { cmd: string; out: string }[] }>(
+            '/settings/update'
+        );
+        updateResult.value = { success: res.data.success, message: res.data.message };
+        updateOutput.value = res.data.output ?? [];
+    } catch (error: any) {
+        const msg = error.response?.data?.message || 'Errore durante l\'aggiornamento';
+        updateResult.value = { success: false, message: msg };
+        updateOutput.value = error.response?.data?.output ?? [];
+    } finally {
+        updating.value = false;
     }
 };
 
@@ -340,6 +364,53 @@ onMounted(() => {
             >
                 {{ savingFormatting ? 'Salvataggio...' : 'Salva Formattazione' }}
             </button>
+        </div>
+    </div>
+
+    <!-- Sezione Aggiornamento Applicazione -->
+    <div class="bg-white shadow rounded-lg p-3 mt-6">
+        <div class="mb-3 flex justify-between items-center">
+            <div>
+                <h3 class="text-lg font-medium leading-6 text-gray-900">
+                    Aggiornamento Applicazione
+                </h3>
+                <p class="mt-1 text-xs text-gray-500">
+                    Esegue git pull, npm run build (via container Node), migra il database e pulisce la cache.
+                    Richiede <code class="bg-gray-100 px-1 rounded">HOST_APP_PATH</code> nel <code class="bg-gray-100 px-1 rounded">.env</code> e il Docker socket montato nel container.
+                </p>
+            </div>
+        </div>
+
+        <div class="mt-4 flex items-center gap-4">
+            <button
+                type="button"
+                @click="runUpdate"
+                :disabled="updating"
+                class="px-5 py-2 bg-green-600 text-white text-sm font-semibold rounded-md hover:bg-green-700 focus:outline-none focus:ring-2 focus:ring-green-500 disabled:opacity-60 disabled:cursor-not-allowed flex items-center gap-2"
+            >
+                <svg v-if="updating" class="animate-spin h-4 w-4" fill="none" viewBox="0 0 24 24">
+                    <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                    <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                </svg>
+                <svg v-else class="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
+                </svg>
+                {{ updating ? 'Aggiornamento in corso...' : 'Aggiorna' }}
+            </button>
+            <span v-if="updateResult" :class="updateResult.success ? 'text-green-600' : 'text-red-600'" class="text-sm font-medium">
+                {{ updateResult.message }}
+            </span>
+        </div>
+
+        <!-- Log di output -->
+        <div v-if="updateOutput.length > 0" class="mt-4">
+            <h4 class="text-xs font-bold uppercase tracking-wider text-gray-600 mb-2">Log operazioni</h4>
+            <div class="bg-gray-900 rounded-md p-3 overflow-x-auto max-h-60 overflow-y-auto">
+                <div v-for="(step, i) in updateOutput" :key="i" class="mb-2">
+                    <span class="text-green-400 text-xs font-mono font-bold">$ {{ step.cmd }}</span>
+                    <pre v-if="step.out" class="text-gray-300 text-xs font-mono whitespace-pre-wrap mt-0.5">{{ step.out }}</pre>
+                </div>
+            </div>
         </div>
     </div>
 

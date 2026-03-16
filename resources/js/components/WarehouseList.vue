@@ -184,10 +184,40 @@ const updateWarehouse = async () => {
     closeEditModal()
     showMessageModal('success', 'Successo', res.data.message || 'Elemento aggiornato con successo')
     
-    // Se la modale prodotti è aperta, ricarica solo i prodotti della posizione
+    // Se la modale prodotti è aperta, ricarica i prodotti della NUOVA posizione
+    // (la vecchia potrebbe essere stata eliminata se rimasta vuota)
     if (showProductsModal.value && selectedPosition.value) {
-      const posRes = await axios.get(`/api/warehouse/positions/${selectedPosition.value.id}/products`)
-      selectedProducts.value = posRes.data.products
+      const newPosition = res.data.data?.position
+      const oldPositionId = selectedPosition.value.id
+      const newPositionId = newPosition?.id ?? oldPositionId
+      const positionChanged = newPositionId !== oldPositionId
+
+      if (positionChanged) {
+        // La merce è stata spostata in un'altra posizione:
+        // ricarica i prodotti rimasti nella posizione originale
+        try {
+          const posRes = await axios.get(`/api/warehouse/positions/${oldPositionId}/products`)
+          selectedProducts.value = posRes.data.products
+          // Se la posizione originale è vuota, chiudi la modal
+          if (selectedProducts.value.length === 0) {
+            closeProductsModal()
+          }
+        } catch {
+          // Posizione originale eliminata (era l'ultima merce): chiudi la modal
+          closeProductsModal()
+        }
+      } else {
+        // La posizione non è cambiata, ricarica normalmente
+        try {
+          const posRes = await axios.get(`/api/warehouse/positions/${oldPositionId}/products`)
+          selectedProducts.value = posRes.data.products
+          if (selectedProducts.value.length === 0) {
+            closeProductsModal()
+          }
+        } catch {
+          closeProductsModal()
+        }
+      }
     }
     
     await fetchPositions(currentPage.value)

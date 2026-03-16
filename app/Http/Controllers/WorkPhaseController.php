@@ -283,7 +283,8 @@ class WorkPhaseController extends Controller
 
             // Filtro per date
             if (!empty($dateFrom)) {
-                $dateFromParsed = \DateTime::createFromFormat('d/m/Y', $dateFrom);
+                $dateFromParsed = \DateTime::createFromFormat('Y-m-d', $dateFrom)
+                    ?: \DateTime::createFromFormat('d/m/Y', $dateFrom);
                 if ($dateFromParsed) {
                     $condition = 'CONVERT(DATETIME, f.FLCON, 120) >= CONVERT(DATETIME, ?, 120)';
                     $conditions[] = $condition;
@@ -293,7 +294,8 @@ class WorkPhaseController extends Controller
                 }
             }
             if (!empty($dateTo)) {
-                $dateToParsed = \DateTime::createFromFormat('d/m/Y', $dateTo);
+                $dateToParsed = \DateTime::createFromFormat('Y-m-d', $dateTo)
+                    ?: \DateTime::createFromFormat('d/m/Y', $dateTo);
                 if ($dateToParsed) {
                     $condition = 'CONVERT(DATETIME, f.FLCON, 120) <= CONVERT(DATETIME, ?, 120)';
                     $conditions[] = $condition;
