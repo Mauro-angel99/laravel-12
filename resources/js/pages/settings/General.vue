@@ -375,8 +375,7 @@ onMounted(() => {
                     Aggiornamento Applicazione
                 </h3>
                 <p class="mt-1 text-xs text-gray-500">
-                    Esegue git pull, npm run build (via container Node), migra il database e pulisce la cache.
-                    Richiede <code class="bg-gray-100 px-1 rounded">HOST_APP_PATH</code> nel <code class="bg-gray-100 px-1 rounded">.env</code> e il Docker socket montato nel container.
+                    Scarica automaticamente le ultime modifiche, aggiorna il database e riavvia l'applicazione.
                 </p>
             </div>
         </div>
