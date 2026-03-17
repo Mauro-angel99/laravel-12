@@ -59,16 +59,24 @@ class UpdateController extends Controller
         $nodeAvailable = !empty(shell_exec('which node 2>/dev/null'));
 
         if ($nodeAvailable) {
-            // Rimuove i vecchi file di build per evitare errori EACCES (proprietario diverso)
-            $runCmd('rm -rf ' . escapeshellarg($projectRoot . '/public/build'), true);
+            // Sposta il build corrente come backup, esegui il build, poi rimuovi il backup solo se ok
+            $buildDir  = escapeshellarg($projectRoot . '/public/build');
+            $buildBak  = escapeshellarg($projectRoot . '/public/build_bak');
+            $runCmd("mv {$buildDir} {$buildBak} 2>/dev/null || true", true);
             $runCmd('npm install --prefer-offline');
-            $runCmd('npm run build');
+            $buildOk = $runCmd('npm run build');
+            if ($buildOk) {
+                $runCmd("rm -rf {$buildBak}", true);
+            } else {
+                // Ripristina il backup se il build è fallito
+                $runCmd("rm -rf {$buildDir}; mv {$buildBak} {$buildDir} 2>/dev/null || true", true);
+            }
         } else {
             $hostAppPath = env('HOST_APP_PATH');
             $dockerAvailable = !empty(shell_exec('which docker 2>/dev/null'));
 
             if ($hostAppPath && $dockerAvailable) {
-                $npmCmd = 'docker run --rm -v ' . escapeshellarg($hostAppPath . ':/app') . ' -w /app node:latest sh -c "rm -rf /app/public/build && npm install && npm run build"';
+                $npmCmd = 'docker run --rm -v ' . escapeshellarg($hostAppPath . ':/app') . ' -w /app node:latest sh -c "mv /app/public/build /app/public/build_bak 2>/dev/null; npm install && npm run build && rm -rf /app/public/build_bak || (rm -rf /app/public/build; mv /app/public/build_bak /app/public/build)"';
                 $runCmd($npmCmd);
             } else {
                 $output[] = [
