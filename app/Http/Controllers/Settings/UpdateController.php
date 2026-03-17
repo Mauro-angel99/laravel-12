@@ -32,10 +32,13 @@ class UpdateController extends Controller
             return true;
         };
 
-        // 1. Git stash (ignora errori: potrebbe non esserci nulla da salvare)
+        // 1. Fix safe.directory (necessario quando la cartella è montata via Docker volume)
+        $runCmd('git config --global --add safe.directory ' . escapeshellarg($projectRoot), true);
+
+        // 3. Git stash (ignora errori: potrebbe non esserci nulla da salvare)
         $runCmd('git stash', true);
 
-        // 2. Git pull
+        // 4. Git pull
         if (!$runCmd('git pull')) {
             return response()->json([
                 'success' => false,
@@ -45,10 +48,10 @@ class UpdateController extends Controller
             ], 500);
         }
 
-        // 3. Git stash pop (ignora errori: stash potrebbe essere vuoto)
+        // 5. Git stash pop (ignora errori: stash potrebbe essere vuoto)
         $runCmd('git stash pop', true);
 
-        // 4. npm build — tramite container Node dedicato (come: docker run --rm -v HOST_PATH:/app node:latest ...)
+        // 6. npm build — tramite container Node dedicato (come: docker run --rm -v HOST_PATH:/app node:latest ...)
         $hostAppPath = env('HOST_APP_PATH');
         $dockerAvailable = !empty(shell_exec('which docker 2>/dev/null'));
 
