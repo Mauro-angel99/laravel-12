@@ -20,9 +20,12 @@ class UpdateController extends Controller
 
         $projectRoot = base_path();
 
+        // www-data non ha home scrivibile: usiamo /tmp come HOME per git
+        putenv('HOME=/tmp');
+
         // Helper: esegue un comando shell, raccoglie output e codice di uscita
         $runCmd = function (string $cmd, bool $ignoreError = false) use ($projectRoot, &$output, &$errors): bool {
-            $fullCmd = 'cd ' . escapeshellarg($projectRoot) . ' && ' . $cmd . ' 2>&1';
+            $fullCmd = 'cd ' . escapeshellarg($projectRoot) . ' && HOME=/tmp ' . $cmd . ' 2>&1';
             exec($fullCmd, $lines, $exitCode);
             $output[] = ['cmd' => $cmd, 'out' => implode("\n", $lines)];
             if ($exitCode !== 0 && !$ignoreError) {
@@ -34,6 +37,7 @@ class UpdateController extends Controller
 
         // 1. Fix safe.directory (necessario quando la cartella è montata via Docker volume)
         $runCmd('git config --global --add safe.directory ' . escapeshellarg($projectRoot), true);
+        $runCmd('git config --global --add safe.directory \*', true);
 
         // 3. Git stash (ignora errori: potrebbe non esserci nulla da salvare)
         $runCmd('git stash', true);
