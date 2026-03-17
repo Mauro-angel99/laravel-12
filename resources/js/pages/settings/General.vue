@@ -37,6 +37,7 @@ const savingFormatting = ref(false);
 const updating = ref(false);
 const updateResult = ref<{ success: boolean; message: string } | null>(null);
 const updateOutput = ref<{ cmd: string; out: string }[]>([]);
+const reloadPage = () => window.location.reload();
 
 const fetchFilePathSettings = async (): Promise<void> => {
     try {
@@ -399,6 +400,17 @@ onMounted(() => {
             <span v-if="updateResult" :class="updateResult.success ? 'text-green-600' : 'text-red-600'" class="text-sm font-medium">
                 {{ updateResult.message }}
             </span>
+        </div>
+
+        <!-- Nota ricarica pagina -->
+        <div v-if="updateResult?.success" class="mt-4 flex items-center gap-2 rounded-md bg-green-50 border border-green-200 px-4 py-3">
+            <svg class="h-5 w-5 text-green-500 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
+            </svg>
+            <span class="text-sm text-green-800 font-medium">Aggiornamento completato, ricaricare la pagina.</span>
+            <button @click="reloadPage" class="ml-auto px-3 py-1 bg-green-600 text-white text-xs font-semibold rounded-md hover:bg-green-700">
+                Ricarica
+            </button>
         </div>
 
         <!-- Log di output -->
