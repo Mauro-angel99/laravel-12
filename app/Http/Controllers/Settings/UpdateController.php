@@ -55,28 +55,27 @@ class UpdateController extends Controller
         // 5. Git stash pop (ignora errori: stash potrebbe essere vuoto)
         $runCmd('git stash pop', true);
 
-        // 6. npm build — tramite container Node dedicato (come: docker run --rm -v HOST_PATH:/app node:latest ...)
-        $hostAppPath = env('HOST_APP_PATH');
-        $dockerAvailable = !empty(shell_exec('which docker 2>/dev/null'));
+        // 6. npm build — prova Node direttamente nel container, altrimenti usa Docker
+        $nodeAvailable = !empty(shell_exec('which node 2>/dev/null'));
 
-        if ($hostAppPath && $dockerAvailable) {
-            // Stesso comando usato manualmente dall'host
-            $npmCmd = 'docker run --rm -v ' . escapeshellarg($hostAppPath . ':/app') . ' -w /app node:latest sh -c "npm install && npm run build"';
-            $runCmd($npmCmd);
-        } elseif (!$dockerAvailable) {
-            $output[] = [
-                'cmd' => 'npm run build',
-                'out' => 'SKIP — Docker CLI non disponibile nel container. '
-                    . 'Aggiungi al docker-compose.yml sotto il servizio app: '
-                    . 'volumes: [/var/run/docker.sock:/var/run/docker.sock] '
-                    . 'e installa docker-cli nel Dockerfile.',
-            ];
+        if ($nodeAvailable) {
+            $runCmd('npm install --prefer-offline');
+            $runCmd('npm run build');
         } else {
-            $output[] = [
-                'cmd' => 'npm run build',
-                'out' => 'SKIP — HOST_APP_PATH non impostato nel file .env. '
-                    . 'Aggiungi: HOST_APP_PATH=C:/prod/src',
-            ];
+            $hostAppPath = env('HOST_APP_PATH');
+            $dockerAvailable = !empty(shell_exec('which docker 2>/dev/null'));
+
+            if ($hostAppPath && $dockerAvailable) {
+                $npmCmd = 'docker run --rm -v ' . escapeshellarg($hostAppPath . ':/app') . ' -w /app node:latest sh -c "npm install && npm run build"';
+                $runCmd($npmCmd);
+            } else {
+                $output[] = [
+                    'cmd' => 'npm run build',
+                    'out' => 'SKIP — Node.js non disponibile nel container. '
+                        . 'Aggiungi nel Dockerfile: RUN apt-get install -y nodejs npm '
+                        . 'oppure usa nvm per installare Node.',
+                ];
+            }
         }
 
         // 5. Artisan migrate
@@ -87,7 +86,7 @@ class UpdateController extends Controller
         Artisan::call('optimize:clear');
         $output[] = ['cmd' => 'artisan optimize:clear', 'out' => trim(Artisan::output())];
 
-        $npmDone = $hostAppPath && $dockerAvailable;
+        $npmDone = $nodeAvailable || (!empty(env('HOST_APP_PATH')) && !empty(shell_exec('which docker 2>/dev/null')));
         $message = $npmDone
             ? 'Aggiornamento completato (git pull + npm run build + migrate + cache clear).'
             : 'Aggiornamento parziale completato. npm run build saltato: controlla il log per i dettagli.';
