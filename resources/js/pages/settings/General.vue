@@ -397,20 +397,24 @@ onMounted(() => {
                 </svg>
                 {{ updating ? 'Aggiornamento in corso...' : 'Aggiorna' }}
             </button>
+
+            <!-- Successo: messaggio + pulsante ricarica inline -->
+            <template v-if="updateResult?.success">
+                <span class="flex items-center gap-1.5 text-sm text-green-700 font-medium">
+                    <svg class="h-4 w-4 text-green-500 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
+                    </svg>
+                    Aggiornamento completato, ricaricare la pagina.
+                </span>
+                <button @click="reloadPage" class="px-3 py-1.5 bg-green-600 text-white text-xs font-semibold rounded-md hover:bg-green-700">
+                    Ricarica
+                </button>
+            </template>
+
+            <!-- Errore -->
             <span v-if="updateResult && !updateResult.success" class="text-red-600 text-sm font-medium">
                 {{ updateResult.message }}
             </span>
-        </div>
-
-        <!-- Nota ricarica pagina -->
-        <div v-if="updateResult?.success" class="mt-4 flex items-center gap-2 rounded-md bg-green-50 border border-green-200 px-4 py-3">
-            <svg class="h-5 w-5 text-green-500 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
-            </svg>
-            <span class="text-sm text-green-800 font-medium">Aggiornamento completato, ricaricare la pagina.</span>
-            <button @click="reloadPage" class="ml-auto px-3 py-1 bg-green-600 text-white text-xs font-semibold rounded-md hover:bg-green-700">
-                Ricarica
-            </button>
         </div>
 
         <!-- Log di output -->
