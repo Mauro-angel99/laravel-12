@@ -397,7 +397,7 @@ onMounted(() => {
                 </svg>
                 {{ updating ? 'Aggiornamento in corso...' : 'Aggiorna' }}
             </button>
-            <span v-if="updateResult" :class="updateResult.success ? 'text-green-600' : 'text-red-600'" class="text-sm font-medium">
+            <span v-if="updateResult && !updateResult.success" class="text-red-600 text-sm font-medium">
                 {{ updateResult.message }}
             </span>
         </div>
