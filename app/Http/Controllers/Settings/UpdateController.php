@@ -59,6 +59,8 @@ class UpdateController extends Controller
         $nodeAvailable = !empty(shell_exec('which node 2>/dev/null'));
 
         if ($nodeAvailable) {
+            // Rimuove i vecchi file di build per evitare errori EACCES (proprietario diverso)
+            $runCmd('rm -rf ' . escapeshellarg($projectRoot . '/public/build'), true);
             $runCmd('npm install --prefer-offline');
             $runCmd('npm run build');
         } else {
@@ -66,7 +68,7 @@ class UpdateController extends Controller
             $dockerAvailable = !empty(shell_exec('which docker 2>/dev/null'));
 
             if ($hostAppPath && $dockerAvailable) {
-                $npmCmd = 'docker run --rm -v ' . escapeshellarg($hostAppPath . ':/app') . ' -w /app node:latest sh -c "npm install && npm run build"';
+                $npmCmd = 'docker run --rm -v ' . escapeshellarg($hostAppPath . ':/app') . ' -w /app node:latest sh -c "rm -rf /app/public/build && npm install && npm run build"';
                 $runCmd($npmCmd);
             } else {
                 $output[] = [
