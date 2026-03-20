@@ -13,15 +13,16 @@
             <h3 class="text-base font-semibold text-white" id="modal-title">Dettagli Fase di Lavoro</h3>
             <p class="text-xs text-blue-200 mt-0.5">ID: {{ phase?.RECORD_ID }}</p>
           </div>
-          <div class="flex items-center gap-2">
-            <label class="text-xs font-medium text-blue-100 cursor-pointer select-none">Seleziona</label>
-            <input
-              type="checkbox"
-              :checked="modelValue.includes(phase?.RECORD_ID)"
-              @change="toggleSelection(phase?.RECORD_ID)"
-              class="w-4 h-4 rounded border-white text-copam-blue focus:ring-white cursor-pointer"
-            />
-          </div>
+          <button
+            type="button"
+            class="text-blue-200 hover:text-white transition-colors"
+            @click="close"
+            aria-label="Chiudi"
+          >
+            <svg class="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+            </svg>
+          </button>
         </div>
 
         <!-- Body -->
@@ -92,25 +93,19 @@
             </div>
           </div>
 
-          <!-- Sezione Lavorazioni Successive -->
-          <div>
-            <p class="text-[10px] font-bold uppercase tracking-widest text-gray-700 mb-2">Lavorazioni Successive</p>
-            <div class="grid grid-cols-2 gap-3">
-              <div class="bg-gray-50 rounded-lg px-4 py-3">
-                <p class="text-[10px] font-semibold uppercase tracking-wider text-gray-700">Lav. Successiva</p>
-                <p class="text-sm font-semibold text-gray-800 mt-0.5">{{ phase?.LAV_SUCC || '—' }}</p>
-              </div>
-              <div class="bg-gray-50 rounded-lg px-4 py-3">
-                <p class="text-[10px] font-semibold uppercase tracking-wider text-gray-700">Lav. Succ. Ass.</p>
-                <p class="text-sm font-semibold text-gray-800 mt-0.5">{{ phase?.LAV_SUCC_ASS || '—' }}</p>
-              </div>
-            </div>
-          </div>
-
         </div>
 
         <!-- Footer -->
-        <div class="border-t border-gray-100 px-6 py-3 flex justify-end bg-gray-50">
+        <div class="border-t border-gray-100 px-6 py-3 flex justify-between items-center bg-gray-50">
+          <label class="flex items-center gap-2 cursor-pointer select-none">
+            <input
+              type="checkbox"
+              :checked="modelValue.includes(phase?.RECORD_ID)"
+              @change="toggleSelection(phase?.RECORD_ID)"
+              class="w-4 h-4 rounded border-gray-300 text-copam-blue focus:ring-copam-blue cursor-pointer"
+            />
+            <span class="text-sm font-medium text-gray-700">Seleziona</span>
+          </label>
           <button
             type="button"
             class="px-5 py-2 rounded-lg text-sm font-medium text-gray-700 bg-white border border-gray-300 hover:bg-gray-100 transition-colors shadow-sm"

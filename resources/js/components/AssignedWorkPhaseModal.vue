@@ -173,23 +173,6 @@
                     </div>
                   </div>
 
-                  <!-- Sezione: Lavorazioni Successive -->
-                  <div class="bg-white border border-gray-200 rounded-xl shadow-sm overflow-hidden">
-                    <div class="bg-gray-50 px-4 py-2 border-b border-gray-200">
-                      <h4 class="text-xs font-semibold text-gray-700 uppercase tracking-wider">Lavorazioni Successive</h4>
-                    </div>
-                    <div class="grid grid-cols-2 gap-px bg-gray-100">
-                      <div class="bg-white px-4 py-3">
-                        <p class="text-xs text-gray-700 uppercase tracking-wide">LAV_SUCC</p>
-                        <p class="mt-0.5 text-sm font-medium text-gray-800">{{ assignment?.work_phase?.LAV_SUCC || '&mdash;' }}</p>
-                      </div>
-                      <div class="bg-white px-4 py-3">
-                        <p class="text-xs text-gray-700 uppercase tracking-wide">LAV_SUCC_ASS</p>
-                        <p class="mt-0.5 text-sm font-medium text-gray-800">{{ assignment?.work_phase?.LAV_SUCC_ASS || '&mdash;' }}</p>
-                      </div>
-                    </div>
-                  </div>
-
                   <!-- Sezione: Assegnazione -->
                   <div class="bg-white border border-gray-200 rounded-xl shadow-sm overflow-hidden">
                     <div class="bg-gray-50 px-4 py-2 border-b border-gray-200">
@@ -475,8 +458,8 @@
           </div>
         <!-- Modal Footer -->
         <div class="bg-gray-50 border-t border-gray-200 px-6 py-3 flex justify-end">
-          <button 
-            type="button" 
+          <button
+            type="button"
             class="inline-flex items-center gap-2 rounded-lg border border-gray-300 shadow-sm px-4 py-2 bg-white text-sm font-medium text-gray-700 hover:bg-gray-100 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-copam-blue transition-colors"
             @click="close"
           >
