@@ -12,6 +12,7 @@ use App\Http\Controllers\FilePathSettingController;
 use App\Http\Controllers\WorkPhaseImageController;
 use App\Http\Controllers\NonConformityController;
 use App\Http\Controllers\WorkParameterController;
+use App\Http\Controllers\WorkPhasePdfController;
 use App\Http\Controllers\UserController as ApiUserController;
 
 Route::middleware(['auth', 'role:admin'])->group(function () {
@@ -142,6 +143,9 @@ Route::middleware('auth')->group(function () {
     // Work Phase Images routes
     Route::get('/api/work-phase-images', [WorkPhaseImageController::class, 'index'])
         ->name('work-phase-images.index');
+
+    Route::get('/api/work-phase-pdf', [WorkPhasePdfController::class, 'show'])
+        ->name('work-phase-pdf.show');
 
     Route::post('/api/work-phase-images', [WorkPhaseImageController::class, 'store'])
         ->name('work-phase-images.store');

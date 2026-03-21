@@ -265,6 +265,44 @@ onMounted(() => {
                 </div>
     </div>
 
+    <div class="bg-white shadow rounded-lg p-3 mt-6">
+        <div class="mb-3 flex justify-between items-center">
+            <div>
+                <h3 class="text-lg font-medium leading-6 text-gray-900">
+                    Percorso PDF
+                </h3>
+                <p class="mt-1 text-xs text-gray-500">
+                    Imposta la cartella che contiene i PDF articoli. Su Windows conviene usare il percorso UNC invece della sola unità mappata.
+                </p>
+            </div>
+        </div>
+
+        <label class="block text-xs font-bold uppercase tracking-wider text-gray-700 mb-1">
+            Cartella PDF articoli
+        </label>
+        <input
+            v-model="filePathSettings.pdf_path"
+            type="text"
+            placeholder="\\\\FILESERVER\\Ufficio_Tecnico\\Archivio Tecnico\\Articoli"
+            class="w-full px-3 py-2 text-xs border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-copam-blue focus:border-copam-blue"
+        />
+
+        <div class="mt-2 text-xs text-gray-500">
+            Esempio: Y:\Articoli oppure \\FILESERVER\Ufficio_Tecnico\Archivio Tecnico\Articoli
+        </div>
+
+        <div class="mt-4 flex justify-end">
+            <button
+                type="button"
+                @click.stop="saveFilePathSettings"
+                :disabled="savingFilePaths"
+                class="px-4 py-2 bg-copam-blue text-white text-sm font-medium rounded-md hover:bg-copam-blue/90 focus:outline-none focus:ring-2 focus:ring-copam-blue disabled:opacity-60 disabled:cursor-not-allowed"
+            >
+                {{ savingFilePaths ? 'Salvataggio...' : 'Salva Percorso PDF' }}
+            </button>
+        </div>
+    </div>
+
     <!-- Blocco Formattazione Codice Ord. Prod. -->
     <div class="bg-white shadow rounded-lg p-3 mt-6">
         <div class="mb-3 flex justify-between items-center">

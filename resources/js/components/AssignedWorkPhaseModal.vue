@@ -852,15 +852,20 @@ const saveParameters = async () => {
 
 // PDF management functions
 // PDF management functions
-const pdfUrl = ref(null);
+const pdfUrl = ref<string | null>(null);
 const loadingPdf = ref(false);
 
-const checkPdf = async () => {
+const buildPdfUrl = () => {
   const artCode = props.assignment?.work_phase?.OPART;
-  if (!artCode) { pdfUrl.value = null; return; }
+  if (!artCode) return null;
+  return `/api/work-phase-pdf?opart=${encodeURIComponent(artCode)}`;
+};
+
+const checkPdf = async () => {
+  const url = buildPdfUrl();
+  if (!url) { pdfUrl.value = null; return; }
   loadingPdf.value = true;
   try {
-    const url = `/articoli/${encodeURIComponent(artCode)}.pdf`;
     const response = await fetch(url, { method: 'HEAD' });
     pdfUrl.value = response.ok ? url : null;
   } catch {
