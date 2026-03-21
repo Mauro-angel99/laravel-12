@@ -9,7 +9,7 @@ use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
-use Symfony\Component\HttpFoundation\BinaryFileResponse;
+use Symfony\Component\HttpFoundation\StreamedResponse;
 
 class FilePathSettingController extends Controller
 {
@@ -125,7 +125,7 @@ class FilePathSettingController extends Controller
     /**
      * Serve a PDF file from the configured pdf_path.
      */
-    public function servePdf(Request $request): BinaryFileResponse|JsonResponse
+    public function servePdf(Request $request): StreamedResponse|JsonResponse
     {
         $opart = $request->query('opart', '');
 
@@ -134,19 +134,22 @@ class FilePathSettingController extends Controller
             return response()->json(['error' => 'Codice articolo non valido'], 400);
         }
 
-        $setting = FilePathSetting::first();
+        $fileUrl = 'http://host.docker.internal:8082/' . urlencode($opart) . '.pdf';
 
-        if (!$setting || empty($setting->pdf_path)) {
-            return response()->json(['error' => 'Percorso PDF non configurato'], 404);
-        }
+        $ch = curl_init($fileUrl);
+        curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
+        curl_setopt($ch, CURLOPT_FOLLOWLOCATION, true);
+        $pdfContent = curl_exec($ch);
+        $httpCode = curl_getinfo($ch, CURLINFO_HTTP_CODE);
+        curl_close($ch);
 
-        $pdfPath = rtrim($setting->pdf_path, '/\\') . DIRECTORY_SEPARATOR . $opart . '.pdf';
-
-        if (!file_exists($pdfPath)) {
+        if ($httpCode !== 200 || !$pdfContent) {
             return response()->json(['error' => 'PDF non trovato'], 404);
         }
 
-        return response()->file($pdfPath, [
+        return response()->stream(function () use ($pdfContent) {
+            echo $pdfContent;
+        }, 200, [
             'Content-Type' => 'application/pdf',
             'Content-Disposition' => 'inline; filename="' . $opart . '.pdf"',
         ]);
