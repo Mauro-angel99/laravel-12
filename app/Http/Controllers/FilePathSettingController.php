@@ -140,17 +140,9 @@ class FilePathSettingController extends Controller
             return response()->json(['error' => 'Percorso PDF non configurato'], 404);
         }
 
-        $basePath = rtrim($setting->pdf_path, '/\\') . DIRECTORY_SEPARATOR;
+        $pdfPath = rtrim($setting->pdf_path, '/\\') . DIRECTORY_SEPARATOR . $opart . '.pdf';
 
-        // I file sul fileserver hanno un punto iniziale: .CODICE.pdf
-        $pdfPathDot = $basePath . '.' . $opart . '.pdf';
-        $pdfPathNoDot = $basePath . $opart . '.pdf';
-
-        if (file_exists($pdfPathDot)) {
-            $pdfPath = $pdfPathDot;
-        } elseif (file_exists($pdfPathNoDot)) {
-            $pdfPath = $pdfPathNoDot;
-        } else {
+        if (!file_exists($pdfPath)) {
             return response()->json(['error' => 'PDF non trovato'], 404);
         }
 
