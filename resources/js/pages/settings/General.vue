@@ -265,53 +265,6 @@ onMounted(() => {
                 </div>
     </div>
 
-    <div class="bg-white shadow rounded-lg p-3 mt-6">
-        <div class="mb-3 flex justify-between items-center">
-            <h3 class="text-lg font-medium leading-6 text-gray-900">
-                Percorsi
-            </h3>
-        </div>
-
-        <div class="overflow-x-auto">
-            <table class="w-full">
-                <thead class="bg-gray-50">
-                    <tr class="border-b border-gray-200">
-                        <th class="px-3 py-2 text-left text-xs font-bold uppercase tracking-wider">Tipo</th>
-                        <th class="px-3 py-2 text-left text-xs font-bold uppercase tracking-wider">Percorso</th>
-                    </tr>
-                </thead>
-                <tbody class="bg-white">
-                    <tr class="border-b border-gray-200">
-                        <td class="px-3 py-2 whitespace-nowrap text-xs text-gray-900">PDF</td>
-                        <td class="px-3 py-2">
-                            <input
-                                v-model="filePathSettings.pdf_path"
-                                type="text"
-                                placeholder="Es. \\SERVER\\Documenti\\PDF"
-                                class="w-full px-3 py-2 text-xs border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-copam-blue focus:border-copam-blue"
-                            />
-                        </td>
-                    </tr>
-                </tbody>
-            </table>
-        </div>
-
-        <p class="mt-2 text-xs text-gray-500">
-            Inserisci il percorso della cartella condivisa sul server locale.
-        </p>
-
-        <div class="mt-4 flex justify-end">
-            <button
-                type="button"
-                @click="saveFilePathSettings"
-                :disabled="savingFilePaths"
-                class="px-4 py-2 bg-copam-blue text-white text-sm font-medium rounded-md hover:bg-copam-blue/90 focus:outline-none focus:ring-2 focus:ring-copam-blue disabled:opacity-60 disabled:cursor-not-allowed"
-            >
-                {{ savingFilePaths ? 'Salvataggio...' : 'Salva Percorsi' }}
-            </button>
-        </div>
-    </div>
-
     <!-- Blocco Formattazione Codice Ord. Prod. -->
     <div class="bg-white shadow rounded-lg p-3 mt-6">
         <div class="mb-3 flex justify-between items-center">
