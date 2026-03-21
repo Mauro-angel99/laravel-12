@@ -287,10 +287,6 @@ onMounted(() => {
             class="w-full px-3 py-2 text-xs border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-copam-blue focus:border-copam-blue"
         />
 
-        <div class="mt-2 text-xs text-gray-500">
-            Esempio: Y:\Articoli oppure \\FILESERVER\Ufficio_Tecnico\Archivio Tecnico\Articoli
-        </div>
-
         <div class="mt-4 flex justify-end">
             <button
                 type="button"
