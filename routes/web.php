@@ -139,6 +139,9 @@ Route::middleware('auth')->group(function () {
     Route::put('/api/file-path-settings/formatting', [FilePathSettingController::class, 'updateFormatting'])
         ->name('file-path-settings.update-formatting');
 
+    Route::get('/api/pdf', [FilePathSettingController::class, 'servePdf'])
+        ->name('file-path-settings.serve-pdf');
+
     // Work Phase Images routes
     Route::get('/api/work-phase-images', [WorkPhaseImageController::class, 'index'])
         ->name('work-phase-images.index');

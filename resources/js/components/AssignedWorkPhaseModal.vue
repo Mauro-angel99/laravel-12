@@ -876,14 +876,10 @@ const checkPdf = async () => {
   
   loadingPdf.value = true;
   try {
-    // Cerca il PDF nella cartella storage/app/public/work_phase_pdfs con nome = OPART.pdf
-    const pdfPath = `/storage/work_phase_pdfs/${artCode}.pdf`;
-    
-    // Verifica se il file esiste facendo una HEAD request
-    const response = await fetch(pdfPath, { method: 'HEAD' });
+    const response = await fetch(`/api/pdf?opart=${encodeURIComponent(artCode)}`, { method: 'HEAD' });
     
     if (response.ok) {
-      pdfUrl.value = pdfPath;
+      pdfUrl.value = `/api/pdf?opart=${encodeURIComponent(artCode)}`;
     } else {
       pdfUrl.value = null;
     }

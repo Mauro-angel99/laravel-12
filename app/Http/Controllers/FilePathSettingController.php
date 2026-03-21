@@ -9,6 +9,7 @@ use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
+use Symfony\Component\HttpFoundation\BinaryFileResponse;
 
 class FilePathSettingController extends Controller
 {
@@ -119,5 +120,35 @@ class FilePathSettingController extends Controller
                 'error' => 'Errore durante l\'aggiornamento della formattazione'
             ], 500);
         }
+    }
+
+    /**
+     * Serve a PDF file from the configured pdf_path.
+     */
+    public function servePdf(Request $request): BinaryFileResponse|JsonResponse
+    {
+        $opart = $request->query('opart', '');
+
+        // Prevent path traversal attacks - only allow safe filename characters
+        if (!preg_match('/^[a-zA-Z0-9_\-\.]+$/', $opart)) {
+            return response()->json(['error' => 'Codice articolo non valido'], 400);
+        }
+
+        $setting = FilePathSetting::first();
+
+        if (!$setting || empty($setting->pdf_path)) {
+            return response()->json(['error' => 'Percorso PDF non configurato'], 404);
+        }
+
+        $pdfPath = rtrim($setting->pdf_path, '/\\') . DIRECTORY_SEPARATOR . $opart . '.pdf';
+
+        if (!file_exists($pdfPath)) {
+            return response()->json(['error' => 'PDF non trovato'], 404);
+        }
+
+        return response()->file($pdfPath, [
+            'Content-Type' => 'application/pdf',
+            'Content-Disposition' => 'inline; filename="' . $opart . '.pdf"',
+        ]);
     }
 }
