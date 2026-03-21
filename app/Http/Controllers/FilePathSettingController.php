@@ -9,7 +9,6 @@ use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
-use Symfony\Component\HttpFoundation\StreamedResponse;
 
 class FilePathSettingController extends Controller
 {
@@ -120,38 +119,5 @@ class FilePathSettingController extends Controller
                 'error' => 'Errore durante l\'aggiornamento della formattazione'
             ], 500);
         }
-    }
-
-    /**
-     * Serve a PDF file from the configured pdf_path.
-     */
-    public function servePdf(Request $request): StreamedResponse|JsonResponse
-    {
-        $opart = $request->query('opart', '');
-
-        // Prevent path traversal attacks - only allow safe filename characters
-        if (!preg_match('/^[a-zA-Z0-9_\-\.]+$/', $opart)) {
-            return response()->json(['error' => 'Codice articolo non valido'], 400);
-        }
-
-        $fileUrl = 'http://host.docker.internal:8083/' . urlencode($opart) . '.pdf';
-
-        $ch = curl_init($fileUrl);
-        curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
-        curl_setopt($ch, CURLOPT_FOLLOWLOCATION, true);
-        $pdfContent = curl_exec($ch);
-        $httpCode = curl_getinfo($ch, CURLINFO_HTTP_CODE);
-        curl_close($ch);
-
-        if ($httpCode !== 200 || !$pdfContent) {
-            return response()->json(['error' => 'PDF non trovato'], 404);
-        }
-
-        return response()->stream(function () use ($pdfContent) {
-            echo $pdfContent;
-        }, 200, [
-            'Content-Type' => 'application/pdf',
-            'Content-Disposition' => 'inline; filename="' . $opart . '.pdf"',
-        ]);
     }
 }
