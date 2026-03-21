@@ -134,7 +134,7 @@ class FilePathSettingController extends Controller
             return response()->json(['error' => 'Codice articolo non valido'], 400);
         }
 
-        $fileUrl = 'http://host.docker.internal:8082/' . urlencode($opart) . '.pdf';
+        $fileUrl = 'http://host.docker.internal:8083/' . urlencode($opart) . '.pdf';
 
         $ch = curl_init($fileUrl);
         curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
