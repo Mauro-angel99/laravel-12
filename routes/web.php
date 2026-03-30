@@ -64,6 +64,10 @@ Route::middleware('auth')->group(function () {
     Route::get('/api/assigned-work-phases', [WorkPhaseAssignmentController::class, 'list'])
         ->name('assigned-work-phases.list');
 
+    // API per rimuovere un'assegnazione
+    Route::delete('/api/work-phase-assignments/{id}', [WorkPhaseAssignmentController::class, 'destroy'])
+        ->name('work-phase-assignments.destroy');
+
     // API per aggiornare i parametri di una lavorazione
     Route::put('/api/work-phase-assignments/{id}/parameters', [WorkPhaseAssignmentController::class, 'updateParameters'])
         ->name('work-phase-assignments.update-parameters');

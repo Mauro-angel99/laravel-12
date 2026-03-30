@@ -205,6 +205,10 @@ class WorkPhaseController extends Controller
             $params = [];
             $conditions = [];
 
+            // Mostra solo le lavorazioni attive
+            $conditions[] = 'f.FLACT = 1';
+            $countConditions[] = 'f.FLACT = 1';
+
             // Filtro per ricerca testuale
             if (!empty($search)) {
                 $condition = '(f.FLDES LIKE ? OR f.FLASS LIKE ?)';

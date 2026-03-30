@@ -19,6 +19,8 @@ const searchDtras = ref('')
 const searchDtric = ref('')
 const searchDtnum = ref('')
 const searchIdopr = ref('')
+const showOnlyWorked = ref(true)
+const showOnlyAvailable = ref(true)
 const dateFrom = ref('')
 const dateTo = ref('')
 const dateFromPicker = ref(null)
@@ -39,7 +41,7 @@ const pagination = ref({
   has_more_pages: false
 })
 
-const fetchAssignedWorkPhases = async (fllav = '', dtras = '', dtric = '', dtnum = '', idopr = '', fromDate = '', toDate = '', page = 1) => {
+const fetchAssignedWorkPhases = async (fllav = '', dtras = '', dtric = '', dtnum = '', idopr = '', fromDate = '', toDate = '', onlyWorked = false, onlyAvailable = false, page = 1) => {
   loading.value = true
   try {
     const params = {
@@ -52,6 +54,8 @@ const fetchAssignedWorkPhases = async (fllav = '', dtras = '', dtric = '', dtnum
     if (idopr) params.idopr = idopr
     if (fromDate) params.date_from = fromDate
     if (toDate) params.date_to = toDate
+    if (onlyWorked) params.only_worked = '1'
+    if (onlyAvailable) params.only_available = '1'
     
     const res = await axios.get('/api/assigned-work-phases', { params })
     assignedWorkPhases.value = res.data.data
@@ -66,7 +70,7 @@ const fetchAssignedWorkPhases = async (fllav = '', dtras = '', dtric = '', dtnum
 
 const applyFilters = () => {
   currentPage.value = 1
-  fetchAssignedWorkPhases(searchFllav.value, searchDtras.value, searchDtric.value, searchDtnum.value, searchIdopr.value, dateFrom.value, dateTo.value, 1)
+  fetchAssignedWorkPhases(searchFllav.value, searchDtras.value, searchDtric.value, searchDtnum.value, searchIdopr.value, dateFrom.value, dateTo.value, showOnlyWorked.value, showOnlyAvailable.value, 1)
 }
 
 const clearAllFilters = () => {
@@ -75,6 +79,8 @@ const clearAllFilters = () => {
   searchDtric.value = ''
   searchDtnum.value = ''
   searchIdopr.value = ''
+  showOnlyWorked.value = false
+  showOnlyAvailable.value = false
   dateFrom.value = ''
   dateTo.value = ''
   if (dateFromInstance.value) dateFromInstance.value.clear()
@@ -100,9 +106,13 @@ watch([dateFrom, dateTo], () => {
   }, 300)
 })
 
+// Watcher per i toggle senza debounce
+watch(showOnlyWorked, () => { applyFilters() })
+watch(showOnlyAvailable, () => { applyFilters() })
+
 const goToPage = (page) => {
   if (page >= 1 && page <= pagination.value.last_page) {
-    fetchAssignedWorkPhases(searchFllav.value, searchDtras.value, searchDtric.value, searchDtnum.value, searchIdopr.value, dateFrom.value, dateTo.value, page)
+    fetchAssignedWorkPhases(searchFllav.value, searchDtras.value, searchDtric.value, searchDtnum.value, searchIdopr.value, dateFrom.value, dateTo.value, showOnlyWorked.value, showOnlyAvailable.value, page)
   }
 }
 
@@ -113,6 +123,40 @@ const formatDate = (dateString) => {
   const month = (date.getMonth() + 1).toString().padStart(2, '0');
   const year = date.getFullYear();
   return `${day}/${month}/${year}`;
+}
+
+const confirmModal = ref({
+  show: false,
+  title: '',
+  message: '',
+  onConfirm: null
+})
+
+const showConfirmModal = (title, message, onConfirm) => {
+  confirmModal.value = {
+    show: true,
+    title,
+    message,
+    onConfirm: () => {
+      confirmModal.value.show = false
+      onConfirm()
+    }
+  }
+}
+
+const removeAssignment = async (assignment) => {
+  showConfirmModal(
+    'Rimuovi lavorazione assegnata',
+    'Sei sicuro di voler rimuovere questa assegnazione? L\'operazione non può essere annullata.',
+    async () => {
+      try {
+        await axios.delete(`/api/work-phase-assignments/${assignment.id}`)
+        await fetchAssignedWorkPhases(searchFllav.value, searchDtras.value, searchDtric.value, searchDtnum.value, searchIdopr.value, dateFrom.value, dateTo.value, currentPage.value)
+      } catch (error) {
+        console.error(error)
+      }
+    }
+  )
 }
 
 const openModal = (assignment) => {
@@ -166,7 +210,7 @@ onMounted(async () => {
           <span class="text-sm font-semibold text-white">Filtri di ricerca</span>
         </div>
         <button
-          v-if="searchFllav || searchDtras || searchDtric || searchDtnum || searchIdopr || dateFrom || dateTo"
+          v-if="searchFllav || searchDtras || searchDtric || searchDtnum || searchIdopr || showOnlyWorked || showOnlyAvailable || dateFrom || dateTo"
           @click="clearAllFilters"
           class="inline-flex items-center gap-1 text-xs text-blue-100 hover:text-white transition-colors"
         >
@@ -217,11 +261,27 @@ onMounted(async () => {
         </div>
 
         <!-- Riga 3 -->
-        <div class="grid grid-cols-1 md:grid-cols-3 gap-3">
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-3 items-end">
           <div>
             <label class="block text-[10px] font-bold uppercase tracking-wider text-gray-700 mb-1">Ord. Prod.</label>
             <input type="text" v-model="searchIdopr"
               class="w-full px-3 py-1.5 border border-gray-300 rounded-lg text-xs focus:ring-2 focus:ring-copam-blue focus:border-copam-blue" />
+          </div>
+          <div class="flex items-center gap-6 pb-0.5">
+            <label class="inline-flex items-center cursor-pointer gap-2">
+              <div class="relative">
+                <input type="checkbox" v-model="showOnlyWorked" class="sr-only peer">
+                <div class="w-9 h-5 bg-gray-200 rounded-full peer peer-checked:bg-copam-blue peer-checked:after:translate-x-full after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:rounded-full after:h-4 after:w-4 after:transition-all after:border after:border-gray-300"></div>
+              </div>
+              <span class="text-xs font-medium text-gray-700">Escludi lavorati</span>
+            </label>
+            <label class="inline-flex items-center cursor-pointer gap-2">
+              <div class="relative">
+                <input type="checkbox" v-model="showOnlyAvailable" class="sr-only peer">
+                <div class="w-9 h-5 bg-gray-200 rounded-full peer peer-checked:bg-copam-blue peer-checked:after:translate-x-full after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:rounded-full after:h-4 after:w-4 after:transition-all after:border after:border-gray-300"></div>
+              </div>
+              <span class="text-xs font-medium text-gray-700">Solo disponibili</span>
+            </label>
           </div>
         </div>
       </div>
@@ -245,6 +305,7 @@ onMounted(async () => {
         <table class="w-full text-xs">
           <thead>
             <tr class="bg-copam-blue text-white">
+              <th class="px-3 py-2.5 text-center font-semibold uppercase tracking-wider border-r border-blue-400/40 w-8">#</th>
               <th class="px-3 py-2.5 text-left font-semibold uppercase tracking-wider border-r border-blue-400/40">FLASS</th>
               <th class="px-3 py-2.5 text-left font-semibold uppercase tracking-wider border-r border-blue-400/40">IDOPR</th>
               <th class="px-3 py-2.5 text-left font-semibold uppercase tracking-wider border-r border-blue-400/40">FLSEQ</th>
@@ -261,7 +322,7 @@ onMounted(async () => {
           <tbody class="divide-y divide-gray-100">
             <!-- Loading -->
             <tr v-if="loading">
-              <td :colspan="isAdmin ? 11 : 10" class="px-3 py-10 text-center text-gray-400">
+              <td :colspan="isAdmin ? 12 : 11" class="px-3 py-10 text-center text-gray-400">
                 <div class="flex items-center justify-center gap-2">
                   <svg class="animate-spin h-5 w-5 text-copam-blue" viewBox="0 0 24 24">
                     <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4" fill="none"></circle>
@@ -279,6 +340,17 @@ onMounted(async () => {
                 'cursor-pointer transition-colors',
                 index % 2 === 0 ? 'bg-white hover:bg-blue-50' : 'bg-gray-50/60 hover:bg-blue-50'
               ]">
+              <td class="px-3 py-2 whitespace-nowrap text-center border-r border-gray-100" @click.stop>
+                <button
+                  @click="removeAssignment(assignment)"
+                  class="inline-flex items-center justify-center w-6 h-6 rounded text-gray-400 hover:text-red-600 hover:bg-red-50 transition-colors"
+                  title="Rimuovi assegnazione"
+                >
+                  <svg class="h-3.5 w-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
+                  </svg>
+                </button>
+              </td>
               <td class="px-3 py-2 whitespace-nowrap font-medium text-gray-800 border-r border-gray-100">
                 {{ assignment.work_phase?.FLASS || 'N/D' }}
               </td>
@@ -323,7 +395,7 @@ onMounted(async () => {
 
             <!-- Empty state -->
             <tr v-if="!loading && !assignedWorkPhases.length">
-              <td :colspan="isAdmin ? 11 : 10" class="px-3 py-16 text-center">
+              <td :colspan="isAdmin ? 12 : 11" class="px-3 py-16 text-center">
                 <svg class="mx-auto h-10 w-10 text-gray-300" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2" />
                 </svg>
@@ -370,4 +442,52 @@ onMounted(async () => {
     :assignment="selectedAssignment"
     @update:show="closeModal"
   />
+
+  <!-- Modal Conferma Rimozione -->
+  <div v-if="confirmModal.show" class="fixed inset-0 z-[60] overflow-y-auto">
+    <div class="flex items-center justify-center min-h-screen px-4 pt-4 pb-20 text-center sm:block sm:p-0">
+      <div
+        class="fixed inset-0 transition-opacity bg-gray-500 bg-opacity-75"
+        @click="confirmModal.show = false"
+      ></div>
+
+      <div class="inline-block align-bottom bg-white rounded-lg px-4 pt-5 pb-4 text-left overflow-hidden shadow-xl transform transition-all sm:my-8 sm:align-middle sm:max-w-lg sm:w-full sm:p-6">
+        <div class="sm:flex sm:items-start">
+          <div class="mx-auto flex-shrink-0 flex items-center justify-center h-12 w-12 rounded-full bg-red-100 sm:mx-0 sm:h-10 sm:w-10">
+            <svg class="h-6 w-6 text-red-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"></path>
+            </svg>
+          </div>
+
+          <div class="mt-3 text-center sm:mt-0 sm:ml-4 sm:text-left">
+            <h3 class="text-lg leading-6 font-medium text-gray-900">
+              {{ confirmModal.title }}
+            </h3>
+            <div class="mt-2">
+              <p class="text-sm text-gray-500">
+                {{ confirmModal.message }}
+              </p>
+            </div>
+          </div>
+        </div>
+
+        <div class="mt-5 sm:mt-4 sm:flex sm:flex-row-reverse">
+          <button
+            type="button"
+            @click="confirmModal.onConfirm"
+            class="w-full inline-flex justify-center rounded-md border border-transparent shadow-sm px-4 py-2 bg-red-600 text-base font-medium text-white hover:bg-red-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-red-500 sm:ml-3 sm:w-auto sm:text-sm"
+          >
+            Ok
+          </button>
+          <button
+            type="button"
+            @click="confirmModal.show = false"
+            class="mt-3 w-full inline-flex justify-center rounded-md border border-gray-300 shadow-sm px-4 py-2 bg-white text-base font-medium text-gray-700 hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-copam-blue sm:mt-0 sm:ml-3 sm:w-auto sm:text-sm"
+          >
+            Annulla
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
 </template>

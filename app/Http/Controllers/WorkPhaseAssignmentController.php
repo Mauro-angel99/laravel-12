@@ -49,7 +49,9 @@ class WorkPhaseAssignmentController extends Controller
             || $request->filled('dtnum')
             || $request->filled('idopr')
             || $request->filled('date_from')
-            || $request->filled('date_to');
+            || $request->filled('date_to')
+            || $request->filled('only_worked')
+            || $request->filled('only_available');
 
         if (!empty($workPhaseIds)) {
             // Carica i dati SQL Server con JOIN su A01_DOC_VER_ALL per avere DTRAS, DTRIC, DTNUM, DRCON
@@ -108,6 +110,12 @@ class WorkPhaseAssignmentController extends Controller
                             [$dateTo->format('Y-m-d') . ' 23:59:59.999']
                         );
                     }
+                }
+                if ($request->filled('only_worked')) {
+                    $workPhaseQuery->where('f.FLQTB', '=', 0);
+                }
+                if ($request->filled('only_available')) {
+                    $workPhaseQuery->where('f.FLQTD', '>', 0)->where('f.FLQTB', '=', 0);
                 }
             }
 
@@ -234,9 +242,20 @@ class WorkPhaseAssignmentController extends Controller
     /**
      * Remove the specified resource from storage.
      */
-    public function destroy(WorkPhaseAssignment $workPhaseAssignment)
+    public function destroy($id)
     {
-        //
+        $workPhaseAssignment = WorkPhaseAssignment::findOrFail($id);
+
+        $user = Auth::user();
+        $isAdmin = $user->roles()->where('name', 'admin')->exists();
+
+        if (!$isAdmin && $workPhaseAssignment->assigned_to !== $user->id) {
+            return response()->json(['message' => 'Non autorizzato'], 403);
+        }
+
+        $workPhaseAssignment->delete();
+
+        return response()->json(['message' => 'Assegnazione rimossa con successo']);
     }
 
     /**
