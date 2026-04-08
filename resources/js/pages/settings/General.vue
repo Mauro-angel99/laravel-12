@@ -173,7 +173,9 @@ const runUpdate = async (): Promise<void> => {
     updateOutput.value = [];
     try {
         const res = await axios.post<{ success: boolean; message: string; output: { cmd: string; out: string }[] }>(
-            '/settings/update'
+            '/settings/update',
+            {},
+            { timeout: 300000 }
         );
         updateResult.value = { success: res.data.success, message: res.data.message };
         updateOutput.value = res.data.output ?? [];

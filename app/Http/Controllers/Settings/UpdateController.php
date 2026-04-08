@@ -15,6 +15,9 @@ class UpdateController extends Controller
      */
     public function run(Request $request): JsonResponse
     {
+        // Rimuovi il limite di tempo PHP per operazioni lunghe (git pull, npm build)
+        set_time_limit(0);
+
         $output = [];
         $errors = [];
 
