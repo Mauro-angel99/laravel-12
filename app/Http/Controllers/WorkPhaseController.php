@@ -22,6 +22,7 @@ class WorkPhaseController extends Controller
         $dtric = $request->input('dtric', '');
         $dtnum = $request->input('dtnum', '');
         $idopr = $request->input('idopr', '');
+        $opart = $request->input('opart', '');
         $onlyWorked = $request->input('only_worked', '');
         $onlyAvailable = $request->input('only_available', '');
         $dateFrom = $request->input('date_from', '');
@@ -35,7 +36,8 @@ class WorkPhaseController extends Controller
             // Query per contare il totale dei record
             $countQuery = 'SELECT COUNT(*) as total FROM dbo.A01_ORD_FAS f
             LEFT JOIN dbo.A01_ORD_COM_LAM l ON f.IDOPR = l.IDORD
-            LEFT JOIN dbo.A01_DOC_VER_ALL d ON f.FLASS = d.DROPR';
+            LEFT JOIN dbo.A01_DOC_VER_ALL d ON f.FLASS = d.DROPR
+            LEFT JOIN dbo.A01_ORD_PRO_ALL p ON f.IDOPR = p.RECORD_ID';
             $countParams = [];
             $countConditions = [];
 
@@ -198,10 +200,12 @@ class WorkPhaseController extends Controller
                 d.DTRAS,
                 d.DTRIC,
                 d.DTNUM,
-                d.DRCON
+                d.DRCON,
+                p.OPART
             FROM dbo.A01_ORD_FAS f
             LEFT JOIN dbo.A01_ORD_COM_LAM l ON f.IDOPR = l.IDORD
-            LEFT JOIN dbo.A01_DOC_VER_ALL d ON f.FLASS = d.DROPR';
+            LEFT JOIN dbo.A01_DOC_VER_ALL d ON f.FLASS = d.DROPR
+            LEFT JOIN dbo.A01_ORD_PRO_ALL p ON f.IDOPR = p.RECORD_ID';
             $params = [];
             $conditions = [];
 
@@ -267,6 +271,16 @@ class WorkPhaseController extends Controller
                 $conditions[] = $condition;
                 $countConditions[] = $condition;
                 $searchParam = '%' . $idopr . '%';
+                $params[] = $searchParam;
+                $countParams[] = $searchParam;
+            }
+
+            // Filtro per OPART (Codice Articolo)
+            if (!empty($opart)) {
+                $condition = 'p.OPART LIKE ?';
+                $conditions[] = $condition;
+                $countConditions[] = $condition;
+                $searchParam = '%' . $opart . '%';
                 $params[] = $searchParam;
                 $countParams[] = $searchParam;
             }

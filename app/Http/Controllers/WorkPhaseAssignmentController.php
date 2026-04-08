@@ -48,6 +48,7 @@ class WorkPhaseAssignmentController extends Controller
             || $request->filled('dtric')
             || $request->filled('dtnum')
             || $request->filled('idopr')
+            || $request->filled('opart')
             || $request->filled('date_from')
             || $request->filled('date_to')
             || $request->filled('only_worked')
@@ -58,6 +59,7 @@ class WorkPhaseAssignmentController extends Controller
             $workPhaseQuery = DB::connection('sqlsrv_gestionale')
                 ->table('A01_ORD_FAS as f')
                 ->leftJoin('A01_DOC_VER_ALL as d', 'f.FLASS', '=', 'd.DROPR')
+                ->leftJoin('A01_ORD_PRO_ALL as p', 'f.IDOPR', '=', 'p.RECORD_ID')
                 ->select(
                     'f.RECORD_ID',
                     'f.FLASS',
@@ -72,7 +74,8 @@ class WorkPhaseAssignmentController extends Controller
                     'd.DTRAS',
                     'd.DTRIC',
                     'd.DTNUM',
-                    'd.DRCON'
+                    'd.DRCON',
+                    'p.OPART'
                 )
                 ->whereIn('f.RECORD_ID', $workPhaseIds);
 
@@ -92,6 +95,9 @@ class WorkPhaseAssignmentController extends Controller
                 }
                 if ($request->filled('idopr')) {
                     $workPhaseQuery->where('f.IDOPR', 'like', '%' . $request->input('idopr') . '%');
+                }
+                if ($request->filled('opart')) {
+                    $workPhaseQuery->where('p.OPART', 'like', '%' . $request->input('opart') . '%');
                 }
                 if ($request->filled('date_from')) {
                     $dateFrom = \DateTime::createFromFormat('d/m/Y', $request->input('date_from'));
@@ -136,30 +142,12 @@ class WorkPhaseAssignmentController extends Controller
                 ]);
             }
 
-            // Carica i dati OPART dalla vista A01_ORD_PRO_ALL usando IDOPR
-            $opartData = collect();
-            $idoprs = $workPhases->pluck('IDOPR')->filter()->unique()->toArray();
-            if (!empty($idoprs)) {
-                $opartData = DB::connection('sqlsrv_gestionale')
-                    ->table('A01_ORD_PRO_ALL')
-                    ->select('RECORD_ID', 'OPART')
-                    ->whereIn('RECORD_ID', $idoprs)
-                    ->get()
-                    ->keyBy('RECORD_ID');
-            }
-
             // Arricchisce gli assignments con i dati SQL Server.
             // Se ci sono filtri attivi, esclude gli assignments che non hanno un work phase corrispondente.
             // Se non ci sono filtri, mostra TUTTI gli assignments (anche quelli senza dati SQL Server).
-            $filteredAssignments = $allAssignments->map(function ($assignment) use ($workPhases, $opartData, $hasFilters) {
+            $filteredAssignments = $allAssignments->map(function ($assignment) use ($workPhases, $hasFilters) {
                 $workPhase = $workPhases->get($assignment->work_phase_id);
                 if ($workPhase) {
-                    if (isset($workPhase->IDOPR) && $workPhase->IDOPR) {
-                        $opart = $opartData->get($workPhase->IDOPR);
-                        if ($opart && isset($opart->OPART)) {
-                            $workPhase->OPART = $opart->OPART;
-                        }
-                    }
                     $assignment->work_phase = $workPhase;
                 } elseif ($hasFilters) {
                     // Con filtri attivi, escludi assignments senza corrispondenza

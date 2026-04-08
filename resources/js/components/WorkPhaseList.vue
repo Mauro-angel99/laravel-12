@@ -13,6 +13,7 @@ const searchDtras = ref('')
 const searchDtric = ref('')
 const searchDtnum = ref('')
 const searchIdopr = ref('')
+const searchOpart = ref('')
 const showOnlyWorked = ref(true)
 const showOnlyAvailable = ref(true)
 const dateFrom = ref('')
@@ -62,7 +63,7 @@ const closeMessageModal = () => {
   messageModal.value.show = false
 }
 
-const fetchWorkPhases = async (searchTerm = '', fllav = '', dtras = '', dtric = '', dtnum = '', idopr = '', fromDate = '', toDate = '', onlyWorked = false, onlyAvailable = false, page = 1) => {
+const fetchWorkPhases = async (searchTerm = '', fllav = '', dtras = '', dtric = '', dtnum = '', idopr = '', opart = '', fromDate = '', toDate = '', onlyWorked = false, onlyAvailable = false, page = 1) => {
   loading.value = true
   try {
     const params = {
@@ -74,6 +75,7 @@ const fetchWorkPhases = async (searchTerm = '', fllav = '', dtras = '', dtric = 
     if (dtric) params.dtric = dtric
     if (dtnum) params.dtnum = dtnum
     if (idopr) params.idopr = idopr
+    if (opart) params.opart = opart
     if (fromDate) params.date_from = fromDate
     if (toDate) params.date_to = toDate
     if (onlyWorked) params.only_worked = '1'
@@ -93,7 +95,7 @@ const fetchWorkPhases = async (searchTerm = '', fllav = '', dtras = '', dtric = 
 
 const applyFilters = () => {
   currentPage.value = 1 // Reset alla prima pagina quando si applicano filtri
-  fetchWorkPhases(search.value, searchFllav.value, searchDtras.value, searchDtric.value, searchDtnum.value, searchIdopr.value, dateFrom.value, dateTo.value, showOnlyWorked.value, showOnlyAvailable.value, 1)
+  fetchWorkPhases(search.value, searchFllav.value, searchDtras.value, searchDtric.value, searchDtnum.value, searchIdopr.value, searchOpart.value, dateFrom.value, dateTo.value, showOnlyWorked.value, showOnlyAvailable.value, 1)
 }
 
 const clearAllFilters = () => {
@@ -103,6 +105,7 @@ const clearAllFilters = () => {
   searchDtric.value = ''
   searchDtnum.value = ''
   searchIdopr.value = ''
+  searchOpart.value = ''
   showOnlyWorked.value = false
   showOnlyAvailable.value = false
   dateFrom.value = ''
@@ -121,7 +124,7 @@ const clearAllFilters = () => {
 
 const goToPage = (page) => {
   if (page >= 1 && page <= pagination.value.last_page) {
-    fetchWorkPhases(search.value, searchFllav.value, searchDtras.value, searchDtric.value, searchDtnum.value, searchIdopr.value, dateFrom.value, dateTo.value, showOnlyWorked.value, showOnlyAvailable.value, page)
+    fetchWorkPhases(search.value, searchFllav.value, searchDtras.value, searchDtric.value, searchDtnum.value, searchIdopr.value, searchOpart.value, dateFrom.value, dateTo.value, showOnlyWorked.value, showOnlyAvailable.value, page)
   }
 }
 
@@ -193,12 +196,12 @@ onMounted(async () => {
 
   // Carica i dati iniziali
   await fetchUsers();
-  await fetchWorkPhases('', '', '', '', '', '', '', '', showOnlyWorked.value, showOnlyAvailable.value, 1);
+  await fetchWorkPhases('', '', '', '', '', '', '', '', '', showOnlyWorked.value, showOnlyAvailable.value, 1);
 });
 
 // Watcher per la ricerca con debounce
 let searchTimeout
-watch([search, searchFllav, searchDtras, searchDtric, searchDtnum, searchIdopr], () => {
+watch([search, searchFllav, searchDtras, searchDtric, searchDtnum, searchIdopr, searchOpart], () => {
   clearTimeout(searchTimeout)
   searchTimeout = setTimeout(() => {
     applyFilters()
@@ -254,7 +257,7 @@ const confirmSelected = async () => {
     notes.value = '';
 
     // Ricarica la lista se vuoi
-    await fetchWorkPhases(search.value, searchFllav.value, searchDtras.value, searchDtric.value, searchDtnum.value, searchIdopr.value, dateFrom.value, dateTo.value, showOnlyWorked.value, showOnlyAvailable.value, currentPage.value);
+    await fetchWorkPhases(search.value, searchFllav.value, searchDtras.value, searchDtric.value, searchDtnum.value, searchIdopr.value, searchOpart.value, dateFrom.value, dateTo.value, showOnlyWorked.value, showOnlyAvailable.value, currentPage.value);
 
   } catch (error) {
     console.error(error);
@@ -281,7 +284,7 @@ const confirmSelected = async () => {
           <span class="text-sm font-semibold text-white">Filtri di ricerca</span>
         </div>
         <button
-          v-if="searchFllav || searchDtras || searchDtric || searchDtnum || searchIdopr || showOnlyWorked || showOnlyAvailable || dateFrom || dateTo"
+          v-if="searchFllav || searchDtras || searchDtric || searchDtnum || searchIdopr || searchOpart || showOnlyWorked || showOnlyAvailable || dateFrom || dateTo"
           @click="clearAllFilters"
           class="inline-flex items-center gap-1 text-xs text-blue-100 hover:text-white transition-colors"
         >
@@ -292,51 +295,46 @@ const confirmSelected = async () => {
         </button>
       </div>
 
-      <!-- Corpo filtri -->
-      <div class="p-4 space-y-3">
-        <!-- Riga 1 -->
-        <div class="grid grid-cols-1 md:grid-cols-3 gap-3">
+      <div class="p-4">
+        <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-3 items-end">
           <div>
-            <label class="block text-[10px] font-bold uppercase tracking-wider text-gray-700 mb-1">Codice Lav.</label>
+            <label class="block text-[11px] font-black uppercase tracking-wider text-gray-700 mb-1">Codice Lav.</label>
             <input type="text" v-model="searchFllav"
               class="w-full px-3 py-1.5 border border-gray-300 rounded-lg text-xs focus:ring-2 focus:ring-copam-blue focus:border-copam-blue" />
           </div>
           <div>
-            <label class="block text-[10px] font-bold uppercase tracking-wider text-gray-700 mb-1">Data da</label>
+            <label class="block text-[11px] font-black uppercase tracking-wider text-gray-700 mb-1">Data da</label>
             <input ref="dateFromPicker" type="text" v-model="dateFrom"
               class="w-full px-3 py-1.5 border border-gray-300 rounded-lg text-xs focus:ring-2 focus:ring-copam-blue focus:border-copam-blue" />
           </div>
           <div>
-            <label class="block text-[10px] font-bold uppercase tracking-wider text-gray-700 mb-1">Data a</label>
+            <label class="block text-[11px] font-black uppercase tracking-wider text-gray-700 mb-1">Data a</label>
             <input ref="dateToPicker" type="text" v-model="dateTo"
               class="w-full px-3 py-1.5 border border-gray-300 rounded-lg text-xs focus:ring-2 focus:ring-copam-blue focus:border-copam-blue" />
           </div>
-        </div>
-
-        <!-- Riga 2 -->
-        <div class="grid grid-cols-1 md:grid-cols-3 gap-3">
           <div>
-            <label class="block text-[10px] font-bold uppercase tracking-wider text-gray-700 mb-1">Rag. Soc.</label>
+            <label class="block text-[11px] font-black uppercase tracking-wider text-gray-700 mb-1">Rag. Soc.</label>
             <input type="text" v-model="searchDtras"
               class="w-full px-3 py-1.5 border border-gray-300 rounded-lg text-xs focus:ring-2 focus:ring-copam-blue focus:border-copam-blue" />
           </div>
           <div>
-            <label class="block text-[10px] font-bold uppercase tracking-wider text-gray-700 mb-1">N. Ord. Cli.</label>
+            <label class="block text-[11px] font-black uppercase tracking-wider text-gray-700 mb-1">N. Ord. Cli.</label>
             <input type="text" v-model="searchDtric"
               class="w-full px-3 py-1.5 border border-gray-300 rounded-lg text-xs focus:ring-2 focus:ring-copam-blue focus:border-copam-blue" />
           </div>
           <div>
-            <label class="block text-[10px] font-bold uppercase tracking-wider text-gray-700 mb-1">N. Ns. Ord.</label>
+            <label class="block text-[11px] font-black uppercase tracking-wider text-gray-700 mb-1">N. Ns. Ord.</label>
             <input type="text" v-model="searchDtnum"
               class="w-full px-3 py-1.5 border border-gray-300 rounded-lg text-xs focus:ring-2 focus:ring-copam-blue focus:border-copam-blue" />
           </div>
-        </div>
-
-        <!-- Riga 3 -->
-        <div class="grid grid-cols-1 md:grid-cols-3 gap-3 items-end">
           <div>
-            <label class="block text-[10px] font-bold uppercase tracking-wider text-gray-700 mb-1">Ord. Prod.</label>
+            <label class="block text-[11px] font-black uppercase tracking-wider text-gray-700 mb-1">Ord. Prod.</label>
             <input type="text" v-model="searchIdopr"
+              class="w-full px-3 py-1.5 border border-gray-300 rounded-lg text-xs focus:ring-2 focus:ring-copam-blue focus:border-copam-blue" />
+          </div>
+          <div>
+            <label class="block text-[11px] font-black uppercase tracking-wider text-gray-700 mb-1">Codice Articolo</label>
+            <input type="text" v-model="searchOpart"
               class="w-full px-3 py-1.5 border border-gray-300 rounded-lg text-xs focus:ring-2 focus:ring-copam-blue focus:border-copam-blue" />
           </div>
           <div class="flex items-center gap-6 pb-0.5">
@@ -356,7 +354,7 @@ const confirmSelected = async () => {
             </label>
           </div>
           <div>
-            <label class="block text-[10px] font-bold uppercase tracking-wider text-gray-700 mb-1">Ordinamento</label>
+            <label class="block text-[11px] font-black uppercase tracking-wider text-gray-700 mb-1">Ordinamento</label>
             <select v-model="sortBy"
               class="w-full px-3 py-1.5 border border-gray-300 rounded-lg text-xs focus:ring-2 focus:ring-copam-blue focus:border-copam-blue">
               <option value="drcon_asc">DRCON crescente</option>
@@ -399,6 +397,7 @@ const confirmSelected = async () => {
               <th class="px-3 py-2.5 text-left font-semibold uppercase tracking-wider border-r border-blue-400/40">IDOPR</th>
               <th class="px-3 py-2.5 text-left font-semibold uppercase tracking-wider border-r border-blue-400/40">FLSEQ</th>
               <th class="px-3 py-2.5 text-left font-semibold uppercase tracking-wider border-r border-blue-400/40">FLLAV</th>
+              <th class="px-3 py-2.5 text-left font-semibold uppercase tracking-wider border-r border-blue-400/40">OPART</th>
               <th class="px-3 py-2.5 text-left font-semibold uppercase tracking-wider border-r border-blue-400/40">FLDES</th>
               <th class="px-3 py-2.5 text-left font-semibold uppercase tracking-wider border-r border-blue-400/40">DTRAS</th>
               <th class="px-3 py-2.5 text-left font-semibold uppercase tracking-wider border-r border-blue-400/40">DTRIC</th>
@@ -409,7 +408,7 @@ const confirmSelected = async () => {
           <tbody class="divide-y divide-gray-100">
             <!-- Loading -->
             <tr v-if="loading">
-              <td colspan="12" class="px-3 py-10 text-center text-gray-400">
+              <td colspan="13" class="px-3 py-10 text-center text-gray-400">
                 <div class="flex items-center justify-center gap-2">
                   <svg class="animate-spin h-5 w-5 text-copam-blue" viewBox="0 0 24 24">
                     <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4" fill="none"></circle>
@@ -452,6 +451,7 @@ const confirmSelected = async () => {
               <td class="px-3 py-2 whitespace-nowrap border-r border-gray-100">
                 <span class="inline-flex items-center px-2 py-0.5 rounded-full text-[10px] font-semibold bg-blue-100 text-copam-blue">{{ phase.FLLAV }}</span>
               </td>
+              <td class="px-3 py-2 whitespace-nowrap text-gray-700 border-r border-gray-100">{{ phase.OPART || '—' }}</td>
               <td class="px-3 py-2 whitespace-nowrap text-gray-700 border-r border-gray-100">{{ phase.FLDES }}</td>
               <td class="px-3 py-2 whitespace-nowrap text-gray-700 border-r border-gray-100">{{ phase.DTRAS }}</td>
               <td class="px-3 py-2 whitespace-nowrap text-gray-700 border-r border-gray-100">{{ phase.DTRIC }}</td>
@@ -461,7 +461,7 @@ const confirmSelected = async () => {
 
             <!-- Empty state -->
             <tr v-if="!loading && !workPhases.length">
-              <td colspan="12" class="px-3 py-16 text-center">
+              <td colspan="13" class="px-3 py-16 text-center">
                 <svg class="mx-auto h-10 w-10 text-gray-300" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2" />
                 </svg>
@@ -507,7 +507,7 @@ const confirmSelected = async () => {
       </div>
       <div class="p-4 grid grid-cols-1 md:grid-cols-2 gap-4">
         <div>
-          <label class="block text-[10px] font-bold uppercase tracking-wider text-gray-700 mb-1">Utente</label>
+          <label class="block text-[11px] font-black uppercase tracking-wider text-gray-700 mb-1">Utente</label>
           <select v-model="selectedUser"
             class="w-full px-3 py-1.5 border border-gray-300 rounded-lg text-xs focus:ring-2 focus:ring-copam-blue focus:border-copam-blue">
             <option value="" disabled>-- Seleziona utente --</option>
@@ -515,7 +515,7 @@ const confirmSelected = async () => {
           </select>
         </div>
         <div>
-          <label class="block text-[10px] font-bold uppercase tracking-wider text-gray-700 mb-1">Note</label>
+          <label class="block text-[11px] font-black uppercase tracking-wider text-gray-700 mb-1">Note</label>
           <textarea v-model="notes" rows="2"
             class="w-full px-3 py-1.5 border border-gray-300 rounded-lg text-xs focus:ring-2 focus:ring-copam-blue focus:border-copam-blue resize-none"
             placeholder="Inserisci le note..."></textarea>
