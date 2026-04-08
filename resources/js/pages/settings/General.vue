@@ -180,7 +180,21 @@ const runUpdate = async (): Promise<void> => {
         updateResult.value = { success: res.data.success, message: res.data.message };
         updateOutput.value = res.data.output ?? [];
     } catch (error: any) {
-        const msg = error.response?.data?.message || 'Errore durante l\'aggiornamento';
+        let msg = 'Errore sconosciuto';
+        if (error.response) {
+            // Il server ha risposto con un codice di errore
+            msg = error.response.data?.message
+                || `Errore HTTP ${error.response.status}: ${error.response.statusText}`;
+            // Se il server ha restituito HTML (es. pagina di errore Laravel), mostralo come testo
+            if (typeof error.response.data === 'string' && error.response.data.includes('<!DOCTYPE')) {
+                const match = error.response.data.match(/<title>(.*?)<\/title>/);
+                msg = match ? `Errore server: ${match[1]}` : `Errore HTTP ${error.response.status}`;
+            }
+        } else if (error.request) {
+            msg = 'Nessuna risposta dal server (timeout o rete non raggiungibile)';
+        } else {
+            msg = error.message || msg;
+        }
         updateResult.value = { success: false, message: msg };
         updateOutput.value = error.response?.data?.output ?? [];
     } finally {
