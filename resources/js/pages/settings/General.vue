@@ -112,6 +112,8 @@ const addField = (): void => {
     if (newFieldName.value.trim()) {
         formData.value.fields.push(newFieldName.value.trim());
         newFieldName.value = '';
+    } else {
+        formData.value.fields.push('');
     }
 };
 
@@ -130,6 +132,10 @@ const closeDeleteModal = (): void => {
 };
 
 const saveParameter = async (): Promise<void> => {
+    if (newFieldName.value.trim()) {
+        formData.value.fields.push(newFieldName.value.trim());
+        newFieldName.value = '';
+    }
     try {
         await createParameter(formData.value);
         closeCreateModal();
@@ -142,7 +148,10 @@ const saveParameter = async (): Promise<void> => {
 
 const updateParameterHandler = async (): Promise<void> => {
     if (!selectedParameter.value) return;
-    
+    if (newFieldName.value.trim()) {
+        formData.value.fields.push(newFieldName.value.trim());
+        newFieldName.value = '';
+    }
     try {
         await updateParameter(selectedParameter.value.id, formData.value);
         closeEditModal();
@@ -456,13 +465,17 @@ onMounted(() => {
                             <div
                                 v-for="(field, index) in formData.fields"
                                 :key="index"
-                                class="flex items-center justify-between bg-gray-50 px-3 py-2 rounded-md"
+                                class="flex items-center gap-2"
                             >
-                                <span class="text-sm text-gray-700">{{ field }}</span>
+                                <input
+                                    v-model="formData.fields[index]"
+                                    type="text"
+                                    class="flex-1 px-3 py-2 text-sm border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-copam-blue focus:border-copam-blue"
+                                />
                                 <button
                                     type="button"
                                     @click="removeField(index)"
-                                    class="text-red-600 hover:text-red-800"
+                                    class="p-2 text-red-600 hover:text-red-800"
                                 >
                                     <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
@@ -540,13 +553,17 @@ onMounted(() => {
                             <div
                                 v-for="(field, index) in formData.fields"
                                 :key="index"
-                                class="flex items-center justify-between bg-gray-50 px-3 py-2 rounded-md"
+                                class="flex items-center gap-2"
                             >
-                                <span class="text-sm text-gray-700">{{ field }}</span>
+                                <input
+                                    v-model="formData.fields[index]"
+                                    type="text"
+                                    class="flex-1 px-3 py-2 text-sm border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-copam-blue focus:border-copam-blue"
+                                />
                                 <button
                                     type="button"
                                     @click="removeField(index)"
-                                    class="text-red-600 hover:text-red-800"
+                                    class="p-2 text-red-600 hover:text-red-800"
                                 >
                                     <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>

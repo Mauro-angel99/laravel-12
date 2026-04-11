@@ -25,7 +25,7 @@ class UpdateWorkParameterRequest extends FormRequest
                 'required',
                 'string',
                 'max:255',
-                Rule::unique('work_parameters', 'name')->ignore($this->route('work_parameter'))
+                Rule::unique('work_parameters', 'name')->ignore($this->route('workParameter'))
             ],
             'fields' => ['nullable', 'array'],
             'fields.*' => ['string', 'max:255']
