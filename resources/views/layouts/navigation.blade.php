@@ -18,6 +18,9 @@
                     <x-nav-link :href="route('assigned-work-phases.index')" :active="request()->routeIs('assigned-work-phases.index')">
                         {{ __('Lavorazioni') }}
                     </x-nav-link>
+                    <x-nav-link :href="route('distinta-base.index')" :active="request()->routeIs('distinta-base.index')">
+                        {{ __('Distinta Base') }}
+                    </x-nav-link>
                     <x-nav-link :href="route('warehouse.index')" :active="request()->routeIs('warehouse.index')">
                         {{ __('Magazzino') }}
                     </x-nav-link>
@@ -125,6 +128,9 @@
             </x-responsive-nav-link>
             <x-responsive-nav-link :href="route('assigned-work-phases.index')" :active="request()->routeIs('assigned-work-phases.index')">
                 {{ __('Lavorazioni') }}
+            </x-responsive-nav-link>
+            <x-responsive-nav-link :href="route('distinta-base.index')" :active="request()->routeIs('distinta-base.index')">
+                {{ __('Distinta Base') }}
             </x-responsive-nav-link>
             <x-responsive-nav-link :href="route('warehouse.index')" :active="request()->routeIs('warehouse.index')">
                 {{ __('Magazzino') }}

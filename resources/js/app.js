@@ -11,6 +11,7 @@ import { createApp } from 'vue'
 import WorkPhaseList from './components/WorkPhaseList.vue'
 import AssignedWorkPhaseList from './components/AssignedWorkPhaseList.vue'
 import WarehouseList from './components/WarehouseList.vue'
+import BillOfMaterialsList from './components/BillOfMaterialsList.vue'
 import WorkParametersList from './pages/settings/General.vue'
 
 const app = createApp({})
@@ -19,6 +20,7 @@ const app = createApp({})
 app.component('work-phase-list', WorkPhaseList)
 app.component('assigned-work-phase-list', AssignedWorkPhaseList)
 app.component('warehouse-list', WarehouseList)
+app.component('distinta-base-list', BillOfMaterialsList)
 app.component('work-parameters-list', WorkParametersList)
 
 // monta l'app su un div con id app

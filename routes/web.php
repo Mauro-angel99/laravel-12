@@ -14,6 +14,7 @@ use App\Http\Controllers\NonConformityController;
 use App\Http\Controllers\WorkParameterController;
 use App\Http\Controllers\WorkPhasePdfController;
 use App\Http\Controllers\UserController as ApiUserController;
+use App\Http\Controllers\BillOfMaterialsController;
 
 Route::middleware(['auth', 'role:admin'])->group(function () {
     Route::prefix('admin')->group(function () {
@@ -48,6 +49,11 @@ Route::middleware('auth')->group(function () {
 
     // API per Vue: restituisce dati JSON
     Route::get('/api/work-phases', [WorkPhaseController::class, 'list'])->name('workphases.list');
+});
+
+Route::middleware('auth')->group(function () {
+    Route::get('/bill-of-materials', [BillOfMaterialsController::class, 'index'])->name('distinta-base.index');
+    Route::get('/api/bill-of-materials', [BillOfMaterialsController::class, 'list'])->name('distinta-base.list');
 });
 
 Route::middleware(['auth', 'role:admin'])->group(function () {
