@@ -155,7 +155,7 @@ onMounted(() => {
                 'transition-colors cursor-pointer',
                 index % 2 === 0 ? 'bg-white hover:bg-blue-50' : 'bg-gray-50/60 hover:bg-blue-50'
               ]">
-              <td class="px-3 py-2 whitespace-nowrap text-gray-700 border-r border-gray-100">{{ row.DLACT }}</td>
+              <td class="px-3 py-2 whitespace-nowrap text-gray-700 border-r border-gray-100">{{ row.DLACT == 1 ? 'Sì' : 'No' }}</td>
               <td class="px-3 py-2 whitespace-nowrap text-gray-700 border-r border-gray-100">{{ row.DLSEQ }}</td>
               <td class="px-3 py-2 whitespace-nowrap font-medium text-gray-800 border-r border-gray-100">{{ row.DBART }}</td>
               <td class="px-3 py-2 whitespace-nowrap text-gray-700 border-r border-gray-100">{{ row.LVDES }}</td>

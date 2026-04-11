@@ -26,6 +26,7 @@
             <!-- Tabs -->
             <div class="border-b border-gray-200 overflow-x-auto overflow-y-hidden">
               <nav class="-mb-px flex space-x-6 min-w-max" aria-label="Tabs">
+                <!-- Tab Dettagli nascosta
                 <button
                   @click="activeTab = 'dettagli'"
                   :class="[
@@ -37,6 +38,7 @@
                 >
                   Dettagli
                 </button>
+                -->
                 <button
                   @click="activeTab = 'parametri'"
                   :class="[
@@ -284,7 +286,7 @@ const props = defineProps({
 
 const emit = defineEmits(['update:show'])
 
-const activeTab = ref('dettagli')
+const activeTab = ref('parametri')
 const parameters = ref([])
 const selectedParameterId = ref(null)
 const parameterValues = ref({})
