@@ -54,6 +54,8 @@ Route::middleware('auth')->group(function () {
 Route::middleware('auth')->group(function () {
     Route::get('/bill-of-materials', [BillOfMaterialsController::class, 'index'])->name('distinta-base.index');
     Route::get('/api/bill-of-materials', [BillOfMaterialsController::class, 'list'])->name('distinta-base.list');
+    Route::put('/api/bom-parameter-values', [BillOfMaterialsController::class, 'updateParameters']);
+    Route::get('/api/bom-parameter-values', [BillOfMaterialsController::class, 'getParameters']);
 });
 
 Route::middleware(['auth', 'role:admin'])->group(function () {

@@ -37,7 +37,68 @@ const savingFormatting = ref(false);
 const updating = ref(false);
 const updateResult = ref<{ success: boolean; message: string } | null>(null);
 const updateOutput = ref<{ cmd: string; out: string }[]>([]);
+const updateStep = ref('');
+let pollInterval: ReturnType<typeof setInterval> | null = null;
 const reloadPage = () => window.location.reload();
+
+const pollStatus = () => {
+    pollInterval = setInterval(async () => {
+        try {
+            const res = await axios.get('/settings/update/status');
+            const data = res.data;
+            updateStep.value = data.step || '';
+            updateOutput.value = data.output ?? [];
+
+            if (data.status === 'done') {
+                stopPolling();
+                updating.value = false;
+                updateResult.value = { success: true, message: data.step || 'Aggiornamento completato!' };
+            } else if (data.status === 'error') {
+                stopPolling();
+                updating.value = false;
+                updateResult.value = {
+                    success: false,
+                    message: data.errors?.join(', ') || data.step || 'Errore durante l\'aggiornamento'
+                };
+            }
+        } catch {
+            // Ignora errori di polling (la pagina potrebbe non essere raggiungibile durante il build)
+        }
+    }, 2000);
+};
+
+const stopPolling = () => {
+    if (pollInterval) {
+        clearInterval(pollInterval);
+        pollInterval = null;
+    }
+};
+
+const runUpdate = async (): Promise<void> => {
+    updating.value = true;
+    updateResult.value = null;
+    updateOutput.value = [];
+    updateStep.value = 'Avvio aggiornamento...';
+    try {
+        await axios.post('/settings/update', {}, { timeout: 15000 });
+        // L'aggiornamento è partito in background, avvia il polling
+        pollStatus();
+    } catch (error: any) {
+        let msg = 'Errore sconosciuto';
+        if (error.response) {
+            msg = error.response.data?.message
+                || `Errore HTTP ${error.response.status}: ${error.response.statusText}`;
+        } else if (error.request) {
+            // Potrebbe essere un timeout ma l'update è partito comunque, proviamo il polling
+            pollStatus();
+            return;
+        } else {
+            msg = error.message || msg;
+        }
+        updateResult.value = { success: false, message: msg };
+        updating.value = false;
+    }
+};
 
 const fetchFilePathSettings = async (): Promise<void> => {
     try {
@@ -164,41 +225,6 @@ const saveFormattingSettings = async (): Promise<void> => {
         showError(errorMessage);
     } finally {
         savingFormatting.value = false;
-    }
-};
-
-const runUpdate = async (): Promise<void> => {
-    updating.value = true;
-    updateResult.value = null;
-    updateOutput.value = [];
-    try {
-        const res = await axios.post<{ success: boolean; message: string; output: { cmd: string; out: string }[] }>(
-            '/settings/update',
-            {},
-            { timeout: 300000 }
-        );
-        updateResult.value = { success: res.data.success, message: res.data.message };
-        updateOutput.value = res.data.output ?? [];
-    } catch (error: any) {
-        let msg = 'Errore sconosciuto';
-        if (error.response) {
-            // Il server ha risposto con un codice di errore
-            msg = error.response.data?.message
-                || `Errore HTTP ${error.response.status}: ${error.response.statusText}`;
-            // Se il server ha restituito HTML (es. pagina di errore Laravel), mostralo come testo
-            if (typeof error.response.data === 'string' && error.response.data.includes('<!DOCTYPE')) {
-                const match = error.response.data.match(/<title>(.*?)<\/title>/);
-                msg = match ? `Errore server: ${match[1]}` : `Errore HTTP ${error.response.status}`;
-            }
-        } else if (error.request) {
-            msg = 'Nessuna risposta dal server (timeout o rete non raggiungibile)';
-        } else {
-            msg = error.message || msg;
-        }
-        updateResult.value = { success: false, message: msg };
-        updateOutput.value = error.response?.data?.output ?? [];
-    } finally {
-        updating.value = false;
     }
 };
 
@@ -400,6 +426,15 @@ onMounted(() => {
                 </svg>
                 {{ updating ? 'Aggiornamento in corso...' : 'Aggiorna' }}
             </button>
+
+            <!-- Step corrente durante aggiornamento -->
+            <span v-if="updating && updateStep" class="flex items-center gap-2 text-sm text-blue-700 font-medium">
+                <svg class="animate-spin h-4 w-4 text-blue-500" fill="none" viewBox="0 0 24 24">
+                    <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                    <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                </svg>
+                {{ updateStep }}
+            </span>
 
             <!-- Successo: messaggio + pulsante ricarica inline -->
             <template v-if="updateResult?.success">

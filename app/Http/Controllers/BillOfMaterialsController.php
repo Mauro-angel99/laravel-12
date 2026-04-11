@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
+use App\Models\BomParameterValue;
 
 class BillOfMaterialsController extends Controller
 {
@@ -80,6 +81,48 @@ class BillOfMaterialsController extends Controller
                 'from' => $from,
                 'to' => $to,
             ]
+        ]);
+    }
+
+    public function updateParameters(Request $request)
+    {
+        $validated = $request->validate([
+            'dllav' => 'required|string',
+            'dbart' => 'required|string',
+            'parameter_values' => 'nullable|array',
+        ]);
+
+        $bomParameterValue = BomParameterValue::updateOrCreate(
+            [
+                'dllav' => $validated['dllav'],
+                'dbart' => $validated['dbart'],
+            ],
+            [
+                'parameter_values' => $validated['parameter_values'] ?? null,
+            ]
+        );
+
+        return response()->json([
+            'message' => 'Parametri aggiornati con successo',
+            'bom_parameter_value' => $bomParameterValue
+        ]);
+    }
+
+    public function getParameters(Request $request)
+    {
+        $dllav = $request->input('dllav');
+        $dbart = $request->input('dbart');
+
+        if (!$dllav || !$dbart) {
+            return response()->json(['parameter_values' => null]);
+        }
+
+        $bomParameterValue = BomParameterValue::where('dllav', $dllav)
+            ->where('dbart', $dbart)
+            ->first();
+
+        return response()->json([
+            'parameter_values' => $bomParameterValue ? $bomParameterValue->parameter_values : null
         ]);
     }
 }

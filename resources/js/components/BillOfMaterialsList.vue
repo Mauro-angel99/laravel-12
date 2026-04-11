@@ -1,6 +1,7 @@
 <script setup>
 import { ref, watch, onMounted } from 'vue'
 import axios from 'axios'
+import BillOfMaterialsModal from './BillOfMaterialsModal.vue'
 
 const data = ref([])
 const searchDbart = ref('')
@@ -14,6 +15,15 @@ const pagination = ref({
   from: 0,
   to: 0,
 })
+
+// Modal state
+const showModal = ref(false)
+const selectedItem = ref(null)
+
+const openModal = (row) => {
+  selectedItem.value = row
+  showModal.value = true
+}
 
 const fetchData = async (dbart = '', page = 1) => {
   loading.value = true
@@ -140,8 +150,9 @@ onMounted(() => {
 
             <!-- Righe dati -->
             <tr v-else v-for="(row, index) in data" :key="index"
+              @click="openModal(row)"
               :class="[
-                'transition-colors',
+                'transition-colors cursor-pointer',
                 index % 2 === 0 ? 'bg-white hover:bg-blue-50' : 'bg-gray-50/60 hover:bg-blue-50'
               ]">
               <td class="px-3 py-2 whitespace-nowrap text-gray-700 border-r border-gray-100">{{ row.DLACT }}</td>
@@ -197,5 +208,11 @@ onMounted(() => {
       </div>
     </div>
 
+    <!-- Modal -->
+    <BillOfMaterialsModal
+      :show="showModal"
+      :item="selectedItem"
+      @update:show="showModal = $event"
+    />
   </div>
 </template>

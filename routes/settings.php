@@ -30,4 +30,8 @@ Route::middleware('auth')->group(function () {
     Route::post('settings/update', [UpdateController::class, 'run'])
         ->middleware('role:admin')
         ->name('settings.update.run');
+
+    Route::get('settings/update/status', [UpdateController::class, 'status'])
+        ->middleware('role:admin')
+        ->name('settings.update.status');
 });

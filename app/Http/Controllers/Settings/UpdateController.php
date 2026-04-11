@@ -9,132 +9,72 @@ use Illuminate\Support\Facades\Artisan;
 
 class UpdateController extends Controller
 {
+    private function statusFile(): string
+    {
+        return storage_path('app/update-status.json');
+    }
+
+    private function writeStatus(array $data): void
+    {
+        file_put_contents($this->statusFile(), json_encode($data, JSON_UNESCAPED_UNICODE));
+    }
+
     /**
-     * Esegue l'aggiornamento completo:
-     * git stash → git pull → git stash pop → npm ci && npm run build (se Node disponibile) → migrate → optimize:clear
+     * Avvia l'aggiornamento in background e restituisce subito la risposta.
      */
     public function run(Request $request): JsonResponse
     {
-        // Rimuovi il limite di tempo PHP per operazioni lunghe (git pull, npm build)
-        set_time_limit(0);
-
-        $output = [];
-        $errors = [];
-
-        $projectRoot = base_path();
-
-        // www-data non ha home scrivibile: usiamo /tmp come HOME per git
-        putenv('HOME=/tmp');
-
-        // Helper: esegue un comando shell, raccoglie output e codice di uscita
-        $runCmd = function (string $cmd, bool $ignoreError = false) use ($projectRoot, &$output, &$errors): bool {
-            $fullCmd = 'cd ' . escapeshellarg($projectRoot) . ' && HOME=/tmp ' . $cmd . ' 2>&1';
-            exec($fullCmd, $lines, $exitCode);
-            $output[] = ['cmd' => $cmd, 'out' => implode("\n", $lines)];
-            if ($exitCode !== 0 && !$ignoreError) {
-                $errors[] = "Comando fallito (exit {$exitCode}): {$cmd}";
-                return false;
-            }
-            return true;
-        };
-
-        try {
-
-            // 1. Fix safe.directory (necessario quando la cartella è montata via Docker volume)
-            $runCmd('git config --global --add safe.directory ' . escapeshellarg($projectRoot), true);
-            $runCmd('git config --global --add safe.directory \*', true);
-
-            // 3. Git stash (ignora errori: potrebbe non esserci nulla da salvare)
-            $runCmd('git stash', true);
-
-            // 4. Git pull
-            if (!$runCmd('git pull')) {
+        // Controlla se c'è già un aggiornamento in corso
+        if (file_exists($this->statusFile())) {
+            $current = json_decode(file_get_contents($this->statusFile()), true);
+            if (isset($current['status']) && $current['status'] === 'running') {
                 return response()->json([
-                    'success' => false,
-                    'message' => 'git pull fallito. Controlla i log per i dettagli.',
-                    'output'  => $output,
-                    'errors'  => $errors,
-                ], 500);
+                    'success' => true,
+                    'message' => 'Aggiornamento già in corso...',
+                    'async'   => true,
+                ]);
             }
-
-            // 5. Git stash pop (ignora errori: stash potrebbe essere vuoto)
-            $runCmd('git stash pop', true);
-
-            // 6. npm build — prova Node direttamente nel container, altrimenti usa Docker
-            $nodeAvailable = !empty(shell_exec('which node 2>/dev/null'));
-
-            if ($nodeAvailable) {
-                // Sposta il build corrente come backup, esegui il build, poi rimuovi il backup solo se ok
-                $buildDir  = escapeshellarg($projectRoot . '/public/build');
-                $buildBak  = escapeshellarg($projectRoot . '/public/build_bak');
-                $runCmd("mv {$buildDir} {$buildBak} 2>/dev/null || true", true);
-                $runCmd('npm install --prefer-offline');
-                $buildOk = $runCmd('npm run build');
-                if ($buildOk) {
-                    $runCmd("rm -rf {$buildBak}", true);
-                } else {
-                    // Ripristina il backup se il build è fallito
-                    $runCmd("rm -rf {$buildDir}; mv {$buildBak} {$buildDir} 2>/dev/null || true", true);
-                }
-            } else {
-                $hostAppPath = env('HOST_APP_PATH');
-                $dockerAvailable = !empty(shell_exec('which docker 2>/dev/null'));
-
-                if ($hostAppPath && $dockerAvailable) {
-                    $npmCmd = 'docker run --rm -v ' . escapeshellarg($hostAppPath . ':/app') . ' -w /app node:latest sh -c "mv /app/public/build /app/public/build_bak 2>/dev/null; npm install && npm run build && rm -rf /app/public/build_bak || (rm -rf /app/public/build; mv /app/public/build_bak /app/public/build)"';
-                    $runCmd($npmCmd);
-                } else {
-                    $output[] = [
-                        'cmd' => 'npm run build',
-                        'out' => 'SKIP — Node.js non disponibile nel container. '
-                            . 'Aggiungi nel Dockerfile: RUN apt-get install -y nodejs npm '
-                            . 'oppure usa nvm per installare Node.',
-                    ];
-                }
-            }
-
-            // 5. Artisan migrate
-            try {
-                Artisan::call('migrate', ['--force' => true]);
-                $output[] = ['cmd' => 'artisan migrate', 'out' => trim(Artisan::output())];
-            } catch (\Throwable $e) {
-                $output[] = ['cmd' => 'artisan migrate', 'out' => $e->getMessage()];
-                $errors[] = 'artisan migrate fallito: ' . $e->getMessage();
-            }
-
-            // 6. Artisan optimize:clear
-            try {
-                Artisan::call('optimize:clear');
-                $output[] = ['cmd' => 'artisan optimize:clear', 'out' => trim(Artisan::output())];
-            } catch (\Throwable $e) {
-                $output[] = ['cmd' => 'artisan optimize:clear', 'out' => $e->getMessage()];
-                $errors[] = 'artisan optimize:clear fallito: ' . $e->getMessage();
-            }
-
-            $npmDone = $nodeAvailable || (!empty(env('HOST_APP_PATH')) && !empty(shell_exec('which docker 2>/dev/null')));
-
-            $hasErrors = !empty($errors);
-            $message = $hasErrors
-                ? 'Aggiornamento completato con errori. Controlla i log per i dettagli.'
-                : ($npmDone
-                    ? 'Aggiornamento completato (git pull + npm run build + migrate + cache clear).'
-                    : 'Aggiornamento parziale completato. npm run build saltato: controlla il log per i dettagli.');
-
-            return response()->json([
-                'success' => !$hasErrors,
-                'npmDone' => $npmDone,
-                'message' => $message,
-                'output'  => $output,
-                'errors'  => $errors,
-            ], $hasErrors ? 500 : 200);
-        } catch (\Throwable $e) {
-            $output[] = ['cmd' => 'eccezione', 'out' => $e->getMessage()];
-            return response()->json([
-                'success' => false,
-                'message' => 'Errore imprevisto durante l\'aggiornamento: ' . $e->getMessage(),
-                'output'  => $output,
-                'errors'  => array_merge($errors, [$e->getMessage()]),
-            ], 500);
         }
+
+        // Segna lo stato come "running"
+        $this->writeStatus([
+            'status'  => 'running',
+            'step'    => 'Avvio aggiornamento...',
+            'output'  => [],
+            'errors'  => [],
+            'started' => now()->toDateTimeString(),
+        ]);
+
+        // Lancia lo script di aggiornamento in background con nohup
+        $php = PHP_BINARY ?: 'php';
+        $artisan = base_path('artisan');
+        $cmd = sprintf(
+            'nohup %s %s app:run-update > /dev/null 2>&1 &',
+            escapeshellarg($php),
+            escapeshellarg($artisan)
+        );
+        exec($cmd);
+
+        return response()->json([
+            'success' => true,
+            'message' => 'Aggiornamento avviato in background...',
+            'async'   => true,
+        ]);
+    }
+
+    /**
+     * Restituisce lo stato corrente dell'aggiornamento (polling dal frontend).
+     */
+    public function status(Request $request): JsonResponse
+    {
+        if (!file_exists($this->statusFile())) {
+            return response()->json([
+                'status' => 'idle',
+                'message' => 'Nessun aggiornamento in corso.',
+            ]);
+        }
+
+        $data = json_decode(file_get_contents($this->statusFile()), true);
+        return response()->json($data);
     }
 }
