@@ -60,6 +60,7 @@ class WorkPhaseAssignmentController extends Controller
                 ->table('A01_ORD_FAS as f')
                 ->leftJoin('A01_DOC_VER_ALL as d', 'f.FLASS', '=', 'd.DROPR')
                 ->leftJoin('A01_ORD_PRO_ALL as p', 'f.IDOPR', '=', 'p.RECORD_ID')
+                ->leftJoin('A01_ART_ICO as a', 'p.OPART', '=', 'a.CDART')
                 ->select(
                     'f.RECORD_ID',
                     'f.FLASS',
@@ -75,7 +76,10 @@ class WorkPhaseAssignmentController extends Controller
                     'd.DTRIC',
                     'd.DTNUM',
                     'd.DRCON',
-                    'p.OPART'
+                    'p.OPART',
+                    DB::raw('a.ARMAT as MATERIALE'),
+                    DB::raw('a.ARDMZ as SPESSORE'),
+                    DB::raw('a.ARPRF as PROFILO')
                 )
                 ->whereIn('f.RECORD_ID', $workPhaseIds);
 

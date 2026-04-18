@@ -21,8 +21,8 @@ class NonConformityController extends Controller
         try {
             // Trova le non conformità tramite IDOPR -> OCART -> NCART
             $nonConformities = DB::connection('sqlsrv_gestionale')
-                ->table('dbo.A01_NON_CON as nc')
-                ->join('dbo.A01_ORD_COM_LAM as l', 'nc.NCART', '=', 'l.OCART')
+                ->table('A01_NON_CON as nc')
+                ->join('A01_ORD_COM_LAM as l', 'nc.NCART', '=', 'l.OCART')
                 ->select('nc.NCRIL', 'nc.NCCLA', 'nc.NCART', 'nc.NCDES')
                 ->where('l.IDORD', $request->idopr)
                 ->get();

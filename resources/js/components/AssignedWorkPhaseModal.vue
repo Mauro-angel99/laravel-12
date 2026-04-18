@@ -155,7 +155,7 @@
                     <div class="bg-gray-50 px-4 py-2 border-b border-gray-200">
                       <h4 class="text-xs font-semibold text-gray-700 uppercase tracking-wider">Materiale &amp; Date</h4>
                     </div>
-                    <div class="grid grid-cols-2 sm:grid-cols-4 gap-px bg-gray-100">
+                    <div class="grid grid-cols-2 sm:grid-cols-5 gap-px bg-gray-100">
                       <div class="bg-white px-4 py-3">
                         <p class="text-xs text-gray-700 uppercase tracking-wide">Posizione</p>
                         <p class="mt-0.5 text-sm font-medium text-gray-800">
@@ -176,6 +176,10 @@
                       <div class="bg-white px-4 py-3">
                         <p class="text-xs text-gray-700 uppercase tracking-wide">Spessore</p>
                         <p class="mt-0.5 text-sm font-medium text-gray-800">{{ assignment?.work_phase?.SPESSORE || '&mdash;' }}</p>
+                      </div>
+                      <div class="bg-white px-4 py-3">
+                        <p class="text-xs text-gray-700 uppercase tracking-wide">Profilo</p>
+                        <p class="mt-0.5 text-sm font-medium text-gray-800">{{ assignment?.work_phase?.PROFILO || '&mdash;' }}</p>
                       </div>
                       <div class="bg-white px-4 py-3">
                         <p class="text-xs text-gray-700 uppercase tracking-wide">Data Consegna</p>
@@ -456,6 +460,15 @@
                   <p class="mt-2 px-3 text-xs text-gray-500">Articolo: {{ assignment?.work_phase?.OPART }}</p>
                 </div>
 
+                <!-- NC Error -->
+                <div v-else-if="ncError" class="text-center py-8">
+                  <svg class="mx-auto h-12 w-12 text-red-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-2.5L13.732 4.5c-.77-.833-2.694-.833-3.464 0L3.34 16.5c-.77.833.192 2.5 1.732 2.5z"></path>
+                  </svg>
+                  <p class="mt-2 text-sm text-red-600">{{ ncError }}</p>
+                  <p class="mt-1 text-xs text-gray-400">IDOPR: {{ assignment?.work_phase?.IDOPR }}</p>
+                </div>
+
                 <!-- No NC -->
                 <div v-else class="text-center py-8">
                   <svg class="mx-auto h-12 w-12 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -705,6 +718,7 @@ const isDragging = ref(false);
 // Non Conformity state
 const nonConformities = ref([]);
 const loadingNC = ref(false);
+const ncError = ref(null);
 
 // Warehouse position state
 const warehousePosition = ref([]);
@@ -834,6 +848,7 @@ const close = () => {
   images.value = []
   pdfUrl.value = null
   nonConformities.value = []
+  ncError.value = null
   warehousePosition.value = []
 }
 
@@ -900,6 +915,7 @@ const checkPdf = async () => {
 // Non Conformity management functions
 const fetchNonConformities = async () => {
   const idopr = props.assignment?.work_phase?.IDOPR;
+  ncError.value = null;
   
   if (!idopr) {
     nonConformities.value = [];
@@ -915,6 +931,9 @@ const fetchNonConformities = async () => {
   } catch (error) {
     console.error('Errore nel caricamento delle non conformit\u00e0:', error);
     nonConformities.value = [];
+    const status = error.response?.status;
+    const msg = error.response?.data?.error || error.response?.data?.message || error.message;
+    ncError.value = `Errore ${status || ''}: ${msg}`;
   } finally {
     loadingNC.value = false;
   }
