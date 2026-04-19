@@ -546,6 +546,29 @@ onMounted(async () => {
           </div>
           <!-- Body -->
           <div class="px-6 py-5 space-y-5">
+            <!-- Toggle Iniziato -->
+            <div class="bg-gray-50 rounded-xl border border-gray-200 px-4 py-4">
+              <div class="flex items-center justify-between">
+                <div>
+                  <p class="text-xs font-semibold text-gray-500 uppercase tracking-wide">Iniziato</p>
+                </div>
+                <button
+                  @click="toggleStarted"
+                  :class="[
+                    'relative inline-flex h-6 w-11 flex-shrink-0 cursor-pointer rounded-full border-2 border-transparent transition-colors duration-200 ease-in-out focus:outline-none focus:ring-2 focus:ring-copam-blue focus:ring-offset-2',
+                    selectedPosition?.started ? 'bg-copam-blue' : 'bg-gray-200'
+                  ]"
+                >
+                  <span
+                    :class="[
+                      'pointer-events-none inline-block h-5 w-5 transform rounded-full bg-white shadow ring-0 transition duration-200 ease-in-out',
+                      selectedPosition?.started ? 'translate-x-5' : 'translate-x-0'
+                    ]"
+                  />
+                </button>
+              </div>
+            </div>
+
             <div class="overflow-x-auto rounded-xl border border-gray-200 shadow-sm">
               <table class="w-full text-sm">
                 <thead class="bg-copam-blue text-white">
@@ -572,29 +595,6 @@ onMounted(async () => {
                   </tr>
                 </tbody>
               </table>
-            </div>
-
-            <!-- Toggle Iniziato -->
-            <div class="bg-gray-50 rounded-xl border border-gray-200 px-4 py-4">
-              <div class="flex items-center justify-between">
-                <div>
-                  <p class="text-xs font-semibold text-gray-500 uppercase tracking-wide">Iniziato</p>
-                </div>
-                <button
-                  @click="toggleStarted"
-                  :class="[
-                    'relative inline-flex h-6 w-11 flex-shrink-0 cursor-pointer rounded-full border-2 border-transparent transition-colors duration-200 ease-in-out focus:outline-none focus:ring-2 focus:ring-copam-blue focus:ring-offset-2',
-                    selectedPosition?.started ? 'bg-copam-blue' : 'bg-gray-200'
-                  ]"
-                >
-                  <span
-                    :class="[
-                      'pointer-events-none inline-block h-5 w-5 transform rounded-full bg-white shadow ring-0 transition duration-200 ease-in-out',
-                      selectedPosition?.started ? 'translate-x-5' : 'translate-x-0'
-                    ]"
-                  />
-                </button>
-              </div>
             </div>
 
             <!-- Modifica posizione -->
