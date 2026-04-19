@@ -579,7 +579,6 @@ onMounted(async () => {
               <div class="flex items-center justify-between">
                 <div>
                   <p class="text-xs font-semibold text-gray-500 uppercase tracking-wide">Iniziato</p>
-                  <p class="text-xs text-gray-400 mt-0.5">Indica se la lavorazione per questa posizione è stata iniziata</p>
                 </div>
                 <button
                   @click="toggleStarted"
