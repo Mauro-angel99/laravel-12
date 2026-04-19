@@ -339,12 +339,20 @@ class WarehouseController extends Controller
                 // Elimina la vecchia posizione vuota
                 $position->delete();
 
+                if (array_key_exists('started', $validated)) {
+                    $existingPosition->update(['started' => $validated['started']]);
+                }
+
                 $position = $existingPosition;
             } else {
                 // Altrimenti aggiorna normalmente il nome della posizione
-                $position->update([
+                $updateData = [
                     'warehouse_position' => $validated['warehouse_position'],
-                ]);
+                ];
+                if (array_key_exists('started', $validated)) {
+                    $updateData['started'] = $validated['started'];
+                }
+                $position->update($updateData);
 
                 // Se la posizione era "in attesa", imposta pending=0 per tutte le merci
                 if ($wasInAttesa) {
