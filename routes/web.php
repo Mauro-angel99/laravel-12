@@ -15,6 +15,7 @@ use App\Http\Controllers\WorkParameterController;
 use App\Http\Controllers\WorkPhasePdfController;
 use App\Http\Controllers\UserController as ApiUserController;
 use App\Http\Controllers\BillOfMaterialsController;
+use App\Http\Controllers\ArticleSearchController;
 
 Route::middleware(['auth', 'role:admin'])->group(function () {
     Route::prefix('admin')->group(function () {
@@ -56,6 +57,11 @@ Route::middleware('auth')->group(function () {
     Route::get('/api/bill-of-materials', [BillOfMaterialsController::class, 'list'])->name('distinta-base.list');
     Route::put('/api/bom-parameter-values', [BillOfMaterialsController::class, 'updateParameters']);
     Route::get('/api/bom-parameter-values', [BillOfMaterialsController::class, 'getParameters']);
+});
+
+Route::middleware('auth')->group(function () {
+    Route::get('/article-search', [ArticleSearchController::class, 'index'])->name('article-search.index');
+    Route::get('/api/article-search', [ArticleSearchController::class, 'list'])->name('article-search.list');
 });
 
 Route::middleware(['auth', 'role:admin'])->group(function () {

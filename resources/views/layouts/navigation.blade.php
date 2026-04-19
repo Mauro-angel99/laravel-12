@@ -24,6 +24,9 @@
                     <x-nav-link :href="route('warehouse.index')" :active="request()->routeIs('warehouse.index')">
                         {{ __('Magazzino') }}
                     </x-nav-link>
+                    <x-nav-link :href="route('article-search.index')" :active="request()->routeIs('article-search.index')">
+                        {{ __('Ricerca Articolo') }}
+                    </x-nav-link>
 
                     {{-- @if (Auth::user()->hasRole('admin'))
                         <x-nav-link :href="route('processing-parameters.index')" :active="request()->routeIs('processing-parameters.index')">
@@ -134,6 +137,9 @@
             </x-responsive-nav-link>
             <x-responsive-nav-link :href="route('warehouse.index')" :active="request()->routeIs('warehouse.index')">
                 {{ __('Magazzino') }}
+            </x-responsive-nav-link>
+            <x-responsive-nav-link :href="route('article-search.index')" :active="request()->routeIs('article-search.index')">
+                {{ __('Ricerca Articolo') }}
             </x-responsive-nav-link>
             {{-- @if (Auth::user()->hasRole('admin'))
                 <x-responsive-nav-link :href="route('processing-parameters.index')" :active="request()->routeIs('processing-parameters.index')">
