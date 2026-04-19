@@ -321,7 +321,7 @@
                         />
                       </label>
                       <p class="mt-1 text-xs text-gray-500">
-                        PNG, JPG, GIF fino a 10MB (max 10 immagini)
+                        PNG, JPG, GIF fino a 50MB (max 10 immagini)
                       </p>
                     </div>
                   </div>
@@ -978,8 +978,8 @@ const handleDrop = (event) => {
   }
   
   imageFiles.forEach(file => {
-    if (file.size > 10 * 1024 * 1024) {
-      showMessageModal('error', 'Errore', `Il file ${file.name} supera i 10MB`);
+    if (file.size > 50 * 1024 * 1024) {
+      showMessageModal('error', 'Errore', `Il file ${file.name} supera i 50MB`);
       return;
     }
     
@@ -1004,8 +1004,8 @@ const handleFileSelect = (event) => {
   }
   
   files.forEach(file => {
-    if (file.size > 10 * 1024 * 1024) {
-      showMessageModal('error', 'Errore', `Il file ${file.name} supera i 10MB`);
+    if (file.size > 50 * 1024 * 1024) {
+      showMessageModal('error', 'Errore', `Il file ${file.name} supera i 50MB`);
       return;
     }
     

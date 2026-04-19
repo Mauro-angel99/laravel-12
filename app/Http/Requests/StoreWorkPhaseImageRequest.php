@@ -25,7 +25,7 @@ class StoreWorkPhaseImageRequest extends FormRequest
             'fllav' => 'required|string|max:50',
             'opart' => 'required|string|max:50',
             'images' => 'required|array|min:1|max:10',
-            'images.*' => 'required|image|mimes:jpeg,jpg,png,gif,webp|max:10240', // Max 10MB per immagine
+            'images.*' => 'required|image|mimes:jpeg,jpg,png,gif,webp|max:51200', // Max 50MB per immagine
         ];
     }
 
@@ -40,7 +40,7 @@ class StoreWorkPhaseImageRequest extends FormRequest
             'images.required' => 'Devi selezionare almeno un\'immagine',
             'images.*.image' => 'Il file deve essere un\'immagine',
             'images.*.mimes' => 'Sono accettati solo formati: JPEG, JPG, PNG, GIF, WEBP',
-            'images.*.max' => 'Ogni immagine non può superare i 10MB',
+            'images.*.max' => 'Ogni immagine non può superare i 50MB',
         ];
     }
 }
