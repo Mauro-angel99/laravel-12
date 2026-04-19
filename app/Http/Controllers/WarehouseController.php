@@ -50,7 +50,8 @@ class WarehouseController extends Controller
         }
 
         $total = $query->count();
-        $positions = $query->offset($offset)
+        $positions = $query->with('warehouses:id,warehouse_position_id,product_code,production_order')
+            ->offset($offset)
             ->limit($perPage)
             ->orderBy('warehouse_position')
             ->get();
@@ -301,6 +302,7 @@ class WarehouseController extends Controller
     {
         $validated = $request->validate([
             'warehouse_position' => 'required|string|max:50',
+            'started' => 'sometimes|boolean',
         ]);
 
         try {

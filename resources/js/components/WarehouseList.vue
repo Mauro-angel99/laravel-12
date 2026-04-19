@@ -125,6 +125,7 @@ const closeCreateModal = () => {
 const openProductsModal = async (position) => {
   selectedPosition.value = position
   editingPositionName.value = position.warehouse_position
+  editingStarted.value = position.started
   isEditingPosition.value = false
   try {
     const res = await axios.get(`/api/warehouse/positions/${position.id}/products`)
@@ -265,6 +266,23 @@ const closeDeleteModal = () => {
   showDeleteModal.value = false
 }
 
+const editingStarted = ref(false)
+
+const toggleStarted = async () => {
+  try {
+    await axios.put(`/api/warehouse/positions/${selectedPosition.value.id}`, {
+      warehouse_position: selectedPosition.value.warehouse_position,
+      started: !selectedPosition.value.started
+    })
+    selectedPosition.value.started = !selectedPosition.value.started
+    editingStarted.value = selectedPosition.value.started
+    await fetchPositions(currentPage.value)
+  } catch (error) {
+    const errorMessage = error.response?.data?.message || 'Errore durante l\'aggiornamento'
+    showMessageModal('error', 'Errore', errorMessage)
+  }
+}
+
 const updatePositionName = async () => {
   if (!editingPositionName.value || editingPositionName.value === selectedPosition.value.warehouse_position) {
     isEditingPosition.value = false
@@ -359,12 +377,14 @@ onMounted(async () => {
           <thead>
             <tr class="bg-copam-blue text-white">
               <th class="px-4 py-2.5 text-left font-semibold uppercase tracking-wider text-xs border-r border-blue-400/40">Posizione</th>
-              <th class="px-4 py-2.5 text-left font-semibold uppercase tracking-wider text-xs">N&deg; Merci</th>
+              <th class="px-4 py-2.5 text-left font-semibold uppercase tracking-wider text-xs border-r border-blue-400/40">Codici Merce</th>
+              <th class="px-4 py-2.5 text-left font-semibold uppercase tracking-wider text-xs border-r border-blue-400/40">Ord. Prod.</th>
+              <th class="px-4 py-2.5 text-center font-semibold uppercase tracking-wider text-xs">Iniziato</th>
             </tr>
           </thead>
           <tbody class="divide-y divide-gray-100">
             <tr v-if="loading">
-              <td colspan="2" class="px-4 py-10 text-center text-gray-400">
+              <td colspan="4" class="px-4 py-10 text-center text-gray-400">
                 <svg class="animate-spin h-6 w-6 text-copam-blue mx-auto mb-2" fill="none" viewBox="0 0 24 24">
                   <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
                   <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
@@ -383,14 +403,19 @@ onMounted(async () => {
               ]"
             >
               <td class="px-4 py-2.5 whitespace-nowrap font-medium text-gray-800 border-r border-gray-100">{{ position.warehouse_position }}</td>
-              <td class="px-4 py-2.5 whitespace-nowrap text-gray-600">
-                <span class="inline-flex items-center px-2 py-0.5 rounded-full text-xs font-semibold bg-blue-100 text-copam-blue">
-                  {{ position.warehouses_count }}
-                </span>
+              <td class="px-4 py-2.5 text-gray-600 border-r border-gray-100">
+                <span class="text-xs">{{ (position.warehouses || []).map(w => w.product_code).filter(Boolean).join(' | ') || '&mdash;' }}</span>
+              </td>
+              <td class="px-4 py-2.5 text-gray-600 border-r border-gray-100">
+                <span class="text-xs">{{ (position.warehouses || []).map(w => w.production_order).filter(Boolean).join(' | ') || '&mdash;' }}</span>
+              </td>
+              <td class="px-4 py-2.5 whitespace-nowrap text-center">
+                <span v-if="position.started" class="inline-flex items-center px-2 py-0.5 rounded-full text-xs font-semibold bg-green-100 text-green-700">Sì</span>
+                <span v-else class="inline-flex items-center px-2 py-0.5 rounded-full text-xs font-semibold bg-gray-100 text-gray-500">No</span>
               </td>
             </tr>
             <tr v-if="!loading && !positions.length">
-              <td colspan="2" class="px-4 py-16 text-center">
+              <td colspan="4" class="px-4 py-16 text-center">
                 <svg class="mx-auto h-12 w-12 text-gray-300 mb-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4"/>
                 </svg>
@@ -547,6 +572,30 @@ onMounted(async () => {
                   </tr>
                 </tbody>
               </table>
+            </div>
+
+            <!-- Toggle Iniziato -->
+            <div class="bg-gray-50 rounded-xl border border-gray-200 px-4 py-4">
+              <div class="flex items-center justify-between">
+                <div>
+                  <p class="text-xs font-semibold text-gray-500 uppercase tracking-wide">Iniziato</p>
+                  <p class="text-xs text-gray-400 mt-0.5">Indica se la lavorazione per questa posizione è stata iniziata</p>
+                </div>
+                <button
+                  @click="toggleStarted"
+                  :class="[
+                    'relative inline-flex h-6 w-11 flex-shrink-0 cursor-pointer rounded-full border-2 border-transparent transition-colors duration-200 ease-in-out focus:outline-none focus:ring-2 focus:ring-copam-blue focus:ring-offset-2',
+                    selectedPosition?.started ? 'bg-copam-blue' : 'bg-gray-200'
+                  ]"
+                >
+                  <span
+                    :class="[
+                      'pointer-events-none inline-block h-5 w-5 transform rounded-full bg-white shadow ring-0 transition duration-200 ease-in-out',
+                      selectedPosition?.started ? 'translate-x-5' : 'translate-x-0'
+                    ]"
+                  />
+                </button>
+              </div>
             </div>
 
             <!-- Modifica posizione -->
