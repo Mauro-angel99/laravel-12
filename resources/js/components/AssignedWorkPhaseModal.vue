@@ -914,10 +914,10 @@ const checkPdf = async () => {
 
 // Non Conformity management functions
 const fetchNonConformities = async () => {
-  const idopr = props.assignment?.work_phase?.IDOPR;
+  const opart = props.assignment?.work_phase?.OPART;
   ncError.value = null;
   
-  if (!idopr) {
+  if (!opart) {
     nonConformities.value = [];
     return;
   }
@@ -925,7 +925,7 @@ const fetchNonConformities = async () => {
   loadingNC.value = true;
   try {
     const res = await axios.get('/api/non-conformities', {
-      params: { idopr: idopr }
+      params: { opart: opart }
     });
     nonConformities.value = res.data;
   } catch (error) {

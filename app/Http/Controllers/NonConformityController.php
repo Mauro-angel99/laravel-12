@@ -15,23 +15,21 @@ class NonConformityController extends Controller
     public function index(Request $request): JsonResponse
     {
         $request->validate([
-            'idopr' => 'required|string|max:50',
+            'opart' => 'required|string|max:50',
         ]);
 
         try {
-            // Trova le non conformità tramite IDOPR -> OCART -> NCART
             $nonConformities = DB::connection('sqlsrv_gestionale')
-                ->table('A01_NON_CON as nc')
-                ->join('A01_ORD_COM_LAM as l', 'nc.NCART', '=', 'l.OCART')
-                ->select('nc.NCRIL', 'nc.NCCLA', 'nc.NCART', 'nc.NCDES')
-                ->where('l.IDORD', $request->idopr)
+                ->table('A01_NON_CON')
+                ->select('NCRIL', 'NCCLA', 'NCART', 'NCDES')
+                ->where('NCART', $request->opart)
                 ->get();
 
             return response()->json($nonConformities);
         } catch (\Exception $e) {
             Log::error('Errore nel caricamento delle non conformità', [
                 'error' => $e->getMessage(),
-                'idopr' => $request->idopr
+                'opart' => $request->opart
             ]);
 
             return response()->json([
