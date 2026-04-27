@@ -17,6 +17,8 @@ class Warehouse extends Model
     protected $fillable = [
         'warehouse_position_id',
         'product_code',
+        'dimension_x',
+        'dimension_y',
         'product_description',
         'production_order',
         'quantity',
@@ -38,6 +40,8 @@ class Warehouse extends Model
         'pending' => 'boolean',
         'received_at' => 'datetime',
         'quantity' => 'decimal:2',
+        'dimension_x' => 'decimal:3',
+        'dimension_y' => 'decimal:3',
         'warehouse_position_id' => 'integer',
         'created_by' => 'integer',
         'updated_by' => 'integer',

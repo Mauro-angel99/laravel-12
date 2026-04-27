@@ -10,10 +10,12 @@ class WarehousePosition extends Model
     protected $fillable = [
         'warehouse_position',
         'started',
+        'quantity',
     ];
 
     protected $casts = [
         'started' => 'boolean',
+        'quantity' => 'decimal:3',
     ];
 
     public function warehouses(): HasMany
