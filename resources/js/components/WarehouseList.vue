@@ -130,7 +130,7 @@ const closeCreateModal = () => {
 const openProductsModal = async (position) => {
   selectedPosition.value = position
   editingPositionName.value = position.warehouse_position
-  editingPositionQuantity.value = position.quantity != null ? parseInt(position.quantity) : null
+  editingPositionQuantity.value = position.quantity ?? null
   editingStarted.value = position.started
   isEditingPosition.value = false
   try {
@@ -293,7 +293,7 @@ const toggleStarted = async () => {
 }
 
 const updatePositionName = async () => {
-  if (!editingPositionName.value) {
+  if (!editingPositionName.value || editingPositionName.value === selectedPosition.value.warehouse_position) {
     isEditingPosition.value = false
     return
   }
@@ -634,10 +634,8 @@ onMounted(async () => {
                   <div class="flex items-center gap-2">
                     <label class="text-xs font-semibold text-gray-500 uppercase tracking-wide whitespace-nowrap">Quantità</label>
                     <input
-                      :value="editingPositionQuantity ?? ''"
-                      @input="e => { const v = e.target.value.replace(/[^0-9]/g, ''); e.target.value = v; editingPositionQuantity = v !== '' ? parseInt(v) : null }"
-                      @keydown="e => { if (!/[0-9]|Backspace|Delete|ArrowLeft|ArrowRight|Tab/.test(e.key)) e.preventDefault() }"
-                      type="text" inputmode="numeric" pattern="[0-9]*"
+                      v-model="editingPositionQuantity"
+                      type="number" step="1" min="0"
                       class="w-28 px-3 py-2 text-sm border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-copam-blue focus:border-copam-blue"
                       placeholder="0"
                     />
