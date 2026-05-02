@@ -15,7 +15,7 @@ class WarehousePosition extends Model
 
     protected $casts = [
         'started' => 'boolean',
-        'quantity' => 'decimal:3',
+        'quantity' => 'integer',
     ];
 
     public function warehouses(): HasMany

@@ -311,7 +311,7 @@ class WarehouseController extends Controller
         $validated = $request->validate([
             'warehouse_position' => 'required|string|max:50',
             'started' => 'sometimes|boolean',
-            'quantity' => 'sometimes|nullable|numeric|min:0',
+            'quantity' => 'sometimes|nullable|integer|min:0',
         ]);
 
         try {

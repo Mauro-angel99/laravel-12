@@ -130,7 +130,7 @@ const closeCreateModal = () => {
 const openProductsModal = async (position) => {
   selectedPosition.value = position
   editingPositionName.value = position.warehouse_position
-  editingPositionQuantity.value = position.quantity ?? null
+  editingPositionQuantity.value = position.quantity != null ? parseInt(position.quantity) : null
   editingStarted.value = position.started
   isEditingPosition.value = false
   try {
@@ -293,7 +293,7 @@ const toggleStarted = async () => {
 }
 
 const updatePositionName = async () => {
-  if (!editingPositionName.value || editingPositionName.value === selectedPosition.value.warehouse_position) {
+  if (!editingPositionName.value) {
     isEditingPosition.value = false
     return
   }
@@ -634,15 +634,17 @@ onMounted(async () => {
                   <div class="flex items-center gap-2">
                     <label class="text-xs font-semibold text-gray-500 uppercase tracking-wide whitespace-nowrap">Quantità</label>
                     <input
-                      v-model="editingPositionQuantity"
-                      type="number" step="0.001" min="0"
+                      :value="editingPositionQuantity ?? ''"
+                      @input="e => { const v = e.target.value.replace(/[^0-9]/g, ''); e.target.value = v; editingPositionQuantity = v !== '' ? parseInt(v) : null }"
+                      @keydown="e => { if (!/[0-9]|Backspace|Delete|ArrowLeft|ArrowRight|Tab/.test(e.key)) e.preventDefault() }"
+                      type="text" inputmode="numeric" pattern="[0-9]*"
                       class="w-28 px-3 py-2 text-sm border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-copam-blue focus:border-copam-blue"
                       placeholder="0"
                     />
                   </div>
                   <button
                     @click="updatePositionName"
-                    :disabled="!editingPositionName || editingPositionName === selectedPosition?.warehouse_position"
+                    :disabled="!editingPositionName || (editingPositionName === selectedPosition?.warehouse_position && editingPositionQuantity == (selectedPosition?.quantity ?? null))"
                     class="px-4 py-2 text-sm font-medium text-white bg-copam-blue rounded-lg hover:bg-copam-blue/90 transition-colors disabled:opacity-50 disabled:cursor-not-allowed focus:outline-none focus:ring-2 focus:ring-copam-blue"
                   >
                     Aggiorna
