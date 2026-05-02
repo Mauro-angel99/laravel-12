@@ -4,6 +4,8 @@ import axios from 'axios';
 import { useModal } from '@/composables/useModal';
 import { useWorkParameters, type WorkParameter } from '@/composables/useWorkParameters';
 
+const props = defineProps<{ isAdmin?: boolean }>();
+
 const { parameters, loading, fetchParameters, createParameter, updateParameter, deleteParameter } = useWorkParameters();
 const { modalState, showSuccess, showError, closeModal } = useModal();
 
@@ -22,6 +24,17 @@ interface FilePathSettings {
     opart_total_chars: number | null;
     opart_remove_before: number | null;
     opart_remove_after: number | null;
+}
+
+interface Permission {
+    id: number;
+    name: string;
+}
+
+interface Role {
+    id: number;
+    name: string;
+    permissions: Permission[];
 }
 
 const filePathSettings = ref<FilePathSettings>({
@@ -205,9 +218,133 @@ const saveFormattingSettings = async (): Promise<void> => {
     }
 };
 
+// --- Gestione Permessi ---
+const roles = ref<Role[]>([]);
+const permissions = ref<Permission[]>([]);
+const loadingPermissions = ref(false);
+const savingPermissions = ref(false);
+const permissionMatrix = ref<Record<number, number[]>>({});
+const showAddPermissionModal = ref(false);
+const showAddRoleModal = ref(false);
+const newPermissionName = ref('');
+const newRoleName = ref('');
+const deletingPermissionId = ref<number | null>(null);
+const deletingRoleId = ref<number | null>(null);
+
+const initMatrix = (): void => {
+    const matrix: Record<number, number[]> = {};
+    roles.value.forEach(role => {
+        matrix[role.id] = role.permissions.map(p => p.id);
+    });
+    permissionMatrix.value = matrix;
+};
+
+const fetchRolesAndPermissions = async (): Promise<void> => {
+    loadingPermissions.value = true;
+    try {
+        const res = await axios.get<{ roles: Role[]; permissions: Permission[] }>('/api/permissions');
+        roles.value = res.data.roles;
+        permissions.value = res.data.permissions;
+        initMatrix();
+    } catch (error: any) {
+        showError('Errore nel caricamento dei permessi');
+    } finally {
+        loadingPermissions.value = false;
+    }
+};
+
+const roleHasPermission = (roleId: number, permId: number): boolean => {
+    return (permissionMatrix.value[roleId] ?? []).includes(permId);
+};
+
+const togglePermission = (roleId: number, permId: number): void => {
+    if (!permissionMatrix.value[roleId]) {
+        permissionMatrix.value[roleId] = [];
+    }
+    const arr = permissionMatrix.value[roleId];
+    const idx = arr.indexOf(permId);
+    if (idx >= 0) {
+        arr.splice(idx, 1);
+    } else {
+        arr.push(permId);
+    }
+};
+
+const saveAllPermissions = async (): Promise<void> => {
+    savingPermissions.value = true;
+    try {
+        const promises = roles.value.map(role => {
+            const permIds = permissionMatrix.value[role.id] ?? [];
+            return axios.put(`/api/permissions/roles/${role.id}`, { permissions: permIds });
+        });
+        await Promise.all(promises);
+        showSuccess('Permessi aggiornati con successo');
+        await fetchRolesAndPermissions();
+    } catch (error: any) {
+        showError(error.response?.data?.message || 'Errore durante il salvataggio');
+    } finally {
+        savingPermissions.value = false;
+    }
+};
+
+const saveNewPermission = async (): Promise<void> => {
+    if (!newPermissionName.value.trim()) return;
+    try {
+        await axios.post('/api/permissions', { name: newPermissionName.value.trim() });
+        showSuccess('Permesso creato con successo');
+        newPermissionName.value = '';
+        showAddPermissionModal.value = false;
+        await fetchRolesAndPermissions();
+    } catch (error: any) {
+        showError(error.response?.data?.message || 'Errore durante la creazione del permesso');
+    }
+};
+
+const confirmDeletePermission = async (perm: Permission): Promise<void> => {
+    deletingPermissionId.value = perm.id;
+    try {
+        await axios.delete(`/api/permissions/${perm.id}`);
+        showSuccess('Permesso eliminato con successo');
+        await fetchRolesAndPermissions();
+    } catch (error: any) {
+        showError(error.response?.data?.message || 'Errore durante l\'eliminazione del permesso');
+    } finally {
+        deletingPermissionId.value = null;
+    }
+};
+
+const saveNewRole = async (): Promise<void> => {
+    if (!newRoleName.value.trim()) return;
+    try {
+        await axios.post('/api/permissions/roles', { name: newRoleName.value.trim() });
+        showSuccess('Ruolo creato con successo');
+        newRoleName.value = '';
+        showAddRoleModal.value = false;
+        await fetchRolesAndPermissions();
+    } catch (error: any) {
+        showError(error.response?.data?.message || 'Errore durante la creazione del ruolo');
+    }
+};
+
+const confirmDeleteRole = async (role: Role): Promise<void> => {
+    deletingRoleId.value = role.id;
+    try {
+        await axios.delete(`/api/permissions/roles/${role.id}`);
+        showSuccess('Ruolo eliminato con successo');
+        await fetchRolesAndPermissions();
+    } catch (error: any) {
+        showError(error.response?.data?.message || 'Errore durante l\'eliminazione del ruolo');
+    } finally {
+        deletingRoleId.value = null;
+    }
+};
+
 onMounted(() => {
     fetchParameters();
     fetchFilePathSettings();
+    if (props.isAdmin) {
+        fetchRolesAndPermissions();
+    }
 });
 </script>
 
@@ -431,6 +568,202 @@ onMounted(() => {
                     <span class="text-green-400 text-xs font-mono font-bold">$ {{ step.cmd }}</span>
                     <pre v-if="step.out" class="text-gray-300 text-xs font-mono whitespace-pre-wrap mt-0.5">{{ step.out }}</pre>
                 </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Sezione Gestione Permessi (solo admin) -->
+    <div v-if="false" class="bg-white shadow rounded-lg p-3 mt-6">
+        <div class="mb-3 flex justify-between items-center">
+            <div>
+                <h3 class="text-lg font-medium leading-6 text-gray-900">Gestione Permessi</h3>
+                <p class="mt-1 text-xs text-gray-500">
+                    Assegna i permessi ai ruoli. Le modifiche si applicano al prossimo accesso degli utenti.
+                </p>
+            </div>
+            <div class="flex gap-2">
+                <button
+                    @click="showAddRoleModal = true"
+                    class="px-3 py-2 bg-gray-100 text-gray-700 text-sm font-medium rounded-md hover:bg-gray-200 focus:outline-none border border-gray-300"
+                >
+                    + Ruolo
+                </button>
+                <button
+                    @click="showAddPermissionModal = true"
+                    class="px-4 py-2 bg-copam-blue text-white text-sm font-medium rounded-md hover:bg-copam-blue/90 focus:outline-none focus:ring-2 focus:ring-copam-blue"
+                >
+                    + Permesso
+                </button>
+            </div>
+        </div>
+
+        <div v-if="loadingPermissions" class="flex items-center justify-center py-8">
+            <svg class="animate-spin h-5 w-5 mr-2 text-gray-400" viewBox="0 0 24 24">
+                <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4" fill="none"></circle>
+                <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+            </svg>
+            <span class="text-xs text-gray-500">Caricamento...</span>
+        </div>
+
+        <div v-else-if="permissions.length === 0 && roles.length === 0" class="text-center py-8">
+            <p class="text-xs text-gray-500">Nessun permesso o ruolo definito. Inizia aggiungendo un permesso e un ruolo.</p>
+        </div>
+
+        <div v-else class="overflow-x-auto">
+            <table class="w-full border-collapse text-xs">
+                <thead>
+                    <tr class="border-b border-gray-200 bg-gray-50">
+                        <th class="px-3 py-2 text-left text-xs font-bold uppercase tracking-wider text-gray-700 min-w-[160px]">
+                            Permesso
+                        </th>
+                        <th
+                            v-for="role in roles"
+                            :key="role.id"
+                            class="px-3 py-2 text-center text-xs font-bold uppercase tracking-wider text-gray-700 min-w-[100px]"
+                        >
+                            <div class="flex flex-col items-center gap-1">
+                                <span class="capitalize">{{ role.name }}</span>
+                                <button
+                                    @click="confirmDeleteRole(role)"
+                                    :disabled="deletingRoleId === role.id"
+                                    class="text-red-400 hover:text-red-600 disabled:opacity-40"
+                                    title="Elimina ruolo"
+                                >
+                                    <svg class="h-3.5 w-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
+                                    </svg>
+                                </button>
+                            </div>
+                        </th>
+                        <th class="px-3 py-2 text-right text-xs font-bold uppercase tracking-wider text-gray-700">
+                            Azioni
+                        </th>
+                    </tr>
+                </thead>
+                <tbody class="bg-white">
+                    <tr v-if="permissions.length === 0">
+                        <td :colspan="roles.length + 2" class="px-3 py-4 text-center text-xs text-gray-400">
+                            Nessun permesso creato
+                        </td>
+                    </tr>
+                    <tr
+                        v-else
+                        v-for="perm in permissions"
+                        :key="perm.id"
+                        class="border-b border-gray-100 hover:bg-gray-50 transition-colors"
+                    >
+                        <td class="px-3 py-2 text-gray-900 font-medium">{{ perm.name }}</td>
+                        <td
+                            v-for="role in roles"
+                            :key="role.id"
+                            class="px-3 py-2 text-center"
+                        >
+                            <input
+                                type="checkbox"
+                                :checked="roleHasPermission(role.id, perm.id)"
+                                @change="togglePermission(role.id, perm.id)"
+                                class="h-4 w-4 rounded border-gray-300 cursor-pointer"
+                            />
+                        </td>
+                        <td class="px-3 py-2 text-right">
+                            <button
+                                @click="confirmDeletePermission(perm)"
+                                :disabled="deletingPermissionId === perm.id"
+                                class="inline-flex items-center gap-1 text-red-500 hover:text-red-700 text-xs font-medium disabled:opacity-40"
+                            >
+                                <svg class="h-3.5 w-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
+                                </svg>
+                                Elimina
+                            </button>
+                        </td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+
+        <div v-if="!loadingPermissions && (permissions.length > 0 || roles.length > 0)" class="mt-4 flex justify-end">
+            <button
+                type="button"
+                @click="saveAllPermissions"
+                :disabled="savingPermissions"
+                class="px-4 py-2 bg-copam-blue text-white text-sm font-medium rounded-md hover:bg-copam-blue/90 focus:outline-none focus:ring-2 focus:ring-copam-blue disabled:opacity-60 disabled:cursor-not-allowed"
+            >
+                {{ savingPermissions ? 'Salvataggio...' : 'Salva Permessi' }}
+            </button>
+        </div>
+    </div>
+
+    <!-- Modal Aggiungi Permesso -->
+    <div v-if="showAddPermissionModal" class="fixed inset-0 z-50 overflow-y-auto">
+        <div class="flex items-center justify-center min-h-screen px-4 pt-4 pb-20 text-center sm:block sm:p-0">
+            <div class="fixed inset-0 transition-opacity bg-gray-500 bg-opacity-75" @click="showAddPermissionModal = false"></div>
+            <div class="inline-block align-bottom bg-white rounded-lg px-4 pt-5 pb-4 text-left overflow-hidden shadow-xl transform transition-all sm:my-8 sm:align-middle sm:max-w-sm sm:w-full sm:p-6">
+                <h3 class="text-lg font-medium leading-6 text-gray-900 mb-4">Nuovo Permesso</h3>
+                <form @submit.prevent="saveNewPermission" class="space-y-4">
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-1">Nome permesso *</label>
+                        <input
+                            v-model="newPermissionName"
+                            type="text"
+                            required
+                            placeholder="es. gestione magazzino"
+                            class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-copam-blue focus:border-copam-blue text-sm"
+                        />
+                    </div>
+                    <div class="flex justify-end space-x-3 pt-2">
+                        <button
+                            type="button"
+                            @click="showAddPermissionModal = false"
+                            class="px-4 py-2 bg-gray-200 text-gray-700 text-sm font-medium rounded-md hover:bg-gray-300"
+                        >
+                            Annulla
+                        </button>
+                        <button
+                            type="submit"
+                            class="px-4 py-2 bg-copam-blue text-white text-sm font-medium rounded-md hover:bg-copam-blue/90"
+                        >
+                            Crea
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal Aggiungi Ruolo -->
+    <div v-if="showAddRoleModal" class="fixed inset-0 z-50 overflow-y-auto">
+        <div class="flex items-center justify-center min-h-screen px-4 pt-4 pb-20 text-center sm:block sm:p-0">
+            <div class="fixed inset-0 transition-opacity bg-gray-500 bg-opacity-75" @click="showAddRoleModal = false"></div>
+            <div class="inline-block align-bottom bg-white rounded-lg px-4 pt-5 pb-4 text-left overflow-hidden shadow-xl transform transition-all sm:my-8 sm:align-middle sm:max-w-sm sm:w-full sm:p-6">
+                <h3 class="text-lg font-medium leading-6 text-gray-900 mb-4">Nuovo Ruolo</h3>
+                <form @submit.prevent="saveNewRole" class="space-y-4">
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-1">Nome ruolo *</label>
+                        <input
+                            v-model="newRoleName"
+                            type="text"
+                            required
+                            placeholder="es. supervisore"
+                            class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-copam-blue focus:border-copam-blue text-sm"
+                        />
+                    </div>
+                    <div class="flex justify-end space-x-3 pt-2">
+                        <button
+                            type="button"
+                            @click="showAddRoleModal = false"
+                            class="px-4 py-2 bg-gray-200 text-gray-700 text-sm font-medium rounded-md hover:bg-gray-300"
+                        >
+                            Annulla
+                        </button>
+                        <button
+                            type="submit"
+                            class="px-4 py-2 bg-copam-blue text-white text-sm font-medium rounded-md hover:bg-copam-blue/90"
+                        >
+                            Crea
+                        </button>
+                    </div>
+                </form>
             </div>
         </div>
     </div>

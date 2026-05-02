@@ -2,6 +2,7 @@
 
 use App\Http\Controllers\Admin\UserController;
 use App\Http\Controllers\ProfileController;
+use App\Http\Controllers\Settings\PermissionsController;
 use Illuminate\Support\Facades\Route;
 
 use App\Http\Controllers\WorkPhaseController;
@@ -22,6 +23,14 @@ Route::middleware(['auth', 'role:admin'])->group(function () {
         // Name routes as users.* while keeping URL under /admin/users
         Route::resource('users', UserController::class)->names('users');
     });
+
+    // API Gestione Permessi (solo admin)
+    Route::get('/api/permissions', [PermissionsController::class, 'index']);
+    Route::post('/api/permissions/roles', [PermissionsController::class, 'storeRole']);
+    Route::put('/api/permissions/roles/{role}', [PermissionsController::class, 'updateRolePermissions']);
+    Route::delete('/api/permissions/roles/{role}', [PermissionsController::class, 'destroyRole']);
+    Route::post('/api/permissions', [PermissionsController::class, 'storePermission']);
+    Route::delete('/api/permissions/{permission}', [PermissionsController::class, 'destroyPermission']);
 });
 
 // API routes
@@ -64,8 +73,7 @@ Route::middleware('auth')->group(function () {
     Route::get('/api/article-search', [ArticleSearchController::class, 'list'])->name('article-search.list');
 });
 
-Route::middleware(['auth', 'role:admin'])->group(function () {
-    // API per assegnare i selezionati (solo admin)
+Route::middleware('auth')->group(function () {
     Route::post('/api/work-phases/assign', [WorkPhaseController::class, 'assign'])->name('workphases.assign');
 });
 

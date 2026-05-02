@@ -8,7 +8,8 @@
     @section('content')
         <div class="py-1">
             <div class="max-w-8xl mx-auto sm:px-0 md:px-0 lg:px-0 xl:px-8">
-                <work-parameters-list></work-parameters-list>
+                <work-parameters-list
+                    :is-admin="{{ Auth::user()->hasRole('admin') ? 'true' : 'false' }}"></work-parameters-list>
             </div>
         </div>
     @endsection

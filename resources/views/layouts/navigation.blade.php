@@ -35,7 +35,7 @@
                     @endif --}}
 
                     @if (Auth::user()->hasRole('admin'))
-                        <!-- Dropdown Impostazioni -->
+                        <!-- Dropdown Impostazioni (solo admin) -->
                         <div class="hidden sm:flex sm:items-center">
                             <x-dropdown align="left" width="48">
                                 <x-slot name="trigger">
