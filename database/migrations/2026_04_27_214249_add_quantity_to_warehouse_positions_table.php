@@ -6,19 +6,13 @@ use Illuminate\Support\Facades\Schema;
 
 return new class extends Migration
 {
-    /**
-     * Run the migrations.
-     */
     public function up(): void
     {
         Schema::table('warehouse_positions', function (Blueprint $table) {
-            $table->decimal('quantity', 15, 3)->nullable()->after('started');
+            $table->decimal('quantity', 10, 3)->nullable()->after('started');
         });
     }
 
-    /**
-     * Reverse the migrations.
-     */
     public function down(): void
     {
         Schema::table('warehouse_positions', function (Blueprint $table) {

@@ -41,16 +41,17 @@ const selectedPosition = ref(null)
 const selectedProducts = ref([])
 const editingProduct = ref(null)
 const editingPositionName = ref('')
+const editingPositionQuantity = ref(null)
 const isEditingPosition = ref(false)
 
 const formData = ref({
   warehouse_position: '',
   product_code: '',
-  dimension_x: '',
-  dimension_y: '',
   production_order: '',
   product_description: '',
   notes: '',
+  dimension_x: null,
+  dimension_y: null,
   pending: true,
   pending_code: ''
 })
@@ -111,11 +112,11 @@ const openCreateModal = () => {
   formData.value = {
     warehouse_position: '',
     product_code: '',
-    dimension_x: '',
-    dimension_y: '',
     production_order: '',
     product_description: '',
     notes: '',
+    dimension_x: null,
+    dimension_y: null,
     pending: true,
     pending_code: ''
   }
@@ -129,8 +130,8 @@ const closeCreateModal = () => {
 const openProductsModal = async (position) => {
   selectedPosition.value = position
   editingPositionName.value = position.warehouse_position
+  editingPositionQuantity.value = position.quantity ?? null
   editingStarted.value = position.started
-  editingPositionQuantity.value = position.quantity ?? ''
   isEditingPosition.value = false
   try {
     const res = await axios.get(`/api/warehouse/positions/${position.id}/products`)
@@ -147,6 +148,7 @@ const closeProductsModal = () => {
   selectedPosition.value = null
   selectedProducts.value = []
   editingPositionName.value = ''
+  editingPositionQuantity.value = null
   isEditingPosition.value = false
 }
 
@@ -155,11 +157,11 @@ const openEditModal = (product) => {
   formData.value = {
     warehouse_position: product.position?.warehouse_position || '',
     product_code: product.product_code || '',
-    dimension_x: product.dimension_x ?? '',
-    dimension_y: product.dimension_y ?? '',
     production_order: product.production_order || '',
     product_description: product.product_description || '',
-    notes: product.notes || ''
+    notes: product.notes || '',
+    dimension_x: product.dimension_x ?? null,
+    dimension_y: product.dimension_y ?? null,
   }
   // Non chiudere showProductsModal per permettere modali annidate
   showEditModal.value = true
@@ -274,7 +276,6 @@ const closeDeleteModal = () => {
 }
 
 const editingStarted = ref(false)
-const editingPositionQuantity = ref('')
 
 const toggleStarted = async () => {
   try {
@@ -292,25 +293,16 @@ const toggleStarted = async () => {
 }
 
 const updatePositionName = async () => {
-  if (!editingPositionName.value) {
-    isEditingPosition.value = false
-    return
-  }
-
-  const nameUnchanged = editingPositionName.value === selectedPosition.value.warehouse_position
-  const quantityUnchanged = (editingPositionQuantity.value === '' ? null : parseFloat(editingPositionQuantity.value)) === (selectedPosition.value.quantity ?? null)
-
-  if (nameUnchanged && quantityUnchanged) {
+  if (!editingPositionName.value || editingPositionName.value === selectedPosition.value.warehouse_position) {
     isEditingPosition.value = false
     return
   }
 
   try {
-    const payload = {
+    const res = await axios.put(`/api/warehouse/positions/${selectedPosition.value.id}`, {
       warehouse_position: editingPositionName.value,
-      quantity: editingPositionQuantity.value !== '' ? editingPositionQuantity.value : null,
-    }
-    const res = await axios.put(`/api/warehouse/positions/${selectedPosition.value.id}`, payload)
+      quantity: editingPositionQuantity.value
+    })
     isEditingPosition.value = false
     closeProductsModal()
     showMessageModal('success', 'Successo', res.data.message || 'Posizione aggiornata con successo')
@@ -530,6 +522,19 @@ onMounted(async () => {
                 class="w-full px-3 py-2 text-sm border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-copam-blue focus:border-copam-blue"/>
             </div>
 
+            <div class="flex gap-3">
+              <div class="flex-1">
+                <label class="block text-xs font-semibold text-gray-500 uppercase tracking-wide mb-1">Dim X (mm)</label>
+                <input v-model="formData.dimension_x" type="number" step="0.001" min="0"
+                  class="w-full px-3 py-2 text-sm border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-copam-blue focus:border-copam-blue"/>
+              </div>
+              <div class="flex-1">
+                <label class="block text-xs font-semibold text-gray-500 uppercase tracking-wide mb-1">Dim Y (mm)</label>
+                <input v-model="formData.dimension_y" type="number" step="0.001" min="0"
+                  class="w-full px-3 py-2 text-sm border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-copam-blue focus:border-copam-blue"/>
+              </div>
+            </div>
+
             <div class="flex justify-end gap-2 pt-2 border-t border-gray-100">
               <button type="button" @click="closeCreateModal"
                 class="px-4 py-2 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-lg hover:bg-gray-50 transition-colors">
@@ -592,14 +597,12 @@ onMounted(async () => {
                 <thead class="bg-copam-blue text-white">
                   <tr>
                     <th class="px-4 py-2.5 text-left text-xs font-semibold uppercase tracking-wider border-r border-blue-400/40">Codice Merce</th>
-                    <th class="px-4 py-2.5 text-left text-xs font-semibold uppercase tracking-wider border-r border-blue-400/40">Dim. X</th>
-                    <th class="px-4 py-2.5 text-left text-xs font-semibold uppercase tracking-wider border-r border-blue-400/40">Dim. Y</th>
                     <th class="px-4 py-2.5 text-left text-xs font-semibold uppercase tracking-wider">Ord. Prod.</th>
                   </tr>
                 </thead>
                 <tbody class="divide-y divide-gray-100">
                   <tr v-if="selectedProducts.length === 0">
-                    <td colspan="4" class="px-4 py-8 text-center text-xs text-gray-400">Nessuna merce in questa posizione</td>
+                    <td colspan="2" class="px-4 py-8 text-center text-xs text-gray-400">Nessuna merce in questa posizione</td>
                   </tr>
                   <tr
                     v-for="(product, index) in selectedProducts"
@@ -611,8 +614,6 @@ onMounted(async () => {
                     ]"
                   >
                     <td class="px-4 py-2.5 whitespace-nowrap font-medium text-gray-800 border-r border-gray-100">{{ product.product_code || '&mdash;' }}</td>
-                    <td class="px-4 py-2.5 whitespace-nowrap text-gray-600 border-r border-gray-100">{{ product.dimension_x ?? '&mdash;' }}</td>
-                    <td class="px-4 py-2.5 whitespace-nowrap text-gray-600 border-r border-gray-100">{{ product.dimension_y ?? '&mdash;' }}</td>
                     <td class="px-4 py-2.5 whitespace-nowrap text-gray-600">{{ product.production_order || '&mdash;' }}</td>
                   </tr>
                 </tbody>
@@ -621,31 +622,27 @@ onMounted(async () => {
 
             <!-- Modifica posizione -->
             <div class="bg-gray-50 rounded-xl border border-gray-200 px-4 py-4">
-              <div class="flex flex-col sm:flex-row gap-4">
-                <div class="flex-1">
-                  <p class="text-xs font-semibold text-gray-500 uppercase tracking-wide mb-2">Rinomina Posizione</p>
+              <p class="text-xs font-semibold text-gray-500 uppercase tracking-wide mb-2">Modifica Posizione</p>
+              <div class="flex flex-col gap-2">
+                <div class="flex flex-col sm:flex-row gap-2">
                   <input
                     v-model="editingPositionName"
                     type="text"
-                    class="w-full px-3 py-2 text-sm border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-copam-blue focus:border-copam-blue"
+                    class="flex-1 px-3 py-2 text-sm border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-copam-blue focus:border-copam-blue"
                     placeholder="Inserisci nuovo nome posizione"
                   />
-                </div>
-                <div class="w-full sm:w-36">
-                  <p class="text-xs font-semibold text-gray-500 uppercase tracking-wide mb-2">Quantità</p>
-                  <input
-                    v-model="editingPositionQuantity"
-                    type="number"
-                    min="0"
-                    step="0.001"
-                    class="w-full px-3 py-2 text-sm border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-copam-blue focus:border-copam-blue"
-                    placeholder="0.000"
-                  />
-                </div>
-                <div class="flex items-end">
+                  <div class="flex items-center gap-2">
+                    <label class="text-xs font-semibold text-gray-500 uppercase tracking-wide whitespace-nowrap">Quantità</label>
+                    <input
+                      v-model="editingPositionQuantity"
+                      type="number" step="0.001" min="0"
+                      class="w-28 px-3 py-2 text-sm border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-copam-blue focus:border-copam-blue"
+                      placeholder="0"
+                    />
+                  </div>
                   <button
                     @click="updatePositionName"
-                    :disabled="!editingPositionName"
+                    :disabled="!editingPositionName || editingPositionName === selectedPosition?.warehouse_position"
                     class="px-4 py-2 text-sm font-medium text-white bg-copam-blue rounded-lg hover:bg-copam-blue/90 transition-colors disabled:opacity-50 disabled:cursor-not-allowed focus:outline-none focus:ring-2 focus:ring-copam-blue"
                   >
                     Aggiorna
@@ -694,24 +691,23 @@ onMounted(async () => {
               <input v-model="formData.product_code" type="text"
                 class="w-full px-3 py-2 text-sm border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-copam-blue focus:border-copam-blue"/>
             </div>
-            <div class="flex gap-3">
-              <div class="flex-1">
-                <label class="block text-xs font-semibold text-gray-500 uppercase tracking-wide mb-1">Dim. X</label>
-                <input v-model="formData.dimension_x" type="number" min="0" step="0.001"
-                  class="w-full px-3 py-2 text-sm border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-copam-blue focus:border-copam-blue"
-                  placeholder="0.000"/>
-              </div>
-              <div class="flex-1">
-                <label class="block text-xs font-semibold text-gray-500 uppercase tracking-wide mb-1">Dim. Y</label>
-                <input v-model="formData.dimension_y" type="number" min="0" step="0.001"
-                  class="w-full px-3 py-2 text-sm border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-copam-blue focus:border-copam-blue"
-                  placeholder="0.000"/>
-              </div>
-            </div>
             <div>
               <label class="block text-xs font-semibold text-gray-500 uppercase tracking-wide mb-1">Ord. Prod.</label>
               <input v-model="formData.production_order" type="text"
                 class="w-full px-3 py-2 text-sm border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-copam-blue focus:border-copam-blue"/>
+            </div>
+
+            <div class="flex gap-3">
+              <div class="flex-1">
+                <label class="block text-xs font-semibold text-gray-500 uppercase tracking-wide mb-1">Dim X (mm)</label>
+                <input v-model="formData.dimension_x" type="number" step="0.001" min="0"
+                  class="w-full px-3 py-2 text-sm border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-copam-blue focus:border-copam-blue"/>
+              </div>
+              <div class="flex-1">
+                <label class="block text-xs font-semibold text-gray-500 uppercase tracking-wide mb-1">Dim Y (mm)</label>
+                <input v-model="formData.dimension_y" type="number" step="0.001" min="0"
+                  class="w-full px-3 py-2 text-sm border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-copam-blue focus:border-copam-blue"/>
+              </div>
             </div>
 
             <div class="flex flex-col sm:flex-row sm:justify-end gap-2 pt-2 border-t border-gray-100">

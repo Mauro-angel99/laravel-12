@@ -94,11 +94,11 @@ class WarehouseController extends Controller
         $validated = $request->validate([
             'warehouse_position' => 'nullable|string|max:50',
             'product_code' => 'nullable|string|max:50',
-            'dimension_x' => 'nullable|numeric|min:0',
-            'dimension_y' => 'nullable|numeric|min:0',
             'product_description' => 'nullable|string|max:255',
             'production_order' => 'nullable|string|max:50',
             'notes' => 'nullable|string|max:1000',
+            'dimension_x' => 'nullable|numeric|min:0',
+            'dimension_y' => 'nullable|numeric|min:0',
             'pending' => 'boolean',
             'pending_code' => 'nullable|string|max:50',
         ]);
@@ -130,11 +130,11 @@ class WarehouseController extends Controller
             $warehouse = Warehouse::create([
                 'warehouse_position_id' => $position->id,
                 'product_code' => $validated['product_code'],
-                'dimension_x' => $validated['dimension_x'] ?? null,
-                'dimension_y' => $validated['dimension_y'] ?? null,
                 'production_order' => $validated['production_order'],
                 'product_description' => $validated['product_description'],
                 'notes' => $validated['notes'] ?? null,
+                'dimension_x' => $validated['dimension_x'] ?? null,
+                'dimension_y' => $validated['dimension_y'] ?? null,
                 'pending' => $validated['pending'] ?? false,
                 'pending_code' => $validated['pending_code'] ?? null,
                 'created_by' => Auth::id(),
@@ -173,11 +173,11 @@ class WarehouseController extends Controller
         $validated = $request->validate([
             'warehouse_position' => 'required|string|max:50',
             'product_code' => 'nullable|string|max:50',
-            'dimension_x' => 'nullable|numeric|min:0',
-            'dimension_y' => 'nullable|numeric|min:0',
             'product_description' => 'nullable|string|max:255',
             'production_order' => 'nullable|string|max:50',
             'notes' => 'nullable|string|max:1000',
+            'dimension_x' => 'nullable|numeric|min:0',
+            'dimension_y' => 'nullable|numeric|min:0',
             'pending' => 'boolean',
             'pending_code' => 'nullable|string|max:50',
         ]);
@@ -196,11 +196,11 @@ class WarehouseController extends Controller
             $warehouse->update([
                 'warehouse_position_id' => $position->id,
                 'product_code' => $validated['product_code'],
-                'dimension_x' => $validated['dimension_x'] ?? null,
-                'dimension_y' => $validated['dimension_y'] ?? null,
                 'production_order' => $validated['production_order'],
                 'product_description' => $validated['product_description'],
                 'notes' => $validated['notes'] ?? null,
+                'dimension_x' => $validated['dimension_x'] ?? null,
+                'dimension_y' => $validated['dimension_y'] ?? null,
                 'pending' => $validated['pending'] ?? false,
                 'pending_code' => $validated['pending_code'] ?? null,
                 'updated_by' => Auth::id(),
@@ -348,15 +348,11 @@ class WarehouseController extends Controller
                 // Elimina la vecchia posizione vuota
                 $position->delete();
 
-                $existingUpdateData = [];
                 if (array_key_exists('started', $validated)) {
-                    $existingUpdateData['started'] = $validated['started'];
+                    $existingPosition->update(['started' => $validated['started']]);
                 }
                 if (array_key_exists('quantity', $validated)) {
-                    $existingUpdateData['quantity'] = $validated['quantity'];
-                }
-                if (!empty($existingUpdateData)) {
-                    $existingPosition->update($existingUpdateData);
+                    $existingPosition->update(['quantity' => $validated['quantity']]);
                 }
 
                 $position = $existingPosition;

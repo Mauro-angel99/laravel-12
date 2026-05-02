@@ -6,20 +6,14 @@ use Illuminate\Support\Facades\Schema;
 
 return new class extends Migration
 {
-    /**
-     * Run the migrations.
-     */
     public function up(): void
     {
         Schema::table('warehouses', function (Blueprint $table) {
-            $table->decimal('dimension_x', 15, 3)->nullable()->after('product_code');
-            $table->decimal('dimension_y', 15, 3)->nullable()->after('dimension_x');
+            $table->decimal('dimension_x', 10, 3)->nullable()->after('notes');
+            $table->decimal('dimension_y', 10, 3)->nullable()->after('dimension_x');
         });
     }
 
-    /**
-     * Reverse the migrations.
-     */
     public function down(): void
     {
         Schema::table('warehouses', function (Blueprint $table) {

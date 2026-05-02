@@ -16,7 +16,6 @@ use App\Http\Controllers\WorkPhasePdfController;
 use App\Http\Controllers\UserController as ApiUserController;
 use App\Http\Controllers\BillOfMaterialsController;
 use App\Http\Controllers\ArticleSearchController;
-use App\Http\Controllers\SupportTicketController;
 
 Route::middleware(['auth', 'role:admin'])->group(function () {
     Route::prefix('admin')->group(function () {
@@ -175,18 +174,4 @@ Route::middleware('auth')->group(function () {
     // Non Conformity routes
     Route::get('/api/non-conformities', [NonConformityController::class, 'index'])
         ->name('non-conformities.index');
-});
-
-// Support Ticket routes (tutti gli utenti autenticati)
-Route::middleware('auth')->group(function () {
-    Route::get('/support', [SupportTicketController::class, 'index'])->name('support.index');
-    Route::post('/support', [SupportTicketController::class, 'store'])->name('support.store');
-});
-
-// Support Ticket admin routes
-Route::middleware(['auth', 'role:admin'])->prefix('admin')->group(function () {
-    Route::get('/support', [SupportTicketController::class, 'adminIndex'])->name('admin.support.index');
-    Route::get('/support/{ticket}', [SupportTicketController::class, 'adminShow'])->name('admin.support.show');
-    Route::post('/support/{ticket}/reply', [SupportTicketController::class, 'adminReply'])->name('admin.support.reply');
-    Route::patch('/support/{ticket}/close', [SupportTicketController::class, 'adminClose'])->name('admin.support.close');
 });
