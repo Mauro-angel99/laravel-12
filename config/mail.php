@@ -113,4 +113,8 @@ return [
         'name' => env('MAIL_FROM_NAME', 'Example'),
     ],
 
+    // Support ticket settings
+    'support_admin_email' => env('SUPPORT_ADMIN_EMAIL'),
+    'support_from_address' => env('SUPPORT_FROM_ADDRESS'),
+
 ];

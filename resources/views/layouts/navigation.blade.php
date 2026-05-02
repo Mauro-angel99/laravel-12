@@ -24,6 +24,9 @@
                     <x-nav-link :href="route('warehouse.index')" :active="request()->routeIs('warehouse.index')">
                         {{ __('Magazzino') }}
                     </x-nav-link>
+                    <x-nav-link :href="route('support.index')" :active="request()->routeIs('support.index')">
+                        {{ __('Supporto') }}
+                    </x-nav-link>
                     <x-nav-link :href="route('article-search.index')" :active="request()->routeIs('article-search.index')">
                         {{ __('Ricerca Articolo') }}
                     </x-nav-link>
@@ -57,6 +60,9 @@
                                     @if (Auth::user()->hasRole('admin'))
                                         <x-dropdown-link :href="route('users.index')">
                                             {{ __('Utenti') }}
+                                        </x-dropdown-link>
+                                        <x-dropdown-link :href="route('admin.support.index')">
+                                            {{ __('Ticket Supporto') }}
                                         </x-dropdown-link>
                                     @endif
                                     <x-dropdown-link :href="route('general.edit')">
@@ -137,6 +143,9 @@
             </x-responsive-nav-link>
             <x-responsive-nav-link :href="route('warehouse.index')" :active="request()->routeIs('warehouse.index')">
                 {{ __('Magazzino') }}
+            </x-responsive-nav-link>
+            <x-responsive-nav-link :href="route('support.index')" :active="request()->routeIs('support.index')">
+                {{ __('Supporto') }}
             </x-responsive-nav-link>
             <x-responsive-nav-link :href="route('article-search.index')" :active="request()->routeIs('article-search.index')">
                 {{ __('Ricerca Articolo') }}
