@@ -9,10 +9,11 @@
 
         <!-- Header -->
         <div class="bg-copam-blue px-6 py-4 flex justify-between items-center">
-          <div>
+          <div class="flex items-center gap-2">
             <h3 class="text-base font-semibold text-white" id="modal-title">Dettagli Fase di Lavoro</h3>
-            <p class="text-xs text-blue-200 mt-0.5">ID: {{ phase?.RECORD_ID }}</p>
+            <span v-if="phase?.FLLAV" class="bg-white/20 text-white text-xs font-mono px-2 py-0.5 rounded">{{ phase.FLLAV }}</span>
           </div>
+          <p class="text-xs text-blue-200 mt-0.5">ID: {{ phase?.RECORD_ID }}</p>
           <button
             type="button"
             class="text-blue-200 hover:text-white transition-colors"

@@ -201,11 +201,15 @@ class WorkPhaseController extends Controller
                 d.DTRIC,
                 d.DTNUM,
                 d.DRCON,
-                p.OPART
+                p.OPART,
+                a.ARMAT AS MATERIALE,
+                a.ARDMZ AS SPESSORE,
+                a.ARPRF AS PROFILO
             FROM dbo.A01_ORD_FAS f
             LEFT JOIN dbo.A01_ORD_COM_LAM l ON f.IDOPR = l.IDORD
             LEFT JOIN dbo.A01_DOC_VER_ALL d ON f.FLASS = d.DROPR
-            LEFT JOIN dbo.A01_ORD_PRO_ALL p ON f.IDOPR = p.RECORD_ID';
+            LEFT JOIN dbo.A01_ORD_PRO_ALL p ON f.IDOPR = p.RECORD_ID
+            LEFT JOIN dbo.A01_ART_ICO a ON p.OPART = a.CDART';
             $params = [];
             $conditions = [];
 

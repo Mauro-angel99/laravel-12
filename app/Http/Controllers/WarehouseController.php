@@ -129,9 +129,9 @@ class WarehouseController extends Controller
             // Crea la merce nella posizione
             $warehouse = Warehouse::create([
                 'warehouse_position_id' => $position->id,
-                'product_code' => $validated['product_code'],
-                'production_order' => $validated['production_order'],
-                'product_description' => $validated['product_description'],
+                'product_code' => $validated['product_code'] ?? null,
+                'production_order' => $validated['production_order'] ?? null,
+                'product_description' => $validated['product_description'] ?? null,
                 'notes' => $validated['notes'] ?? null,
                 'dimension_x' => $validated['dimension_x'] ?? null,
                 'dimension_y' => $validated['dimension_y'] ?? null,
@@ -306,6 +306,65 @@ class WarehouseController extends Controller
     }
 
     // API: aggiorna il nome di una posizione
+    public function storePosition(Request $request)
+    {
+        $validated = $request->validate([
+            'warehouse_position' => 'nullable|string|max:50',
+            'quantity' => 'nullable|integer|min:0',
+            'pending' => 'boolean',
+        ]);
+
+        $isPending = $validated['pending'] ?? false;
+        $positionName = $validated['warehouse_position'] ?? '';
+
+        if (!$isPending && empty($positionName)) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Il campo Posizione è obbligatorio quando non è in attesa.',
+                'errors' => ['warehouse_position' => ['Il campo Posizione è obbligatorio.']]
+            ], 422);
+        }
+
+        if (empty($positionName)) {
+            $positionName = 'IN_ATTESA_' . strtoupper(uniqid());
+        } elseif ($isPending && !str_starts_with(strtoupper($positionName), 'IN_ATTESA_')) {
+            $positionName = 'IN_ATTESA_' . $positionName;
+        }
+
+        try {
+            $position = WarehousePosition::firstOrCreate(
+                ['warehouse_position' => $positionName],
+                ['started' => false, 'quantity' => $validated['quantity'] ?? null]
+            );
+
+            if (!$position->wasRecentlyCreated && isset($validated['quantity'])) {
+                $position->increment('quantity', $validated['quantity']);
+                $position->refresh();
+            }
+
+            Log::info('Warehouse position created or found', [
+                'position_id' => $position->id,
+                'position' => $positionName,
+                'user_id' => Auth::id()
+            ]);
+
+            return response()->json([
+                'success' => true,
+                'message' => 'Posizione creata con successo',
+                'data' => $position
+            ], 201);
+        } catch (\Exception $e) {
+            Log::error('Error creating warehouse position: ' . $e->getMessage(), [
+                'user_id' => Auth::id(),
+            ]);
+
+            return response()->json([
+                'success' => false,
+                'message' => 'Errore durante la creazione della posizione'
+            ], 500);
+        }
+    }
+
     public function updatePosition(Request $request, WarehousePosition $position)
     {
         $validated = $request->validate([
