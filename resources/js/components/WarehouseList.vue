@@ -155,6 +155,10 @@ const duplicateProductionOrders = computed(() => {
   return new Set(Object.keys(counts).filter(o => counts[o] > 1))
 })
 
+const positionOrderCount = computed(() =>
+  newPositionForm.value.productionOrders.filter(o => o && o.trim()).length
+)
+
 const isDuplicateOrder = (index) => {
   const val = newPositionForm.value.productionOrders[index]
   if (!val || !val.trim()) return false
@@ -175,7 +179,7 @@ const savePosition = async () => {
   try {
     const res = await axios.post('/api/warehouse/positions', {
       warehouse_position: newPositionForm.value.name,
-      quantity: newPositionForm.value.quantity,
+      quantity: positionOrderCount.value,
       pending: newPositionForm.value.pending,
     })
     if (!res.data.success) return
@@ -433,18 +437,18 @@ onMounted(async () => {
 
     <!-- Pannello filtri -->
     <div class="bg-white rounded-xl shadow-sm border border-gray-200 overflow-hidden">
-      <div class="bg-copam-blue px-4 xl:px-8 py-3 xl:py-5 flex items-center gap-2">
-        <svg class="w-4 h-4 xl:w-7 xl:h-7 text-white/80" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+      <div class="bg-copam-blue px-4 py-3 flex items-center gap-2">
+        <svg class="w-4 h-4 text-white/80" fill="none" stroke="currentColor" viewBox="0 0 24 24">
           <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 4a1 1 0 011-1h16a1 1 0 011 1v2a1 1 0 01-.293.707L13 13.414V19a1 1 0 01-.553.894l-4 2A1 1 0 017 21v-7.586L3.293 6.707A1 1 0 013 6V4z"/>
         </svg>
-        <span class="text-sm xl:text-2xl font-semibold text-white">Magazzino</span>
+        <span class="text-sm font-semibold text-white">Magazzino</span>
       </div>
-      <div class="px-4 xl:px-8 py-3 xl:py-5 flex flex-col sm:flex-row sm:items-center gap-3 xl:gap-6">
+      <div class="px-4 py-3 flex flex-col sm:flex-row sm:items-center gap-3">
         <button
           @click="showAddPositionModal = true"
-          class="inline-flex items-center gap-2 px-4 xl:px-7 py-2 xl:py-4 bg-gray-600 text-white text-sm xl:text-xl font-medium rounded-lg xl:rounded-xl hover:bg-gray-700 focus:outline-none focus:ring-2 focus:ring-gray-500 transition-colors w-full sm:w-auto justify-center"
+          class="inline-flex items-center gap-2 px-4 py-2 bg-gray-600 text-white text-sm font-medium rounded-lg hover:bg-gray-700 focus:outline-none focus:ring-2 focus:ring-gray-500 transition-colors w-full sm:w-auto justify-center"
         >
-          <svg class="w-4 h-4 xl:w-6 xl:h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z"/>
             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z"/>
           </svg>
@@ -452,28 +456,28 @@ onMounted(async () => {
         </button>
         <button
           @click="openCreateModal"
-          class="inline-flex items-center gap-2 px-4 xl:px-7 py-2 xl:py-4 bg-copam-blue text-white text-sm xl:text-xl font-medium rounded-lg xl:rounded-xl hover:bg-copam-blue/90 focus:outline-none focus:ring-2 focus:ring-copam-blue transition-colors w-full sm:w-auto justify-center"
+          class="inline-flex items-center gap-2 px-4 py-2 bg-copam-blue text-white text-sm font-medium rounded-lg hover:bg-copam-blue/90 focus:outline-none focus:ring-2 focus:ring-copam-blue transition-colors w-full sm:w-auto justify-center"
         >
-          <svg class="w-4 h-4 xl:w-6 xl:h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"/>
           </svg>
           Aggiungi Merce
         </button>
 
-        <label class="flex items-center gap-2 xl:gap-4 cursor-pointer select-none">
+        <label class="flex items-center gap-2 cursor-pointer select-none">
           <input
             v-model="filterPending"
             @change="fetchPositions(1)"
             type="checkbox"
             class="sr-only peer"
           />
-          <div class="relative w-10 xl:w-20 h-5 xl:h-10 bg-gray-200 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] xl:after:top-[4px] after:start-[2px] xl:after:start-[4px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-4 xl:after:h-8 after:w-4 xl:after:w-8 after:transition-all peer-checked:bg-copam-blue"></div>
-          <span class="text-sm xl:text-xl text-gray-700 font-medium">In Attesa</span>
+          <div class="relative w-10 h-5 bg-gray-200 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:start-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-4 after:w-4 after:transition-all peer-checked:bg-copam-blue"></div>
+          <span class="text-sm text-gray-700 font-medium">In Attesa</span>
         </label>
 
-        <div class="sm:ml-auto sm:max-w-md xl:max-w-2xl w-full">
+        <div class="sm:ml-auto sm:max-w-md w-full">
           <div class="relative">
-            <svg class="absolute left-3 xl:left-5 top-1/2 -translate-y-1/2 w-4 h-4 xl:w-6 xl:h-6 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <svg class="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-4.35-4.35M17 11A6 6 0 1 1 5 11a6 6 0 0 1 12 0z"/>
             </svg>
             <input
@@ -481,7 +485,7 @@ onMounted(async () => {
               @input="handleSearch"
               type="text"
               placeholder="Cerca posizione, codice merce, ord. prod..."
-              class="w-full pl-9 xl:pl-14 pr-3 py-2 xl:py-4 text-sm xl:text-xl border border-gray-300 rounded-lg xl:rounded-xl focus:outline-none focus:ring-2 focus:ring-copam-blue focus:border-copam-blue"
+              class="w-full pl-9 pr-3 py-2 text-sm border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-copam-blue focus:border-copam-blue"
             />
           </div>
         </div>
@@ -494,10 +498,10 @@ onMounted(async () => {
         <table class="w-full text-sm">
           <thead>
             <tr class="bg-copam-blue text-white">
-              <th class="px-4 xl:px-8 py-2.5 xl:py-5 text-left font-semibold uppercase tracking-wider text-xs xl:text-lg border-r border-blue-400/40">Posizione</th>
-              <th class="px-4 xl:px-8 py-2.5 xl:py-5 text-left font-semibold uppercase tracking-wider text-xs xl:text-lg border-r border-blue-400/40">Codici Merce</th>
-              <th class="px-4 xl:px-8 py-2.5 xl:py-5 text-left font-semibold uppercase tracking-wider text-xs xl:text-lg border-r border-blue-400/40">Ord. Prod.</th>
-              <th class="px-4 xl:px-8 py-2.5 xl:py-5 text-center font-semibold uppercase tracking-wider text-xs xl:text-lg">Iniziato</th>
+              <th class="px-4 py-2.5 text-left font-semibold uppercase tracking-wider text-xs border-r border-blue-400/40">Posizione</th>
+              <th class="px-4 py-2.5 text-left font-semibold uppercase tracking-wider text-xs border-r border-blue-400/40">Ord. Prod.</th>
+              <th class="px-4 py-2.5 text-left font-semibold uppercase tracking-wider text-xs border-r border-blue-400/40">Codici Merce</th>
+              <th class="px-4 py-2.5 text-center font-semibold uppercase tracking-wider text-xs">Iniziato</th>
             </tr>
           </thead>
           <tbody class="divide-y divide-gray-100">
@@ -520,16 +524,16 @@ onMounted(async () => {
                 index % 2 === 0 ? 'bg-white hover:bg-blue-50' : 'bg-gray-50/60 hover:bg-blue-50'
               ]"
             >
-              <td class="px-4 xl:px-8 py-2.5 xl:py-5 whitespace-nowrap font-medium text-gray-800 text-sm xl:text-xl border-r border-gray-100">{{ position.warehouse_position }}</td>
-              <td class="px-4 xl:px-8 py-2.5 xl:py-5 text-gray-600 border-r border-gray-100">
-                <span class="text-xs xl:text-lg">{{ (position.warehouses || []).map(w => w.product_code).filter(Boolean).join(' | ') || '&mdash;' }}</span>
+              <td class="px-4 py-2.5 whitespace-nowrap font-medium text-gray-800 border-r border-gray-100">{{ position.warehouse_position }}</td>
+              <td class="px-4 py-2.5 text-gray-600 border-r border-gray-100">
+                <span class="text-xs">{{ (position.warehouses || []).map(w => w.production_order).filter(Boolean).join(' | ') || '&mdash;' }}</span>
               </td>
-              <td class="px-4 xl:px-8 py-2.5 xl:py-5 text-gray-600 border-r border-gray-100">
-                <span class="text-xs xl:text-lg">{{ (position.warehouses || []).map(w => w.production_order).filter(Boolean).join(' | ') || '&mdash;' }}</span>
+              <td class="px-4 py-2.5 text-gray-600 border-r border-gray-100">
+                <span class="text-xs">{{ (position.warehouses || []).map(w => w.product_code).filter(Boolean).join(' | ') || '&mdash;' }}</span>
               </td>
-              <td class="px-4 xl:px-8 py-2.5 xl:py-5 whitespace-nowrap text-center">
-                <span v-if="position.started" class="inline-flex items-center px-2 xl:px-4 py-0.5 xl:py-1.5 rounded-full text-xs xl:text-lg font-semibold bg-green-100 text-green-700">Sì</span>
-                <span v-else class="inline-flex items-center px-2 xl:px-4 py-0.5 xl:py-1.5 rounded-full text-xs xl:text-lg font-semibold bg-gray-100 text-gray-500">No</span>
+              <td class="px-4 py-2.5 whitespace-nowrap text-center">
+                <span v-if="position.started" class="inline-flex items-center px-2 py-0.5 rounded-full text-xs font-semibold bg-green-100 text-green-700">Sì</span>
+                <span v-else class="inline-flex items-center px-2 py-0.5 rounded-full text-xs font-semibold bg-gray-100 text-gray-500">No</span>
               </td>
             </tr>
             <tr v-if="!loading && !positions.length">
@@ -550,31 +554,31 @@ onMounted(async () => {
       </div>
 
       <!-- Paginazione integrata -->
-      <div class="border-t border-gray-100 px-4 xl:px-8 py-3 xl:py-5 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2 bg-gray-50/50">
-        <p class="text-xs xl:text-lg text-gray-500">
+      <div class="border-t border-gray-100 px-4 py-3 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2 bg-gray-50/50">
+        <p class="text-xs text-gray-500">
           Mostrando <span class="font-medium text-gray-700">{{ pagination.from }}</span> &ndash; <span class="font-medium text-gray-700">{{ pagination.to }}</span> di <span class="font-medium text-gray-700">{{ pagination.total }}</span> posizioni
         </p>
-        <div class="flex items-center gap-1 xl:gap-2">
+        <div class="flex items-center gap-1">
           <button
             @click="goToPage(1)"
             :disabled="currentPage === 1"
-            class="px-2 xl:px-4 py-1 xl:py-2.5 text-xs xl:text-lg rounded border border-gray-200 bg-white text-gray-600 hover:bg-gray-100 disabled:opacity-40 disabled:cursor-not-allowed transition-colors"
+            class="px-2 py-1 text-xs rounded border border-gray-200 bg-white text-gray-600 hover:bg-gray-100 disabled:opacity-40 disabled:cursor-not-allowed transition-colors"
           >&laquo;</button>
           <button
             @click="goToPage(currentPage - 1)"
             :disabled="currentPage === 1"
-            class="px-2 xl:px-4 py-1 xl:py-2.5 text-xs xl:text-lg rounded border border-gray-200 bg-white text-gray-600 hover:bg-gray-100 disabled:opacity-40 disabled:cursor-not-allowed transition-colors"
+            class="px-2 py-1 text-xs rounded border border-gray-200 bg-white text-gray-600 hover:bg-gray-100 disabled:opacity-40 disabled:cursor-not-allowed transition-colors"
           >&lsaquo; Prec.</button>
-          <span class="px-3 xl:px-5 py-1 xl:py-2.5 text-xs xl:text-lg bg-copam-blue text-white rounded font-medium">{{ currentPage }} / {{ pagination.last_page }}</span>
+          <span class="px-3 py-1 text-xs bg-copam-blue text-white rounded font-medium">{{ currentPage }} / {{ pagination.last_page }}</span>
           <button
             @click="goToPage(currentPage + 1)"
             :disabled="currentPage === pagination.last_page"
-            class="px-2 xl:px-4 py-1 xl:py-2.5 text-xs xl:text-lg rounded border border-gray-200 bg-white text-gray-600 hover:bg-gray-100 disabled:opacity-40 disabled:cursor-not-allowed transition-colors"
+            class="px-2 py-1 text-xs rounded border border-gray-200 bg-white text-gray-600 hover:bg-gray-100 disabled:opacity-40 disabled:cursor-not-allowed transition-colors"
           >Succ. &rsaquo;</button>
           <button
             @click="goToPage(pagination.last_page)"
             :disabled="currentPage === pagination.last_page"
-            class="px-2 xl:px-4 py-1 xl:py-2.5 text-xs xl:text-lg rounded border border-gray-200 bg-white text-gray-600 hover:bg-gray-100 disabled:opacity-40 disabled:cursor-not-allowed transition-colors"
+            class="px-2 py-1 text-xs rounded border border-gray-200 bg-white text-gray-600 hover:bg-gray-100 disabled:opacity-40 disabled:cursor-not-allowed transition-colors"
           >&raquo;</button>
         </div>
       </div>
@@ -1066,13 +1070,12 @@ onMounted(async () => {
               />
             </div>
             <div class="w-28 xl:w-52">
-              <label class="block text-sm xl:text-2xl font-medium text-gray-700 mb-1 xl:mb-3">Quantità</label>
+              <label class="block text-sm xl:text-2xl font-medium text-gray-700 mb-1 xl:mb-3">Contatore</label>
               <input
-                v-model="newPositionForm.quantity"
+                :value="positionOrderCount"
                 type="number"
-                min="0"
-                placeholder="0"
-                class="w-full px-3 xl:px-6 py-2 xl:py-5 border border-gray-300 rounded-lg xl:rounded-xl text-sm xl:text-3xl focus:outline-none focus:ring-2 focus:ring-copam-blue focus:border-transparent"
+                disabled
+                class="w-full px-3 xl:px-6 py-2 xl:py-5 border border-gray-300 rounded-lg xl:rounded-xl text-sm xl:text-3xl bg-transparent cursor-not-allowed text-copam-blue font-semibold"
               />
             </div>
           </div>
