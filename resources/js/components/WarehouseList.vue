@@ -35,7 +35,7 @@ const searchQuery = ref('')
 const filterPending = ref(false)
 const showCreateModal = ref(false)
 const showAddPositionModal = ref(false)
-const newPositionForm = ref({ name: '', quantity: null, pending: false, productionOrders: [''] })
+const newPositionForm = ref({ name: '', quantity: null, pending: true, productionOrders: [''] })
 const productionOrderRefs = ref([])
 const showProductsModal = ref(false)
 const showAddMerceInPositionModal = ref(false)
@@ -196,7 +196,7 @@ const savePosition = async () => {
     }
 
     showAddPositionModal.value = false
-    newPositionForm.value = { name: '', quantity: null, pending: false, productionOrders: [''] }
+    newPositionForm.value = { name: '', quantity: null, pending: true, productionOrders: [''] }
     fetchPositions(currentPage.value)
     const detail = orders.length > 0 ? ` con ${orders.length} ordine/i di produzione` : ''
     showMessageModal('success', 'Posizione creata', res.data.message + detail)
@@ -393,9 +393,7 @@ const toggleStarted = async () => {
 }
 
 const updatePositionName = async () => {
-  const nameUnchanged = editingPositionName.value === selectedPosition.value.warehouse_position
-  const quantityUnchanged = Number(editingPositionQuantity.value) === Number(selectedPosition.value.quantity ?? null)
-  if (!editingPositionName.value || (nameUnchanged && quantityUnchanged)) {
+  if (!editingPositionName.value || editingPositionName.value === selectedPosition.value.warehouse_position) {
     isEditingPosition.value = false
     return
   }
@@ -403,7 +401,7 @@ const updatePositionName = async () => {
   try {
     const res = await axios.put(`/api/warehouse/positions/${selectedPosition.value.id}`, {
       warehouse_position: editingPositionName.value,
-      quantity: editingPositionQuantity.value
+      quantity: selectedProducts.value.length
     })
     isEditingPosition.value = false
     closeProductsModal()
@@ -772,17 +770,17 @@ onMounted(async () => {
                     placeholder="Inserisci nuovo nome posizione"
                   />
                   <div class="flex items-center gap-2">
-                    <label class="text-xs font-semibold text-gray-500 uppercase tracking-wide whitespace-nowrap">Quantità</label>
+                    <label class="text-xs font-semibold text-gray-500 uppercase tracking-wide whitespace-nowrap">Contatore</label>
                     <input
-                      v-model="editingPositionQuantity"
-                      type="number" step="1" min="0"
-                      class="w-28 px-3 py-2 text-sm border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-copam-blue focus:border-copam-blue"
-                      placeholder="0"
+                      :value="selectedProducts.length"
+                      type="number"
+                      disabled
+                      class="w-28 px-3 py-2 text-sm border border-gray-300 rounded-lg bg-transparent cursor-not-allowed text-copam-blue font-semibold"
                     />
                   </div>
                   <button
                     @click="updatePositionName"
-                    :disabled="!editingPositionName || (editingPositionName === selectedPosition?.warehouse_position && editingPositionQuantity == (selectedPosition?.quantity ?? null))"
+                    :disabled="!editingPositionName || editingPositionName === selectedPosition?.warehouse_position"
                     class="px-4 py-2 text-sm font-medium text-white bg-copam-blue rounded-lg hover:bg-copam-blue/90 transition-colors disabled:opacity-50 disabled:cursor-not-allowed focus:outline-none focus:ring-2 focus:ring-copam-blue"
                   >
                     Aggiorna
