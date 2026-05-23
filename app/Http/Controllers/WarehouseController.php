@@ -81,11 +81,12 @@ class WarehouseController extends Controller
     // API: ottieni prodotti di una posizione specifica
     public function getPositionProducts($positionId)
     {
-        $position = WarehousePosition::with('warehouses.position')->findOrFail($positionId);
+        $position = WarehousePosition::findOrFail($positionId);
+        $products = $position->warehouses()->with('position')->orderBy('production_order')->get();
 
         return response()->json([
             'position' => $position,
-            'products' => $position->warehouses,
+            'products' => $products,
         ]);
     }
 

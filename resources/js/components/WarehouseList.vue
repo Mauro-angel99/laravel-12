@@ -429,6 +429,7 @@ const updatePositionName = async () => {
     return
   }
 
+  isSaving.value = true
   try {
     const res = await axios.put(`/api/warehouse/positions/${selectedPosition.value.id}`, {
       warehouse_position: editingPositionName.value,
@@ -443,6 +444,8 @@ const updatePositionName = async () => {
     showMessageModal('error', 'Errore', errorMessage)
     editingPositionName.value = selectedPosition.value.warehouse_position
     isEditingPosition.value = false
+  } finally {
+    isSaving.value = false
   }
 }
 
@@ -653,7 +656,7 @@ onMounted(async () => {
     <!-- Modal Creazione Merce -->
     <div v-if="showCreateModal" class="fixed inset-0 z-50 overflow-y-auto">
       <div class="flex items-center justify-center min-h-screen px-4 pt-4 pb-20 text-center sm:block sm:p-0">
-        <div class="fixed inset-0 bg-gray-500 bg-opacity-75 transition-opacity" @click="closeCreateModal"></div>
+        <div class="fixed inset-0 bg-gray-500 bg-opacity-75 transition-opacity"></div>
         <div class="inline-block align-bottom bg-white rounded-xl text-left overflow-hidden shadow-xl transform transition-all sm:my-8 sm:align-middle sm:max-w-lg sm:w-full">
           <!-- Header -->
           <div class="bg-copam-blue px-6 py-4 flex items-center justify-between">
@@ -738,7 +741,7 @@ onMounted(async () => {
     <!-- Modal Lista Prodotti in Posizione -->
     <div v-if="showProductsModal" class="fixed inset-0 z-50 overflow-y-auto">
       <div class="flex items-center justify-center min-h-screen px-4 pt-4 pb-20 text-center sm:block sm:p-0">
-        <div class="fixed inset-0 bg-gray-500 bg-opacity-75 transition-opacity" @click="closeProductsModal"></div>
+        <div class="fixed inset-0 bg-gray-500 bg-opacity-75 transition-opacity"></div>
         <div class="inline-block align-bottom bg-white rounded-xl text-left overflow-hidden shadow-xl transform transition-all sm:my-8 sm:align-middle sm:max-w-3xl sm:w-full">
           <!-- Header -->
           <div class="bg-copam-blue px-6 py-4 flex items-center justify-between">
@@ -855,10 +858,14 @@ onMounted(async () => {
                   </div>
                   <button
                     @click="updatePositionName"
-                    :disabled="!editingPositionName || editingPositionName === selectedPosition?.warehouse_position"
-                    class="px-4 py-2 text-sm font-medium text-white bg-copam-blue rounded-lg hover:bg-copam-blue/90 transition-colors disabled:opacity-50 disabled:cursor-not-allowed focus:outline-none focus:ring-2 focus:ring-copam-blue"
+                    :disabled="!editingPositionName || editingPositionName === selectedPosition?.warehouse_position || isSaving"
+                    class="inline-flex items-center gap-2 px-4 py-2 text-sm font-medium text-white bg-copam-blue rounded-lg hover:bg-copam-blue/90 transition-colors disabled:opacity-50 disabled:cursor-not-allowed focus:outline-none focus:ring-2 focus:ring-copam-blue"
                   >
-                    Aggiorna
+                    <svg v-if="isSaving" class="animate-spin h-4 w-4" fill="none" viewBox="0 0 24 24">
+                      <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"/>
+                      <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"/>
+                    </svg>
+                    {{ isSaving ? 'Aggiornamento...' : 'Aggiorna' }}
                   </button>
                 </div>
               </div>
@@ -881,7 +888,7 @@ onMounted(async () => {
     <!-- Modal Modifica Merce -->
     <div v-if="showEditModal" class="fixed inset-0 z-[60] overflow-y-auto">
       <div class="flex items-center justify-center min-h-screen px-4 pt-4 pb-20 text-center sm:block sm:p-0">
-        <div class="fixed inset-0 bg-gray-500 bg-opacity-75 transition-opacity" @click="closeEditModal"></div>
+        <div class="fixed inset-0 bg-gray-500 bg-opacity-75 transition-opacity"></div>
         <div class="inline-block align-bottom bg-white rounded-xl text-left overflow-hidden shadow-xl transform transition-all sm:my-8 sm:align-middle sm:max-w-lg sm:w-full">
           <!-- Header -->
           <div class="bg-copam-blue px-6 py-4 flex items-center justify-between">
@@ -958,7 +965,6 @@ onMounted(async () => {
       <div class="flex items-center justify-center min-h-screen px-4 pt-4 pb-20 text-center sm:block sm:p-0">
         <div 
           class="fixed inset-0 transition-opacity bg-gray-500 bg-opacity-75"
-          @click="closeDeleteModal"
         ></div>
 
         <div class="inline-block align-bottom bg-white rounded-lg px-4 pt-5 pb-4 text-left overflow-hidden shadow-xl transform transition-all sm:my-8 sm:align-middle sm:max-w-lg sm:w-full sm:p-6">
@@ -1008,7 +1014,6 @@ onMounted(async () => {
       <div class="flex items-center justify-center min-h-screen px-4 pt-4 pb-20 text-center sm:block sm:p-0">
         <div 
           class="fixed inset-0 transition-opacity bg-gray-500 bg-opacity-75"
-          @click="closeMessageModal"
         ></div>
 
         <div class="inline-block align-bottom bg-white rounded-lg px-4 pt-5 pb-4 text-left overflow-hidden shadow-xl transform transition-all sm:my-8 sm:align-middle sm:max-w-lg sm:w-full sm:p-6">
@@ -1072,7 +1077,7 @@ onMounted(async () => {
   <Teleport to="body">
     <div v-if="showAddMerceInPositionModal" class="fixed inset-0 z-[70] overflow-y-auto">
       <div class="flex items-center justify-center min-h-screen px-4 pt-4 pb-20 text-center sm:block sm:p-0">
-        <div class="fixed inset-0 bg-gray-500 bg-opacity-75 transition-opacity" @click="showAddMerceInPositionModal = false"></div>
+        <div class="fixed inset-0 bg-gray-500 bg-opacity-75 transition-opacity"></div>
         <div class="inline-block align-bottom bg-white rounded-xl text-left overflow-hidden shadow-xl transform transition-all sm:my-8 sm:align-middle sm:max-w-lg sm:w-full">
           <div class="bg-copam-blue px-6 py-4 flex items-center justify-between">
             <div class="flex items-center gap-2">
@@ -1133,7 +1138,7 @@ onMounted(async () => {
   <!-- Modal Aggiungi Posizione -->
   <Teleport to="body">
     <div v-if="showAddPositionModal" class="fixed inset-0 z-50 flex items-center justify-center">
-      <div class="absolute inset-0 bg-black/50" @click="showAddPositionModal = false"></div>
+      <div class="absolute inset-0 bg-black/50"></div>
       <div class="relative bg-white rounded-2xl shadow-xl w-full max-w-md xl:max-w-4xl mx-4 overflow-hidden">
         <!-- Header -->
         <div class="bg-copam-blue px-6 xl:px-12 py-4 xl:py-7 flex items-center justify-between">
