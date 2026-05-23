@@ -11,6 +11,8 @@ class FilePathSetting extends Model
         'opart_total_chars',
         'opart_remove_before',
         'opart_remove_after',
+        'heat_search',
+        'heat_replace',
     ];
 
     protected $casts = [

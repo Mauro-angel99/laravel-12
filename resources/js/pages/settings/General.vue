@@ -24,6 +24,8 @@ interface FilePathSettings {
     opart_total_chars: number | null;
     opart_remove_before: number | null;
     opart_remove_after: number | null;
+    heat_search: string | null;
+    heat_replace: string | null;
 }
 
 interface Permission {
@@ -42,6 +44,8 @@ const filePathSettings = ref<FilePathSettings>({
     opart_total_chars: null,
     opart_remove_before: null,
     opart_remove_after: null,
+    heat_search: null,
+    heat_replace: null,
 });
 const savingFilePaths = ref(false);
 const savingFormatting = ref(false);
@@ -89,6 +93,8 @@ const fetchFilePathSettings = async (): Promise<void> => {
             opart_total_chars: res.data?.opart_total_chars ?? null,
             opart_remove_before: res.data?.opart_remove_before ?? null,
             opart_remove_after: res.data?.opart_remove_after ?? null,
+            heat_search: res.data?.heat_search ?? null,
+            heat_replace: res.data?.heat_replace ?? null,
         };
     } catch (error) {
         console.error(error);
@@ -208,6 +214,8 @@ const saveFormattingSettings = async (): Promise<void> => {
             opart_total_chars: filePathSettings.value.opart_total_chars,
             opart_remove_before: filePathSettings.value.opart_remove_before,
             opart_remove_after: filePathSettings.value.opart_remove_after,
+            heat_search: filePathSettings.value.heat_search,
+            heat_replace: filePathSettings.value.heat_replace,
         });
         showSuccess(res.data.message || 'Formattazione aggiornata');
     } catch (error: any) {
@@ -494,6 +502,51 @@ onMounted(() => {
                     v-model.number="filePathSettings.opart_remove_after"
                     type="number"
                     min="0"
+                    class="w-full px-3 py-2 text-xs border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-copam-blue focus:border-copam-blue"
+                />
+            </div>
+        </div>
+
+        <div class="mt-4 flex justify-end">
+            <button
+                type="button"
+                @click.stop="saveFormattingSettings"
+                :disabled="savingFormatting"
+                class="px-4 py-2 bg-copam-blue text-white text-sm font-medium rounded-md hover:bg-copam-blue/90 focus:outline-none focus:ring-2 focus:ring-copam-blue disabled:opacity-60 disabled:cursor-not-allowed"
+            >
+                {{ savingFormatting ? 'Salvataggio...' : 'Salva Formattazione' }}
+            </button>
+        </div>
+    </div>
+
+    <!-- Blocco Formattazione Colata -->
+    <div class="bg-white shadow rounded-lg p-3 mt-6">
+        <div class="mb-3 flex justify-between items-center">
+            <h3 class="text-lg font-medium leading-6 text-gray-900">
+                Formattazione "Colata"
+            </h3>
+        </div>
+
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <div>
+                <label class="block text-xs font-bold uppercase tracking-wider text-gray-700 mb-1">
+                    Campo
+                </label>
+                <input
+                    v-model="filePathSettings.heat_search"
+                    type="text"
+                    placeholder="Testo da cercare..."
+                    class="w-full px-3 py-2 text-xs border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-copam-blue focus:border-copam-blue"
+                />
+            </div>
+            <div>
+                <label class="block text-xs font-bold uppercase tracking-wider text-gray-700 mb-1">
+                    Sostituisci con
+                </label>
+                <input
+                    v-model="filePathSettings.heat_replace"
+                    type="text"
+                    placeholder="Testo sostitutivo..."
                     class="w-full px-3 py-2 text-xs border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-copam-blue focus:border-copam-blue"
                 />
             </div>

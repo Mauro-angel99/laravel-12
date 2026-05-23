@@ -29,6 +29,8 @@ class FilePathSettingController extends Controller
                 'opart_total_chars' => null,
                 'opart_remove_before' => null,
                 'opart_remove_after' => null,
+                'heat_search' => null,
+                'heat_replace' => null,
             ]);
         } catch (\Exception $e) {
             Log::error('File path settings fetch error', ['error' => $e->getMessage()]);
@@ -90,6 +92,8 @@ class FilePathSettingController extends Controller
             'opart_total_chars'  => ['nullable', 'integer', 'min:0'],
             'opart_remove_before' => ['nullable', 'integer', 'min:0'],
             'opart_remove_after'  => ['nullable', 'integer', 'min:0'],
+            'heat_search'  => ['nullable', 'string', 'max:100'],
+            'heat_replace' => ['nullable', 'string', 'max:100'],
         ]);
 
         DB::beginTransaction();

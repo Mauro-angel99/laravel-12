@@ -93,12 +93,12 @@ class WarehouseController extends Controller
     {
         $validated = $request->validate([
             'warehouse_position' => 'nullable|string|max:50',
+            'heat' => 'nullable|string|max:100',
             'product_code' => 'nullable|string|max:50',
             'product_description' => 'nullable|string|max:255',
             'production_order' => 'nullable|string|max:50',
             'notes' => 'nullable|string|max:1000',
-            'dimension_x' => 'nullable|numeric|min:0',
-            'dimension_y' => 'nullable|numeric|min:0',
+            'format' => 'nullable|string|max:100',
             'pending' => 'boolean',
             'pending_code' => 'nullable|string|max:50',
         ]);
@@ -129,12 +129,12 @@ class WarehouseController extends Controller
             // Crea la merce nella posizione
             $warehouse = Warehouse::create([
                 'warehouse_position_id' => $position->id,
+                'heat' => $validated['heat'] ?? null,
                 'product_code' => $validated['product_code'] ?? null,
                 'production_order' => $validated['production_order'] ?? null,
                 'product_description' => $validated['product_description'] ?? null,
                 'notes' => $validated['notes'] ?? null,
-                'dimension_x' => $validated['dimension_x'] ?? null,
-                'dimension_y' => $validated['dimension_y'] ?? null,
+                'format' => $validated['format'] ?? null,
                 'pending' => $validated['pending'] ?? false,
                 'pending_code' => $validated['pending_code'] ?? null,
                 'created_by' => Auth::id(),
@@ -172,12 +172,12 @@ class WarehouseController extends Controller
     {
         $validated = $request->validate([
             'warehouse_position' => 'required|string|max:50',
+            'heat' => 'nullable|string|max:100',
             'product_code' => 'nullable|string|max:50',
             'product_description' => 'nullable|string|max:255',
             'production_order' => 'nullable|string|max:50',
             'notes' => 'nullable|string|max:1000',
-            'dimension_x' => 'nullable|numeric|min:0',
-            'dimension_y' => 'nullable|numeric|min:0',
+            'format' => 'nullable|string|max:100',
             'pending' => 'boolean',
             'pending_code' => 'nullable|string|max:50',
         ]);
@@ -195,12 +195,12 @@ class WarehouseController extends Controller
             // Aggiorna la merce
             $warehouse->update([
                 'warehouse_position_id' => $position->id,
+                'heat' => $validated['heat'] ?? null,
                 'product_code' => $validated['product_code'],
                 'production_order' => $validated['production_order'],
                 'product_description' => $validated['product_description'],
                 'notes' => $validated['notes'] ?? null,
-                'dimension_x' => $validated['dimension_x'] ?? null,
-                'dimension_y' => $validated['dimension_y'] ?? null,
+                'format' => $validated['format'] ?? null,
                 'pending' => $validated['pending'] ?? false,
                 'pending_code' => $validated['pending_code'] ?? null,
                 'updated_by' => Auth::id(),
@@ -302,6 +302,32 @@ class WarehouseController extends Controller
                 'success' => false,
                 'message' => 'Errore durante l\'eliminazione della merce'
             ], 500);
+        }
+    }
+
+    // API: ricerca articolo da colata (A01_ART_SAD_LAM)
+    public function lookupHeat(Request $request)
+    {
+        $cddet = $request->input('cddet');
+        if (!$cddet) {
+            return response()->json(['cdart' => null, 'cdfmt' => null]);
+        }
+
+        try {
+            $result = DB::connection('sqlsrv_gestionale')
+                ->selectOne('SELECT TOP 1 CDART, CDFMT FROM A01_ART_SAD_LAM WHERE CDDET = ?', [$cddet]);
+
+            if ($result) {
+                return response()->json([
+                    'cdart' => $result->CDART,
+                    'cdfmt' => $result->CDFMT,
+                ]);
+            }
+
+            return response()->json(['cdart' => null, 'cdfmt' => null]);
+        } catch (\Exception $e) {
+            Log::error('Error looking up heat: ' . $e->getMessage());
+            return response()->json(['error' => $e->getMessage()], 500);
         }
     }
 

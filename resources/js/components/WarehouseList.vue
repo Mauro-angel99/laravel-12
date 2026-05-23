@@ -1,5 +1,5 @@
 <script setup>
-import { ref, onMounted, nextTick, computed } from 'vue'
+import { ref, onMounted, nextTick, computed, watch } from 'vue'
 import axios from 'axios'
 
 const positions = ref([])
@@ -20,6 +20,11 @@ const opartFormatSettings = ref({
   opart_remove_after: null,
 })
 
+const heatFormatSettings = ref({
+  heat_search: null,
+  heat_replace: null,
+})
+
 const formatOpart = (value) => {
   if (!value) return value
   const { opart_total_chars, opart_remove_before, opart_remove_after } = opartFormatSettings.value
@@ -31,6 +36,13 @@ const formatOpart = (value) => {
   return str.slice(removeBefore, str.length - removeAfter)
 }
 
+const formatHeat = (value) => {
+  if (!value) return value
+  const { heat_search, heat_replace } = heatFormatSettings.value
+  if (!heat_search) return value
+  return value.replaceAll(heat_search, heat_replace || '')
+}
+
 const searchQuery = ref('')
 const filterPending = ref(false)
 const showCreateModal = ref(false)
@@ -39,7 +51,7 @@ const newPositionForm = ref({ name: '', quantity: null, pending: true, productio
 const productionOrderRefs = ref([])
 const showProductsModal = ref(false)
 const showAddMerceInPositionModal = ref(false)
-const addMerceInPositionForm = ref({ product_code: '', production_order: '', product_description: '', notes: '', dimension_x: null, dimension_y: null, pending: false, pending_code: '' })
+const addMerceInPositionForm = ref({ heat: '', product_code: '', production_order: '', product_description: '', notes: '', format: '', pending: false, pending_code: '' })
 const showEditModal = ref(false)
 const showDeleteModal = ref(false)
 const selectedPosition = ref(null)
@@ -48,15 +60,16 @@ const editingProduct = ref(null)
 const editingPositionName = ref('')
 const editingPositionQuantity = ref(null)
 const isEditingPosition = ref(false)
+const isSaving = ref(false)
 
 const formData = ref({
   warehouse_position: '',
+  heat: '',
   product_code: '',
   production_order: '',
   product_description: '',
   notes: '',
-  dimension_x: null,
-  dimension_y: null,
+  format: '',
   pending: true,
   pending_code: ''
 })
@@ -116,12 +129,12 @@ const goToPage = (page) => {
 const openCreateModal = () => {
   formData.value = {
     warehouse_position: '',
+    heat: '',
     product_code: '',
     production_order: '',
     product_description: '',
     notes: '',
-    dimension_x: null,
-    dimension_y: null,
+    format: '',
     pending: true,
     pending_code: ''
   }
@@ -176,6 +189,7 @@ const savePosition = async () => {
     showMessageModal('error', 'Errore', 'Sono presenti ordini di produzione duplicati. Correggili prima di salvare.')
     return
   }
+  isSaving.value = true
   try {
     const res = await axios.post('/api/warehouse/positions', {
       warehouse_position: newPositionForm.value.name,
@@ -203,6 +217,8 @@ const savePosition = async () => {
   } catch (err) {
     const msg = err.response?.data?.message || 'Errore durante la creazione della posizione'
     showMessageModal('error', 'Errore', msg)
+  } finally {
+    isSaving.value = false
   }
 }
 
@@ -239,8 +255,8 @@ const openEditModal = (product) => {
     production_order: product.production_order || '',
     product_description: product.product_description || '',
     notes: product.notes || '',
-    dimension_x: product.dimension_x ?? null,
-    dimension_y: product.dimension_y ?? null,
+    heat: product.heat || '',
+    format: product.format || '',
   }
   // Non chiudere showProductsModal per permettere modali annidate
   showEditModal.value = true
@@ -252,9 +268,11 @@ const closeEditModal = () => {
 }
 
 const saveWarehouse = async () => {
+  isSaving.value = true
   try {
     const payload = {
       ...formData.value,
+      heat: formatHeat(formData.value.heat),
       production_order: formatOpart(formData.value.production_order)
     }
     const res = await axios.post('/api/warehouse', payload)
@@ -264,19 +282,23 @@ const saveWarehouse = async () => {
   } catch (error) {
     const errorMessage = error.response?.data?.message || 'Errore durante il salvataggio'
     showMessageModal('error', 'Errore', errorMessage)
+  } finally {
+    isSaving.value = false
   }
 }
 
 const saveAddMerceInPosition = async () => {
+  isSaving.value = true
   try {
     const payload = {
       ...addMerceInPositionForm.value,
       warehouse_position: selectedPosition.value.warehouse_position,
+      heat: formatHeat(addMerceInPositionForm.value.heat),
       production_order: formatOpart(addMerceInPositionForm.value.production_order),
     }
     const res = await axios.post('/api/warehouse', payload)
     showAddMerceInPositionModal.value = false
-    addMerceInPositionForm.value = { product_code: '', production_order: '', product_description: '', notes: '', dimension_x: null, dimension_y: null, pending: false, pending_code: '' }
+    addMerceInPositionForm.value = { heat: '', product_code: '', production_order: '', product_description: '', notes: '', format: '', pending: false, pending_code: '' }
     showMessageModal('success', 'Successo', res.data.message || 'Merce aggiunta con successo')
     // Ricarica i prodotti della posizione corrente
     const posRes = await axios.get(`/api/warehouse/positions/${selectedPosition.value.id}/products`)
@@ -285,12 +307,19 @@ const saveAddMerceInPosition = async () => {
   } catch (error) {
     const errorMessage = error.response?.data?.message || 'Errore durante il salvataggio'
     showMessageModal('error', 'Errore', errorMessage)
+  } finally {
+    isSaving.value = false
   }
 }
 
 const updateWarehouse = async () => {
+  isSaving.value = true
   try {
-    const res = await axios.put(`/api/warehouse/${editingProduct.value.id}`, formData.value)
+    const payload = {
+      ...formData.value,
+      heat: formatHeat(formData.value.heat),
+    }
+    const res = await axios.put(`/api/warehouse/${editingProduct.value.id}`, payload)
     closeEditModal()
     showMessageModal('success', 'Successo', res.data.message || 'Elemento aggiornato con successo')
     
@@ -334,6 +363,8 @@ const updateWarehouse = async () => {
   } catch (error) {
     const errorMessage = error.response?.data?.message || 'Errore durante l\'aggiornamento'
     showMessageModal('error', 'Errore', errorMessage)
+  } finally {
+    isSaving.value = false
   }
 }
 
@@ -415,6 +446,39 @@ const updatePositionName = async () => {
   }
 }
 
+let heatLookupTimer = null
+const isLoadingHeat = ref(false)
+
+const lookupHeatData = async (heatValue, targetForm) => {
+  if (!heatValue) return
+  const formatted = formatHeat(heatValue)
+  if (!formatted) return
+  isLoadingHeat.value = true
+  try {
+    const res = await axios.get('/api/warehouse/heat-lookup', { params: { cddet: formatted } })
+    if (res.data.cdart !== null && res.data.cdart !== undefined) {
+      targetForm.product_code = res.data.cdart ?? ''
+    }
+    if (res.data.cdfmt !== null && res.data.cdfmt !== undefined) {
+      targetForm.format = res.data.cdfmt ?? ''
+    }
+  } catch (e) {
+    // fallback silenzioso
+  } finally {
+    isLoadingHeat.value = false
+  }
+}
+
+watch(() => formData.value.heat, (newVal) => {
+  clearTimeout(heatLookupTimer)
+  heatLookupTimer = setTimeout(() => lookupHeatData(newVal, formData.value), 400)
+})
+
+watch(() => addMerceInPositionForm.value.heat, (newVal) => {
+  clearTimeout(heatLookupTimer)
+  heatLookupTimer = setTimeout(() => lookupHeatData(newVal, addMerceInPositionForm.value), 400)
+})
+
 onMounted(async () => {
   await fetchPositions()
   try {
@@ -423,6 +487,10 @@ onMounted(async () => {
       opart_total_chars: res.data?.opart_total_chars ?? null,
       opart_remove_before: res.data?.opart_remove_before ?? null,
       opart_remove_after: res.data?.opart_remove_after ?? null,
+    }
+    heatFormatSettings.value = {
+      heat_search: res.data?.heat_search ?? null,
+      heat_replace: res.data?.heat_replace ?? null,
     }
   } catch (e) {
     console.error('Errore caricamento impostazioni formattazione', e)
@@ -607,6 +675,18 @@ onMounted(async () => {
             </div>
 
             <div>
+              <label class="block text-xs font-semibold text-gray-500 uppercase tracking-wide mb-1">Colata</label>
+              <div class="relative">
+                <input v-model="formData.heat" type="text"
+                  class="w-full px-3 py-2 text-sm border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-copam-blue focus:border-copam-blue pr-8"/>
+                <svg v-if="isLoadingHeat" class="absolute right-2 top-1/2 -translate-y-1/2 w-4 h-4 text-copam-blue animate-spin" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                  <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"/>
+                  <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v8z"/>
+                </svg>
+              </div>
+            </div>
+
+            <div>
               <label class="block text-xs font-semibold text-gray-500 uppercase tracking-wide mb-1">Codice Attesa</label>
               <input v-model="formData.pending_code" type="text" :disabled="!formData.pending"
                 class="w-full px-3 py-2 text-sm border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-copam-blue focus:border-copam-blue disabled:bg-gray-100 disabled:cursor-not-allowed"/>
@@ -634,13 +714,8 @@ onMounted(async () => {
 
             <div class="flex gap-3">
               <div class="flex-1">
-                <label class="block text-xs font-semibold text-gray-500 uppercase tracking-wide mb-1">Dim X (mm)</label>
-                <input v-model="formData.dimension_x" type="number" step="0.001" min="0"
-                  class="w-full px-3 py-2 text-sm border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-copam-blue focus:border-copam-blue"/>
-              </div>
-              <div class="flex-1">
-                <label class="block text-xs font-semibold text-gray-500 uppercase tracking-wide mb-1">Dim Y (mm)</label>
-                <input v-model="formData.dimension_y" type="number" step="0.001" min="0"
+                <label class="block text-xs font-semibold text-gray-500 uppercase tracking-wide mb-1">Formato</label>
+                <input v-model="formData.format" type="text"
                   class="w-full px-3 py-2 text-sm border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-copam-blue focus:border-copam-blue"/>
               </div>
             </div>
@@ -650,8 +725,8 @@ onMounted(async () => {
                 class="px-4 py-2 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-lg hover:bg-gray-50 transition-colors">
                 Annulla
               </button>
-              <button type="submit"
-                class="px-4 py-2 text-sm font-medium text-white bg-copam-blue rounded-lg hover:bg-copam-blue/90 transition-colors focus:outline-none focus:ring-2 focus:ring-copam-blue">
+              <button type="submit" :disabled="isSaving"
+                class="px-4 py-2 text-sm font-medium text-white bg-copam-blue rounded-lg hover:bg-copam-blue/90 transition-colors focus:outline-none focus:ring-2 focus:ring-copam-blue disabled:opacity-50 disabled:cursor-not-allowed">
                 Salva
               </button>
             </div>
@@ -820,6 +895,17 @@ onMounted(async () => {
           <!-- Body -->
           <form @submit.prevent="updateWarehouse" class="px-6 py-5 space-y-4">
             <div>
+              <label class="block text-xs font-semibold text-gray-500 uppercase tracking-wide mb-1">Colata</label>
+              <div class="relative">
+                <input v-model="formData.heat" type="text"
+                  class="w-full px-3 py-2 text-sm border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-copam-blue focus:border-copam-blue pr-8"/>
+                <svg v-if="isLoadingHeat" class="absolute right-2 top-1/2 -translate-y-1/2 w-4 h-4 text-copam-blue animate-spin" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                  <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"/>
+                  <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v8z"/>
+                </svg>
+              </div>
+            </div>
+            <div>
               <label class="block text-xs font-semibold text-gray-500 uppercase tracking-wide mb-1">Posizione *</label>
               <input v-model="formData.warehouse_position" type="text" required
                 class="w-full px-3 py-2 text-sm border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-copam-blue focus:border-copam-blue"/>
@@ -837,13 +923,8 @@ onMounted(async () => {
 
             <div class="flex gap-3">
               <div class="flex-1">
-                <label class="block text-xs font-semibold text-gray-500 uppercase tracking-wide mb-1">Dim X (mm)</label>
-                <input v-model="formData.dimension_x" type="number" step="0.001" min="0"
-                  class="w-full px-3 py-2 text-sm border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-copam-blue focus:border-copam-blue"/>
-              </div>
-              <div class="flex-1">
-                <label class="block text-xs font-semibold text-gray-500 uppercase tracking-wide mb-1">Dim Y (mm)</label>
-                <input v-model="formData.dimension_y" type="number" step="0.001" min="0"
+                <label class="block text-xs font-semibold text-gray-500 uppercase tracking-wide mb-1">Formato</label>
+                <input v-model="formData.format" type="text"
                   class="w-full px-3 py-2 text-sm border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-copam-blue focus:border-copam-blue"/>
               </div>
             </div>
@@ -853,8 +934,8 @@ onMounted(async () => {
                 class="w-full sm:w-auto px-4 py-2 text-sm font-medium text-white bg-red-600 rounded-lg hover:bg-red-700 transition-colors focus:outline-none focus:ring-2 focus:ring-red-500">
                 Elimina
               </button>
-              <button type="submit"
-                class="w-full sm:w-auto px-4 py-2 text-sm font-medium text-white bg-copam-blue rounded-lg hover:bg-copam-blue/90 transition-colors focus:outline-none focus:ring-2 focus:ring-copam-blue">
+              <button type="submit" :disabled="isSaving"
+                class="w-full sm:w-auto px-4 py-2 text-sm font-medium text-white bg-copam-blue rounded-lg hover:bg-copam-blue/90 transition-colors focus:outline-none focus:ring-2 focus:ring-copam-blue disabled:opacity-50 disabled:cursor-not-allowed">
                 Salva
               </button>
               <button type="button" @click="closeEditModal"
@@ -1006,6 +1087,17 @@ onMounted(async () => {
           </div>
           <form @submit.prevent="saveAddMerceInPosition" class="px-6 py-5 space-y-4">
             <div>
+              <label class="block text-xs font-semibold text-gray-500 uppercase tracking-wide mb-1">Colata</label>
+              <div class="relative">
+                <input v-model="addMerceInPositionForm.heat" type="text"
+                  class="w-full px-3 py-2 text-sm border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-copam-blue focus:border-copam-blue pr-8"/>
+                <svg v-if="isLoadingHeat" class="absolute right-2 top-1/2 -translate-y-1/2 w-4 h-4 text-copam-blue animate-spin" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                  <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"/>
+                  <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v8z"/>
+                </svg>
+              </div>
+            </div>
+            <div>
               <label class="block text-xs font-semibold text-gray-500 uppercase tracking-wide mb-1">Codice Merce</label>
               <input v-model="addMerceInPositionForm.product_code" type="text"
                 class="w-full px-3 py-2 text-sm border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-copam-blue focus:border-copam-blue"/>
@@ -1017,13 +1109,8 @@ onMounted(async () => {
             </div>
             <div class="flex gap-3">
               <div class="flex-1">
-                <label class="block text-xs font-semibold text-gray-500 uppercase tracking-wide mb-1">Dim X (mm)</label>
-                <input v-model="addMerceInPositionForm.dimension_x" type="number" step="0.001" min="0"
-                  class="w-full px-3 py-2 text-sm border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-copam-blue focus:border-copam-blue"/>
-              </div>
-              <div class="flex-1">
-                <label class="block text-xs font-semibold text-gray-500 uppercase tracking-wide mb-1">Dim Y (mm)</label>
-                <input v-model="addMerceInPositionForm.dimension_y" type="number" step="0.001" min="0"
+                <label class="block text-xs font-semibold text-gray-500 uppercase tracking-wide mb-1">Formato</label>
+                <input v-model="addMerceInPositionForm.format" type="text"
                   class="w-full px-3 py-2 text-sm border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-copam-blue focus:border-copam-blue"/>
               </div>
             </div>
@@ -1032,8 +1119,8 @@ onMounted(async () => {
                 class="px-4 py-2 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-lg hover:bg-gray-50 transition-colors">
                 Annulla
               </button>
-              <button type="submit"
-                class="px-4 py-2 text-sm font-medium text-white bg-copam-blue rounded-lg hover:bg-copam-blue/90 transition-colors focus:outline-none focus:ring-2 focus:ring-copam-blue">
+              <button type="submit" :disabled="isSaving"
+                class="px-4 py-2 text-sm font-medium text-white bg-copam-blue rounded-lg hover:bg-copam-blue/90 transition-colors focus:outline-none focus:ring-2 focus:ring-copam-blue disabled:opacity-50 disabled:cursor-not-allowed">
                 Salva
               </button>
             </div>
@@ -1140,7 +1227,8 @@ onMounted(async () => {
             <button
               type="button"
               @click="savePosition"
-              class="px-4 xl:px-8 py-2 xl:py-4 text-sm xl:text-2xl font-medium text-white bg-copam-blue rounded-lg xl:rounded-xl hover:bg-copam-blue/90 transition-colors focus:outline-none focus:ring-2 focus:ring-copam-blue"
+              :disabled="isSaving"
+              class="px-4 xl:px-8 py-2 xl:py-4 text-sm xl:text-2xl font-medium text-white bg-copam-blue rounded-lg xl:rounded-xl hover:bg-copam-blue/90 transition-colors focus:outline-none focus:ring-2 focus:ring-copam-blue disabled:opacity-50 disabled:cursor-not-allowed"
             >
               Salva
             </button>
