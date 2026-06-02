@@ -139,6 +139,10 @@ Route::middleware('auth')->group(function () {
     // API per eliminare un elemento
     Route::delete('/api/warehouse/{warehouse}', [WarehouseController::class, 'destroy'])
         ->name('warehouse.destroy');
+
+    // API per rimuovere le merci con ordini di produzione terminati (OPSTA = 'TE')
+    Route::delete('/api/warehouse-remove-terminated', [WarehouseController::class, 'removeTerminated'])
+        ->name('warehouse.remove-terminated');
 });
 
 // Processing Parameters routes

@@ -50,7 +50,7 @@ class WarehouseController extends Controller
         }
 
         $total = $query->count();
-        $positions = $query->with('warehouses:id,warehouse_position_id,product_code,production_order')
+        $positions = $query->with('warehouses:id,warehouse_position_id,product_code,production_order,started')
             ->offset($offset)
             ->limit($perPage)
             ->orderBy('warehouse_position')
@@ -181,6 +181,7 @@ class WarehouseController extends Controller
             'format' => 'nullable|string|max:100',
             'pending' => 'boolean',
             'pending_code' => 'nullable|string|max:50',
+            'started' => 'boolean',
         ]);
 
         try {
@@ -204,6 +205,7 @@ class WarehouseController extends Controller
                 'format' => $validated['format'] ?? null,
                 'pending' => $validated['pending'] ?? false,
                 'pending_code' => $validated['pending_code'] ?? null,
+                'started' => $request->boolean('started'),
                 'updated_by' => Auth::id(),
             ]);
 
@@ -388,6 +390,102 @@ class WarehouseController extends Controller
             return response()->json([
                 'success' => false,
                 'message' => 'Errore durante la creazione della posizione'
+            ], 500);
+        }
+    }
+
+    public function removeTerminated()
+    {
+        try {
+            DB::beginTransaction();
+
+            // Recupera tutti gli ordini di produzione presenti in magazzino
+            $productionOrders = Warehouse::whereNotNull('production_order')
+                ->where('production_order', '!=', '')
+                ->pluck('production_order')
+                ->unique()
+                ->values()
+                ->toArray();
+
+            if (empty($productionOrders)) {
+                DB::commit();
+                return response()->json([
+                    'success' => true,
+                    'message' => 'Nessuna merce da rimuovere',
+                    'deleted' => 0,
+                ]);
+            }
+
+            // RECORD_ID è int: filtra solo i valori numerici prima di interrogare SQL Server
+            $numericOrders = array_values(array_filter($productionOrders, fn($v) => ctype_digit((string) $v)));
+
+            if (empty($numericOrders)) {
+                DB::commit();
+                return response()->json([
+                    'success' => true,
+                    'message' => 'Nessun ordine di produzione numerico da verificare',
+                    'deleted' => 0,
+                ]);
+            }
+
+            // Trova gli ordini di produzione con OPSTA = 'TE' in A01_ORD_PRO_ALL
+            $terminated = DB::connection('sqlsrv_gestionale')
+                ->table('A01_ORD_PRO_ALL')
+                ->whereIn('RECORD_ID', $numericOrders)
+                ->where('OPSTA', 'TE')
+                ->pluck('RECORD_ID')
+                ->map(fn($v) => (string) $v)
+                ->toArray();
+
+            if (empty($terminated)) {
+                DB::commit();
+                return response()->json([
+                    'success' => true,
+                    'message' => 'Nessuna merce con ordini terminati trovata',
+                    'deleted' => 0,
+                ]);
+            }
+
+            // Recupera le posizioni interessate prima di eliminare
+            $affectedPositionIds = Warehouse::whereIn('production_order', $terminated)
+                ->pluck('warehouse_position_id')
+                ->unique()
+                ->toArray();
+
+            // Elimina le merci con ordini terminati
+            $deleted = Warehouse::whereIn('production_order', $terminated)->count();
+            Warehouse::whereIn('production_order', $terminated)->delete();
+
+            // Elimina le posizioni rimaste vuote
+            foreach ($affectedPositionIds as $positionId) {
+                $position = WarehousePosition::find($positionId);
+                if ($position && $position->warehouses()->count() === 0) {
+                    $position->delete();
+                }
+            }
+
+            DB::commit();
+
+            Log::info('Removed terminated warehouse items', [
+                'deleted' => $deleted,
+                'production_orders' => $terminated,
+                'user_id' => Auth::id()
+            ]);
+
+            return response()->json([
+                'success' => true,
+                'message' => "Rimossi {$deleted} element" . ($deleted === 1 ? 'o' : 'i') . ' con ordini terminati',
+                'deleted' => $deleted,
+            ]);
+        } catch (\Exception $e) {
+            DB::rollBack();
+            Log::error('Error removing terminated warehouse items: ' . $e->getMessage(), [
+                'user_id' => Auth::id()
+            ]);
+
+            return response()->json([
+                'success' => false,
+                'message' => 'Errore durante la rimozione delle merci terminate'
             ], 500);
         }
     }

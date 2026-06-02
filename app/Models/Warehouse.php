@@ -25,6 +25,7 @@ class Warehouse extends Model
         'format',
         'pending',
         'pending_code',
+        'started',
         'created_by',
         'updated_by',
         'received_at',
@@ -38,6 +39,7 @@ class Warehouse extends Model
 
     protected $casts = [
         'pending' => 'boolean',
+        'started' => 'boolean',
         'received_at' => 'datetime',
         'quantity' => 'decimal:2',
         'warehouse_position_id' => 'integer',
