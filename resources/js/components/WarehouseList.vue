@@ -54,8 +54,6 @@ const showAddMerceInPositionModal = ref(false)
 const addMerceInPositionForm = ref({ heat: '', product_code: '', production_order: '', product_description: '', notes: '', format: '', pending: false, pending_code: '' })
 const showEditModal = ref(false)
 const showDeleteModal = ref(false)
-const showRemoveTerminatedModal = ref(false)
-const isRemovingTerminated = ref(false)
 const selectedPosition = ref(null)
 const selectedProducts = ref([])
 const editingProduct = ref(null)
@@ -411,21 +409,6 @@ const closeDeleteModal = () => {
   showDeleteModal.value = false
 }
 
-const removeTerminated = async () => {
-  isRemovingTerminated.value = true
-  showRemoveTerminatedModal.value = false
-  try {
-    const res = await axios.delete('/api/warehouse-remove-terminated')
-    showMessageModal('success', 'Operazione completata', res.data.message || 'Merci terminate rimosse con successo')
-    await fetchPositions(currentPage.value)
-  } catch (error) {
-    const errorMessage = error.response?.data?.message || 'Errore durante la rimozione'
-    showMessageModal('error', 'Errore', errorMessage)
-  } finally {
-    isRemovingTerminated.value = false
-  }
-}
-
 const editingStarted = ref(false)
 
 const toggleStarted = async () => {
@@ -553,21 +536,6 @@ onMounted(async () => {
           Aggiungi Merce
         </button>
 
-        <button
-          @click="showRemoveTerminatedModal = true"
-          :disabled="isRemovingTerminated"
-          class="inline-flex items-center gap-2 px-4 py-2 bg-red-600 text-white text-sm font-medium rounded-lg hover:bg-red-700 focus:outline-none focus:ring-2 focus:ring-red-500 transition-colors w-full sm:w-auto justify-center disabled:opacity-50 disabled:cursor-not-allowed"
-        >
-          <svg v-if="isRemovingTerminated" class="animate-spin h-4 w-4" fill="none" viewBox="0 0 24 24">
-            <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"/>
-            <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"/>
-          </svg>
-          <svg v-else class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"/>
-          </svg>
-          Rimuovi terminati
-        </button>
-
         <label class="flex items-center gap-2 cursor-pointer select-none">
           <input
             v-model="filterPending"
@@ -605,12 +573,11 @@ onMounted(async () => {
               <th class="px-4 py-2.5 text-left font-semibold uppercase tracking-wider text-xs border-r border-blue-400/40">Posizione</th>
               <th class="px-4 py-2.5 text-left font-semibold uppercase tracking-wider text-xs border-r border-blue-400/40">Ord. Prod.</th>
               <th class="px-4 py-2.5 text-left font-semibold uppercase tracking-wider text-xs border-r border-blue-400/40">Codici Merce</th>
-              <th class="px-4 py-2.5 text-center font-semibold uppercase tracking-wider text-xs">Iniziato</th>
             </tr>
           </thead>
           <tbody class="divide-y divide-gray-100">
             <tr v-if="loading">
-              <td colspan="4" class="px-4 py-10 text-center text-gray-400">
+              <td colspan="3" class="px-4 py-10 text-center text-gray-400">
                 <svg class="animate-spin h-6 w-6 text-copam-blue mx-auto mb-2" fill="none" viewBox="0 0 24 24">
                   <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
                   <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
@@ -635,13 +602,9 @@ onMounted(async () => {
               <td class="px-4 py-2.5 text-gray-600 border-r border-gray-100">
                 <span class="text-xs">{{ (position.warehouses || []).map(w => w.product_code).filter(Boolean).join(' | ') || '&mdash;' }}</span>
               </td>
-              <td class="px-4 py-2.5 whitespace-nowrap text-center">
-                <span v-if="(position.warehouses || []).some(w => w.started)" class="inline-flex items-center px-2 py-0.5 rounded-full text-xs font-semibold bg-green-100 text-green-700">Sì</span>
-                <span v-else class="inline-flex items-center px-2 py-0.5 rounded-full text-xs font-semibold bg-gray-100 text-gray-500">No</span>
-              </td>
             </tr>
             <tr v-if="!loading && !positions.length">
-              <td colspan="4" class="px-4 py-16 text-center">
+              <td colspan="3" class="px-4 py-16 text-center">
                 <svg class="mx-auto h-12 w-12 text-gray-300 mb-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4"/>
                 </svg>
@@ -1022,50 +985,6 @@ onMounted(async () => {
             <button 
               type="button"
               @click="closeDeleteModal"
-              class="mt-3 w-full inline-flex justify-center rounded-md border border-gray-300 shadow-sm px-4 py-2 bg-white text-base font-medium text-gray-700 hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-copam-blue sm:mt-0 sm:w-auto sm:text-sm"
-            >
-              Annulla
-            </button>
-          </div>
-        </div>
-      </div>
-    </div>
-  </Teleport>
-
-  <!-- Modal Conferma Rimozione Terminati -->
-  <Teleport to="body">
-    <div v-if="showRemoveTerminatedModal" class="fixed inset-0 z-[70] overflow-y-auto">
-      <div class="flex items-center justify-center min-h-screen px-4 pt-4 pb-20 text-center sm:block sm:p-0">
-        <div class="fixed inset-0 transition-opacity bg-gray-500 bg-opacity-75"></div>
-
-        <div class="inline-block align-bottom bg-white rounded-lg px-4 pt-5 pb-4 text-left overflow-hidden shadow-xl transform transition-all sm:my-8 sm:align-middle sm:max-w-lg sm:w-full sm:p-6">
-          <div class="sm:flex sm:items-start">
-            <div class="mx-auto flex-shrink-0 flex items-center justify-center h-12 w-12 rounded-full bg-red-100 sm:mx-0 sm:h-10 sm:w-10">
-              <svg class="h-6 w-6 text-red-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"/>
-              </svg>
-            </div>
-            <div class="mt-3 text-center sm:mt-0 sm:ml-4 sm:text-left">
-              <h3 class="text-lg leading-6 font-medium text-gray-900">Rimuovi terminati</h3>
-              <div class="mt-2">
-                <p class="text-sm text-gray-500">
-                  Verranno eliminate tutte le merci il cui ordine di produzione risulta terminato (<strong>OPSTA = "TE"</strong>). Questa azione non può essere annullata.
-                </p>
-              </div>
-            </div>
-          </div>
-
-          <div class="mt-5 sm:mt-4 sm:flex sm:flex-row-reverse gap-2">
-            <button
-              type="button"
-              @click="removeTerminated"
-              class="w-full inline-flex justify-center rounded-md border border-transparent shadow-sm px-4 py-2 bg-red-600 text-base font-medium text-white hover:bg-red-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-red-500 sm:ml-3 sm:w-auto sm:text-sm"
-            >
-              Rimuovi
-            </button>
-            <button
-              type="button"
-              @click="showRemoveTerminatedModal = false"
               class="mt-3 w-full inline-flex justify-center rounded-md border border-gray-300 shadow-sm px-4 py-2 bg-white text-base font-medium text-gray-700 hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-copam-blue sm:mt-0 sm:w-auto sm:text-sm"
             >
               Annulla
