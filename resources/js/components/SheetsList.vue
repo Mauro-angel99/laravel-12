@@ -1,5 +1,5 @@
 <script setup>
-import { ref, onMounted } from 'vue'
+import { ref, onMounted, watch } from 'vue'
 import axios from 'axios'
 
 const items = ref([])
@@ -19,7 +19,9 @@ const searchQuery = ref('')
 // --- Modal aggiungi merce ---
 const showAddModal = ref(false)
 const isSaving = ref(false)
-const addForm = ref({ product_code: '', position: '', format: '' })
+const addForm = ref({ pending: true, heat: '', pending_code: '', position: '', product_code: '', production_order: '', format: '' })
+const isLoadingHeat = ref(false)
+const filterPending = ref(false)
 
 // --- Messaggio ---
 const messageModal = ref({ show: false, type: 'success', title: '', message: '' })
@@ -36,7 +38,7 @@ const fetchItems = async (page = 1) => {
   loading.value = true
   try {
     const res = await axios.get('/api/sheets', {
-      params: { page, search: searchQuery.value },
+      params: { page, search: searchQuery.value, pending: filterPending.value ? 1 : 0 },
     })
     items.value = res.data.data
     pagination.value = res.data.pagination
@@ -54,9 +56,67 @@ const goToPage = (page) => {
   if (page >= 1 && page <= pagination.value.last_page) fetchItems(page)
 }
 
+// --- Modifica merce ---
+const showEditModal = ref(false)
+const showDeleteModal = ref(false)
+const editingItem = ref(null)
+const editForm = ref({ pending: false, pending_code: '', heat: '', product_code: '', position: '', production_order: '', format: '', started: false })
+
+const openEditModal = (item) => {
+  editingItem.value = item
+  editForm.value = {
+    pending: item.pending ?? false,
+    pending_code: item.pending_code || '',
+    heat: item.heat || '',
+    product_code: item.product_code || '',
+    position: item.position || '',
+    production_order: item.production_order || '',
+    format: item.format || '',
+    started: item.started ?? false,
+  }
+  showEditModal.value = true
+}
+
+const closeEditModal = () => {
+  showEditModal.value = false
+  showDeleteModal.value = false
+  editingItem.value = null
+}
+
+const openDeleteModal = () => { showDeleteModal.value = true }
+const closeDeleteModal = () => { showDeleteModal.value = false }
+
+const updateItem = async () => {
+  isSaving.value = true
+  try {
+    const res = await axios.put(`/api/sheets/${editingItem.value.id}`, editForm.value)
+    closeEditModal()
+    showMessageModal('success', 'Successo', res.data.message || 'Merce aggiornata con successo.')
+    await fetchItems(currentPage.value)
+  } catch (error) {
+    const msg = error.response?.data?.message || 'Errore durante l\'aggiornamento.'
+    showMessageModal('error', 'Errore', msg)
+  } finally {
+    isSaving.value = false
+  }
+}
+
+const deleteItem = async () => {
+  closeDeleteModal()
+  try {
+    const res = await axios.delete(`/api/sheets/${editingItem.value.id}`)
+    closeEditModal()
+    showMessageModal('success', 'Successo', res.data.message || 'Merce eliminata con successo.')
+    await fetchItems(currentPage.value)
+  } catch (error) {
+    const msg = error.response?.data?.message || 'Errore durante l\'eliminazione.'
+    showMessageModal('error', 'Errore', msg)
+  }
+}
+
 // --- Aggiungi merce ---
 const openAddModal = () => {
-  addForm.value = { product_code: '', position: '', format: '' }
+  addForm.value = { pending: true, heat: '', pending_code: '', position: '', product_code: '', production_order: '', format: '' }
   showAddModal.value = true
 }
 
@@ -80,6 +140,21 @@ const saveItem = async () => {
 }
 
 onMounted(() => fetchItems())
+
+let heatLookupTimer = null
+const lookupHeat = async (val, form) => {
+  if (!val) return
+  isLoadingHeat.value = true
+  try {
+    const res = await axios.get('/api/warehouse/heat-lookup', { params: { cddet: val } })
+    if (res.data.cdart != null) form.product_code = res.data.cdart ?? ''
+    if (res.data.cdfmt != null) form.format = res.data.cdfmt ?? ''
+  } catch { /* fallback silenzioso */ } finally {
+    isLoadingHeat.value = false
+  }
+}
+watch(() => editForm.value.heat, (v) => { clearTimeout(heatLookupTimer); heatLookupTimer = setTimeout(() => lookupHeat(v, editForm.value), 400) })
+watch(() => addForm.value.heat, (v) => { clearTimeout(heatLookupTimer); heatLookupTimer = setTimeout(() => lookupHeat(v, addForm.value), 400) })
 </script>
 
 <template>
@@ -100,13 +175,24 @@ onMounted(() => fetchItems())
       <div class="px-4 py-3 flex flex-col sm:flex-row sm:items-center gap-3">
         <button
           @click="openAddModal"
-          class="inline-flex items-center gap-2 px-4 py-2 bg-copam-blue text-white text-sm font-medium rounded-lg hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-copam-blue transition-colors w-full sm:w-auto justify-center"
+          class="inline-flex items-center gap-2 px-4 py-2 bg-copam-blue text-white text-sm font-medium rounded-lg hover:bg-copam-blue/90 focus:outline-none focus:ring-2 focus:ring-copam-blue transition-colors w-full sm:w-auto justify-center"
         >
           <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"/>
           </svg>
           Aggiungi Merce
         </button>
+
+        <label class="flex items-center gap-2 cursor-pointer select-none">
+          <input
+            v-model="filterPending"
+            @change="fetchItems(1)"
+            type="checkbox"
+            class="sr-only peer"
+          />
+          <div class="relative w-10 h-5 bg-gray-200 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:start-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-4 after:w-4 after:transition-all peer-checked:bg-copam-blue"></div>
+          <span class="text-sm text-gray-700 font-medium">In Attesa</span>
+        </label>
 
         <div class="sm:ml-auto sm:max-w-md w-full">
           <div class="relative">
@@ -137,15 +223,18 @@ onMounted(() => fetchItems())
               <th class="px-4 py-2.5 text-left font-semibold uppercase tracking-wider text-xs border-r border-blue-400/40">
                 Posizione
               </th>
-              <th class="px-4 py-2.5 text-left font-semibold uppercase tracking-wider text-xs">
+              <th class="px-4 py-2.5 text-left font-semibold uppercase tracking-wider text-xs border-r border-blue-400/40">
                 Formato
+              </th>
+              <th class="px-4 py-2.5 text-left font-semibold uppercase tracking-wider text-xs">
+                Iniziato
               </th>
             </tr>
           </thead>
           <tbody class="divide-y divide-gray-100">
             <!-- Loading -->
             <tr v-if="loading">
-              <td colspan="3" class="px-4 py-10 text-center text-gray-400">
+              <td colspan="4" class="px-4 py-10 text-center text-gray-400">
                 <svg class="animate-spin h-6 w-6 text-copam-blue mx-auto mb-2" fill="none" viewBox="0 0 24 24">
                   <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"/>
                   <path class="opacity-75" fill="currentColor"
@@ -156,7 +245,7 @@ onMounted(() => fetchItems())
             </tr>
             <!-- Nessun risultato -->
             <tr v-else-if="!items.length">
-              <td colspan="3" class="px-4 py-16 text-center text-gray-400 text-sm">
+              <td colspan="4" class="px-4 py-16 text-center text-gray-400 text-sm">
                 Nessuna merce trovata.
               </td>
             </tr>
@@ -165,6 +254,8 @@ onMounted(() => fetchItems())
               v-else
               v-for="(item, index) in items"
               :key="item.id"
+              @click="openEditModal(item)"
+              class="cursor-pointer"
               :class="[
                 index % 2 === 0 ? 'bg-white hover:bg-blue-50' : 'bg-gray-50/60 hover:bg-blue-50',
               ]"
@@ -175,8 +266,12 @@ onMounted(() => fetchItems())
               <td class="px-4 py-2.5 text-gray-600 border-r border-gray-100">
                 {{ item.position || '&mdash;' }}
               </td>
-              <td class="px-4 py-2.5 text-gray-600">
+              <td class="px-4 py-2.5 text-gray-600 border-r border-gray-100">
                 {{ item.format || '&mdash;' }}
+              </td>
+              <td class="px-4 py-2.5">
+                <span v-if="item.started" class="inline-flex items-center px-2 py-0.5 rounded text-xs font-medium bg-green-100 text-green-700">Sì</span>
+                <span v-else class="inline-flex items-center px-2 py-0.5 rounded text-xs font-medium bg-gray-100 text-gray-500">No</span>
               </td>
             </tr>
           </tbody>
@@ -225,102 +320,237 @@ onMounted(() => fetchItems())
     <!-- Modal Aggiungi Merce -->
     <div v-if="showAddModal" class="fixed inset-0 z-50 overflow-y-auto">
       <div class="flex items-center justify-center min-h-screen px-4 pt-4 pb-20 text-center sm:block sm:p-0">
-        <div class="fixed inset-0 bg-gray-500 bg-opacity-75 transition-opacity" @click="closeAddModal"></div>
-        <div class="inline-block align-bottom bg-white rounded-lg px-4 pt-5 pb-4 text-left overflow-hidden shadow-xl transform transition-all sm:my-8 sm:align-middle sm:max-w-lg sm:w-full sm:p-6 relative z-10">
-
-          <!-- Header modal -->
-          <div class="flex items-center justify-between mb-4">
-            <h3 class="text-lg font-semibold text-gray-900">Aggiungi Merce</h3>
-            <button @click="closeAddModal" class="text-gray-400 hover:text-gray-600">
+        <div class="fixed inset-0 bg-gray-500 bg-opacity-75 transition-opacity"></div>
+        <div class="inline-block align-bottom bg-white rounded-xl text-left overflow-hidden shadow-xl transform transition-all sm:my-8 sm:align-middle sm:max-w-lg sm:w-full">
+          <!-- Header -->
+          <div class="bg-copam-blue px-6 py-4 flex items-center justify-between">
+            <h3 class="text-base font-semibold text-white">Aggiungi Nuova Merce</h3>
+            <button @click="closeAddModal" class="text-white/70 hover:text-white transition-colors">
               <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/>
               </svg>
             </button>
           </div>
-
-          <!-- Campi form -->
-          <div class="space-y-4">
-            <div>
-              <label class="block text-sm font-medium text-gray-700 mb-1">Codice Merce</label>
-              <input
-                v-model="addForm.product_code"
-                type="text"
-                class="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-copam-blue"
-                placeholder="es. ABC123"
-              />
+          <!-- Body -->
+          <form @submit.prevent="saveItem" class="px-6 py-5 space-y-4">
+            <div class="flex items-center gap-3">
+              <label class="flex items-center gap-2 cursor-pointer select-none">
+                <input v-model="addForm.pending" type="checkbox" class="sr-only peer"/>
+                <div class="relative w-10 h-5 bg-gray-200 rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:start-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-4 after:w-4 after:transition-all peer-checked:bg-copam-blue"></div>
+                <span class="text-sm font-medium text-gray-700">In Attesa</span>
+              </label>
             </div>
             <div>
-              <label class="block text-sm font-medium text-gray-700 mb-1">Posizione <span class="text-red-500">*</span></label>
-              <input
-                v-model="addForm.position"
-                type="text"
-                class="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-copam-blue"
-                placeholder="es. A1"
-              />
+              <label class="block text-xs font-semibold text-gray-500 uppercase tracking-wide mb-1">Colata</label>
+              <div class="relative">
+                <input v-model="addForm.heat" type="text"
+                  class="w-full px-3 py-2 text-sm border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-copam-blue focus:border-copam-blue pr-8"/>
+                <svg v-if="isLoadingHeat" class="absolute right-2 top-1/2 -translate-y-1/2 w-4 h-4 text-copam-blue animate-spin" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                  <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"/>
+                  <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v8z"/>
+                </svg>
+              </div>
             </div>
             <div>
-              <label class="block text-sm font-medium text-gray-700 mb-1">Formato</label>
-              <input
-                v-model="addForm.format"
-                type="text"
-                class="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-copam-blue"
-                placeholder="es. 3000x1500x3"
-              />
+              <label class="block text-xs font-semibold text-gray-500 uppercase tracking-wide mb-1">Codice Attesa</label>
+              <input v-model="addForm.pending_code" type="text" :disabled="!addForm.pending"
+                class="w-full px-3 py-2 text-sm border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-copam-blue focus:border-copam-blue disabled:bg-gray-100 disabled:cursor-not-allowed"/>
             </div>
-          </div>
-
-          <!-- Azioni -->
-          <div class="mt-6 flex justify-end gap-3">
-            <button
-              @click="closeAddModal"
-              class="px-4 py-2 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-lg hover:bg-gray-50 transition-colors"
-            >
-              Annulla
-            </button>
-            <button
-              @click="saveItem"
-              :disabled="isSaving || !addForm.position"
-              class="px-4 py-2 text-sm font-medium text-white bg-copam-blue rounded-lg hover:bg-blue-700 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
-            >
-              <span v-if="isSaving">Salvataggio...</span>
-              <span v-else>Salva</span>
-            </button>
-          </div>
+            <div>
+              <label class="block text-xs font-semibold text-gray-500 uppercase tracking-wide mb-1">
+                Posizione {{ !addForm.pending ? '*' : '' }}
+              </label>
+              <input v-model="addForm.position" type="text" :required="!addForm.pending" :disabled="addForm.pending"
+                class="w-full px-3 py-2 text-sm border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-copam-blue focus:border-copam-blue disabled:bg-gray-100 disabled:cursor-not-allowed"/>
+            </div>
+            <div>
+              <label class="block text-xs font-semibold text-gray-500 uppercase tracking-wide mb-1">Codice Merce</label>
+              <input v-model="addForm.product_code" type="text"
+                class="w-full px-3 py-2 text-sm border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-copam-blue focus:border-copam-blue"/>
+            </div>
+            <div>
+              <label class="block text-xs font-semibold text-gray-500 uppercase tracking-wide mb-1">Ord. Prod.</label>
+              <input v-model="addForm.production_order" type="text"
+                class="w-full px-3 py-2 text-sm border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-copam-blue focus:border-copam-blue"/>
+            </div>
+            <div class="flex gap-3">
+              <div class="flex-1">
+                <label class="block text-xs font-semibold text-gray-500 uppercase tracking-wide mb-1">Formato</label>
+                <input v-model="addForm.format" type="text"
+                  class="w-full px-3 py-2 text-sm border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-copam-blue focus:border-copam-blue"/>
+              </div>
+            </div>
+            <div class="flex justify-end gap-2 pt-2 border-t border-gray-100">
+              <button type="button" @click="closeAddModal"
+                class="px-4 py-2 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-lg hover:bg-gray-50 transition-colors">
+                Annulla
+              </button>
+              <button type="submit" :disabled="isSaving"
+                class="px-4 py-2 text-sm font-medium text-white bg-copam-blue rounded-lg hover:bg-copam-blue/90 transition-colors focus:outline-none focus:ring-2 focus:ring-copam-blue disabled:opacity-50 disabled:cursor-not-allowed">
+                Salva
+              </button>
+            </div>
+          </form>
         </div>
       </div>
     </div>
 
-    <!-- Modal messaggio -->
-    <div v-if="messageModal.show" class="fixed inset-0 z-[70] overflow-y-auto">
-      <div class="flex items-center justify-center min-h-screen px-4">
-        <div class="fixed inset-0 bg-gray-500 bg-opacity-50" @click="closeMessageModal"></div>
-        <div class="inline-block bg-white rounded-lg px-4 pt-5 pb-4 text-left shadow-xl transform sm:my-8 sm:max-w-sm sm:w-full sm:p-6 relative z-10">
-          <div class="sm:flex sm:items-start">
-            <div :class="[
-              'mx-auto flex-shrink-0 flex items-center justify-center h-12 w-12 rounded-full sm:mx-0 sm:h-10 sm:w-10',
-              messageModal.type === 'success' ? 'bg-green-100' : 'bg-red-100'
-            ]">
-              <svg v-if="messageModal.type === 'success'" class="h-6 w-6 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/>
-              </svg>
-              <svg v-else class="h-6 w-6 text-red-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+    <!-- Modal Modifica Merce -->
+    <div v-if="showEditModal" class="fixed inset-0 z-[60] overflow-y-auto">
+      <div class="flex items-center justify-center min-h-screen px-4 pt-4 pb-20 text-center sm:block sm:p-0">
+        <div class="fixed inset-0 bg-gray-500 bg-opacity-75 transition-opacity"></div>
+        <div class="inline-block align-bottom bg-white rounded-xl text-left overflow-hidden shadow-xl transform transition-all sm:my-8 sm:align-middle sm:max-w-lg sm:w-full">
+          <!-- Header -->
+          <div class="bg-copam-blue px-6 py-4 flex items-center justify-between">
+            <h3 class="text-base font-semibold text-white">Modifica Merce</h3>
+            <button @click="closeEditModal" class="text-white/70 hover:text-white transition-colors">
+              <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/>
               </svg>
-            </div>
-            <div class="mt-3 text-center sm:mt-0 sm:ml-4 sm:text-left">
-              <h3 class="text-base font-semibold text-gray-900">{{ messageModal.title }}</h3>
-              <p class="mt-1 text-sm text-gray-500">{{ messageModal.message }}</p>
-            </div>
+            </button>
           </div>
-          <div class="mt-4 flex justify-end">
-            <button
-              @click="closeMessageModal"
-              class="px-4 py-2 text-sm font-medium text-white bg-copam-blue rounded-lg hover:bg-blue-700 transition-colors"
-            >OK</button>
-          </div>
+          <!-- Body -->
+          <form @submit.prevent="updateItem" class="px-6 py-5 space-y-4">
+            <div class="flex items-center gap-3">
+              <label class="flex items-center gap-2 cursor-pointer select-none">
+                <input v-model="editForm.started" type="checkbox" class="sr-only peer"/>
+                <div class="relative w-10 h-5 bg-gray-200 rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:start-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-4 after:w-4 after:transition-all peer-checked:bg-copam-blue"></div>
+                <span class="text-sm font-medium text-gray-700">Iniziato</span>
+              </label>
+            </div>
+            <div>
+              <label class="block text-xs font-semibold text-gray-500 uppercase tracking-wide mb-1">Colata</label>
+              <div class="relative">
+                <input v-model="editForm.heat" type="text"
+                  class="w-full px-3 py-2 text-sm border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-copam-blue focus:border-copam-blue pr-8"/>
+                <svg v-if="isLoadingHeat" class="absolute right-2 top-1/2 -translate-y-1/2 w-4 h-4 text-copam-blue animate-spin" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                  <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"/>
+                  <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v8z"/>
+                </svg>
+              </div>
+            </div>
+            <div>
+              <label class="block text-xs font-semibold text-gray-500 uppercase tracking-wide mb-1">Codice Attesa</label>
+              <input v-model="editForm.pending_code" type="text"
+                class="w-full px-3 py-2 text-sm border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-copam-blue focus:border-copam-blue"/>
+            </div>
+            <div>
+              <label class="block text-xs font-semibold text-gray-500 uppercase tracking-wide mb-1">Posizione *</label>
+              <input v-model="editForm.position" type="text" required
+                class="w-full px-3 py-2 text-sm border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-copam-blue focus:border-copam-blue"/>
+            </div>
+            <div>
+              <label class="block text-xs font-semibold text-gray-500 uppercase tracking-wide mb-1">Codice Merce</label>
+              <input v-model="editForm.product_code" type="text"
+                class="w-full px-3 py-2 text-sm border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-copam-blue focus:border-copam-blue"/>
+            </div>
+            <div>
+              <label class="block text-xs font-semibold text-gray-500 uppercase tracking-wide mb-1">Ord. Prod.</label>
+              <input v-model="editForm.production_order" type="text"
+                class="w-full px-3 py-2 text-sm border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-copam-blue focus:border-copam-blue"/>
+            </div>
+            <div class="flex gap-3">
+              <div class="flex-1">
+                <label class="block text-xs font-semibold text-gray-500 uppercase tracking-wide mb-1">Formato</label>
+                <input v-model="editForm.format" type="text"
+                  class="w-full px-3 py-2 text-sm border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-copam-blue focus:border-copam-blue"/>
+              </div>
+            </div>
+            <div class="flex flex-col sm:flex-row sm:justify-end gap-2 pt-2 border-t border-gray-100">
+              <button type="button" @click="openDeleteModal"
+                class="w-full sm:w-auto px-4 py-2 text-sm font-medium text-white bg-red-600 rounded-lg hover:bg-red-700 transition-colors focus:outline-none focus:ring-2 focus:ring-red-500">
+                Elimina
+              </button>
+              <button type="submit" :disabled="isSaving"
+                class="w-full sm:w-auto px-4 py-2 text-sm font-medium text-white bg-copam-blue rounded-lg hover:bg-copam-blue/90 transition-colors focus:outline-none focus:ring-2 focus:ring-copam-blue disabled:opacity-50 disabled:cursor-not-allowed">
+                Salva
+              </button>
+              <button type="button" @click="closeEditModal"
+                class="w-full sm:w-auto inline-flex items-center justify-center gap-2 px-4 py-2 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-lg hover:bg-gray-50 transition-colors">
+                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/>
+                </svg>
+                Chiudi
+              </button>
+            </div>
+          </form>
         </div>
       </div>
     </div>
+
+    <!-- Modal Conferma Eliminazione -->
+    <Teleport to="body">
+      <div v-if="showDeleteModal" class="fixed inset-0 z-[70] overflow-y-auto">
+        <div class="flex items-center justify-center min-h-screen px-4 pt-4 pb-20 text-center sm:block sm:p-0">
+          <div class="fixed inset-0 transition-opacity bg-gray-500 bg-opacity-75"></div>
+          <div class="inline-block align-bottom bg-white rounded-lg px-4 pt-5 pb-4 text-left overflow-hidden shadow-xl transform transition-all sm:my-8 sm:align-middle sm:max-w-lg sm:w-full sm:p-6">
+            <div class="sm:flex sm:items-start">
+              <div class="mx-auto flex-shrink-0 flex items-center justify-center h-12 w-12 rounded-full bg-red-100 sm:mx-0 sm:h-10 sm:w-10">
+                <svg class="h-6 w-6 text-red-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"/>
+                </svg>
+              </div>
+              <div class="mt-3 text-center sm:mt-0 sm:ml-4 sm:text-left">
+                <h3 class="text-lg leading-6 font-medium text-gray-900">Conferma Eliminazione</h3>
+                <div class="mt-2">
+                  <p class="text-sm text-gray-500">Sei sicuro di voler eliminare questo elemento? Questa azione non può essere annullata.</p>
+                </div>
+              </div>
+            </div>
+            <div class="mt-5 sm:mt-4 sm:flex sm:flex-row-reverse gap-2">
+              <button type="button" @click="deleteItem"
+                class="w-full inline-flex justify-center rounded-md border border-transparent shadow-sm px-4 py-2 bg-red-600 text-base font-medium text-white hover:bg-red-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-red-500 sm:ml-3 sm:w-auto sm:text-sm">
+                Elimina
+              </button>
+              <button type="button" @click="closeDeleteModal"
+                class="mt-3 w-full inline-flex justify-center rounded-md border border-gray-300 shadow-sm px-4 py-2 bg-white text-base font-medium text-gray-700 hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-copam-blue sm:mt-0 sm:w-auto sm:text-sm">
+                Annulla
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
+    </Teleport>
+
+    <!-- Modal Messaggio di Conferma/Errore -->
+    <Teleport to="body">
+      <div v-if="messageModal.show" class="fixed inset-0 z-50 overflow-y-auto">
+        <div class="flex items-center justify-center min-h-screen px-4 pt-4 pb-20 text-center sm:block sm:p-0">
+          <div class="fixed inset-0 transition-opacity bg-gray-500 bg-opacity-75"></div>
+          <div class="inline-block align-bottom bg-white rounded-lg px-4 pt-5 pb-4 text-left overflow-hidden shadow-xl transform transition-all sm:my-8 sm:align-middle sm:max-w-lg sm:w-full sm:p-6">
+            <div class="sm:flex sm:items-start">
+              <div :class="[
+                'mx-auto flex-shrink-0 flex items-center justify-center h-12 w-12 rounded-full sm:mx-0 sm:h-10 sm:w-10',
+                messageModal.type === 'success' ? 'bg-green-100' : 'bg-red-100'
+              ]">
+                <svg v-if="messageModal.type === 'success'" class="h-6 w-6 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/>
+                </svg>
+                <svg v-else class="h-6 w-6 text-red-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/>
+                </svg>
+              </div>
+              <div class="mt-3 text-center sm:mt-0 sm:ml-4 sm:text-left">
+                <h3 class="text-lg leading-6 font-medium text-gray-900">{{ messageModal.title }}</h3>
+                <div class="mt-2">
+                  <p class="text-xs text-gray-500">{{ messageModal.message }}</p>
+                </div>
+              </div>
+            </div>
+            <div class="mt-5 sm:mt-4 sm:flex sm:flex-row-reverse">
+              <button type="button" @click="closeMessageModal"
+                :class="[
+                  'w-full inline-flex justify-center rounded-md border border-transparent shadow-sm px-4 py-2 text-base font-medium text-white focus:outline-none focus:ring-2 focus:ring-offset-2 sm:ml-3 sm:w-auto sm:text-xs',
+                  messageModal.type === 'success'
+                    ? 'bg-green-600 hover:bg-green-700 focus:ring-green-500'
+                    : 'bg-red-600 hover:bg-red-700 focus:ring-red-500'
+                ]"
+              >OK</button>
+            </div>
+          </div>
+        </div>
+      </div>
+    </Teleport>
 
   </div>
 </template>

@@ -156,6 +156,12 @@ Route::middleware('auth')->group(function () {
 
     Route::post('/api/sheets', [SheetsController::class, 'store'])
         ->name('sheets.store');
+
+    Route::put('/api/sheets/{id}', [SheetsController::class, 'update'])
+        ->name('sheets.update');
+
+    Route::delete('/api/sheets/{id}', [SheetsController::class, 'destroy'])
+        ->name('sheets.destroy');
 });
 
 // Processing Parameters routes
