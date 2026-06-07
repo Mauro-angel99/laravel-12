@@ -17,6 +17,7 @@ use App\Http\Controllers\WorkPhasePdfController;
 use App\Http\Controllers\UserController as ApiUserController;
 use App\Http\Controllers\BillOfMaterialsController;
 use App\Http\Controllers\ArticleSearchController;
+use App\Http\Controllers\SheetsController;
 
 Route::middleware(['auth', 'role:admin'])->group(function () {
     Route::prefix('admin')->group(function () {
@@ -143,6 +144,18 @@ Route::middleware('auth')->group(function () {
     // API per rimuovere le merci con ordini di produzione terminati (OPSTA = 'TE')
     Route::delete('/api/warehouse-remove-terminated', [WarehouseController::class, 'removeTerminated'])
         ->name('warehouse.remove-terminated');
+});
+
+// Sheets routes
+Route::middleware('auth')->group(function () {
+    Route::get('/sheets', [SheetsController::class, 'index'])
+        ->name('sheets.index');
+
+    Route::get('/api/sheets', [SheetsController::class, 'list'])
+        ->name('sheets.list');
+
+    Route::post('/api/sheets', [SheetsController::class, 'store'])
+        ->name('sheets.store');
 });
 
 // Processing Parameters routes

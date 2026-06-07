@@ -32,6 +32,10 @@ const mainNavItems: NavItem[] = [
                 title: 'Posizioni',
                 href: '/warehouse',
             },
+            {
+                title: 'Lamiere',
+                href: '/sheets',
+            },
         ],
     },
 ];
