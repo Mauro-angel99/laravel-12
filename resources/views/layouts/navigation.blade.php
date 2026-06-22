@@ -160,12 +160,27 @@
             <x-responsive-nav-link :href="route('distinta-base.index')" :active="request()->routeIs('distinta-base.index')">
                 {{ __('Distinta Base') }}
             </x-responsive-nav-link>
-            <x-responsive-nav-link :href="route('warehouse.index')" :active="request()->routeIs('warehouse.index')">
-                {{ __('Magazzino - Posizioni') }}
-            </x-responsive-nav-link>
-            <x-responsive-nav-link :href="route('sheets.index')" :active="request()->routeIs('sheets.index')">
-                {{ __('Magazzino - Lamiere') }}
-            </x-responsive-nav-link>
+            <!-- Magazzino collapsible -->
+            <div x-data="{ openMagazzino: {{ request()->routeIs('warehouse.*') || request()->routeIs('sheets.*') ? 'true' : 'false' }} }">
+                <button @click="openMagazzino = !openMagazzino"
+                    class="flex w-full items-center justify-between pl-3 pr-4 py-2 border-l-4 {{ request()->routeIs('warehouse.*') || request()->routeIs('sheets.*') ? 'border-copam-blue text-gray-900 bg-copam-blue/5' : 'border-transparent text-gray-600 hover:text-gray-800 hover:bg-gray-50 hover:border-gray-300' }} text-base font-medium focus:outline-none transition duration-150 ease-in-out">
+                    <span>{{ __('Magazzino') }}</span>
+                    <svg class="h-4 w-4 transition-transform duration-200" :class="{ 'rotate-180': openMagazzino }"
+                        xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor">
+                        <path fill-rule="evenodd"
+                            d="M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z"
+                            clip-rule="evenodd" />
+                    </svg>
+                </button>
+                <div x-show="openMagazzino" x-transition class="pl-4">
+                    <x-responsive-nav-link :href="route('warehouse.index')" :active="request()->routeIs('warehouse.index')">
+                        {{ __('Posizioni') }}
+                    </x-responsive-nav-link>
+                    <x-responsive-nav-link :href="route('sheets.index')" :active="request()->routeIs('sheets.index')">
+                        {{ __('Lamiere') }}
+                    </x-responsive-nav-link>
+                </div>
+            </div>
             <x-responsive-nav-link :href="route('article-search.index')" :active="request()->routeIs('article-search.index')">
                 {{ __('Ricerca Articolo') }}
             </x-responsive-nav-link>
