@@ -190,37 +190,65 @@
                 </x-responsive-nav-link>
             @endif --}}
             @if (Auth::user()->hasRole('admin'))
-                <x-responsive-nav-link :href="route('users.index')" :active="request()->routeIs('users.index')">
-                    {{ __('Utenti') }}
-                </x-responsive-nav-link>
-                <x-responsive-nav-link :href="route('general.edit')" :active="request()->routeIs('general.edit')">
-                    {{ __('Impostazioni Generali') }}
-                </x-responsive-nav-link>
+                <!-- Impostazioni collapsible -->
+                <div x-data="{ openImpostazioni: {{ request()->routeIs('users.*') || request()->routeIs('general.*') ? 'true' : 'false' }} }">
+                    <button @click="openImpostazioni = !openImpostazioni"
+                        class="flex w-full items-center justify-between pl-3 pr-4 py-2 border-l-4 {{ request()->routeIs('users.*') || request()->routeIs('general.*') ? 'border-copam-blue text-gray-900 bg-copam-blue/5' : 'border-transparent text-gray-600 hover:text-gray-800 hover:bg-gray-50 hover:border-gray-300' }} text-base font-medium focus:outline-none transition duration-150 ease-in-out">
+                        <span>{{ __('Impostazioni') }}</span>
+                        <svg class="h-4 w-4 transition-transform duration-200"
+                            :class="{ 'rotate-180': openImpostazioni }" xmlns="http://www.w3.org/2000/svg"
+                            viewBox="0 0 20 20" fill="currentColor">
+                            <path fill-rule="evenodd"
+                                d="M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z"
+                                clip-rule="evenodd" />
+                        </svg>
+                    </button>
+                    <div x-show="openImpostazioni" x-transition class="pl-4">
+                        <x-responsive-nav-link :href="route('users.index')" :active="request()->routeIs('users.index')">
+                            {{ __('Utenti') }}
+                        </x-responsive-nav-link>
+                        <x-responsive-nav-link :href="route('general.edit')" :active="request()->routeIs('general.edit')">
+                            {{ __('Impostazioni Generali') }}
+                        </x-responsive-nav-link>
+                    </div>
+                </div>
             @endif
         </div>
 
         <!-- Responsive Settings Options -->
         <div class="pt-4 pb-1 border-t border-gray-200">
-            <div class="px-4">
-                <div class="font-medium text-base text-gray-800">{{ Auth::user()->name }}</div>
-                <div class="font-medium text-sm text-gray-500">{{ Auth::user()->email }}</div>
-            </div>
+            <div x-data="{ openProfilo: false }">
+                <button @click="openProfilo = !openProfilo"
+                    class="flex w-full items-center justify-between px-4 py-2 text-left focus:outline-none">
+                    <div>
+                        <div class="font-medium text-base text-gray-800">{{ Auth::user()->name }}</div>
+                        <div class="font-medium text-sm text-gray-500">{{ Auth::user()->email }}</div>
+                    </div>
+                    <svg class="h-4 w-4 text-gray-400 transition-transform duration-200"
+                        :class="{ 'rotate-180': openProfilo }" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20"
+                        fill="currentColor">
+                        <path fill-rule="evenodd"
+                            d="M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z"
+                            clip-rule="evenodd" />
+                    </svg>
+                </button>
 
-            <div class="mt-3 space-y-1">
-                <x-responsive-nav-link :href="route('profile.edit')">
-                    {{ __('Profile') }}
-                </x-responsive-nav-link>
-
-                <!-- Authentication -->
-                <form method="POST" action="{{ route('logout') }}">
-                    @csrf
-
-                    <x-responsive-nav-link :href="route('logout')"
-                        onclick="event.preventDefault();
-                                        this.closest('form').submit();">
-                        {{ __('Log Out') }}
+                <div x-show="openProfilo" x-transition class="mt-3 space-y-1">
+                    <x-responsive-nav-link :href="route('profile.edit')">
+                        {{ __('Profile') }}
                     </x-responsive-nav-link>
-                </form>
+
+                    <!-- Authentication -->
+                    <form method="POST" action="{{ route('logout') }}">
+                        @csrf
+
+                        <x-responsive-nav-link :href="route('logout')"
+                            onclick="event.preventDefault();
+                                            this.closest('form').submit();">
+                            {{ __('Log Out') }}
+                        </x-responsive-nav-link>
+                    </form>
+                </div>
             </div>
         </div>
     </div>
