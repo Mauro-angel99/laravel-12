@@ -3,8 +3,10 @@ import { ref, watch, computed, onMounted } from 'vue'
 import axios from 'axios'
 
 const data = ref([])
-const LS_KEY = 'prod_orders_selected_ids'
-const selectedIds = ref(new Set())
+const LS_KEY = 'prod_orders_selected_rows'
+// Map<RECORD_ID, rowObject> — mantiene i dati completi anche quando la riga non è nella pagina corrente
+const selectedItems = ref(new Map())
+
 const searchOpras = ref('')
 const searchOpdnr = ref('')
 const searchDrconFrom = ref('')
@@ -33,8 +35,13 @@ const formatDate = (val) => {
   return `${dd}/${mm}/${yyyy}`
 }
 
+const saveToStorage = () => {
+  try {
+    localStorage.setItem(LS_KEY, JSON.stringify([...selectedItems.value.values()]))
+  } catch { /* quota exceeded o simili */ }
+}
+
 const fetchData = async (page = 1) => {
-  loading.value = true
   loading.value = true
   try {
     const params = { page }
@@ -78,34 +85,43 @@ const clearAllFilters = () => {
 }
 
 const allSelected = computed(() =>
-  data.value.length > 0 && data.value.every(row => selectedIds.value.has(row.RECORD_ID))
+  data.value.length > 0 && data.value.every(row => selectedItems.value.has(row.RECORD_ID))
 )
 const someSelected = computed(() =>
-  data.value.some(row => selectedIds.value.has(row.RECORD_ID)) && !allSelected.value
+  data.value.some(row => selectedItems.value.has(row.RECORD_ID)) && !allSelected.value
 )
+
 const toggleAll = () => {
+  const m = new Map(selectedItems.value)
   if (allSelected.value) {
-    data.value.forEach(row => selectedIds.value.delete(row.RECORD_ID))
+    data.value.forEach(row => m.delete(row.RECORD_ID))
   } else {
-    data.value.forEach(row => selectedIds.value.add(row.RECORD_ID))
+    data.value.forEach(row => m.set(row.RECORD_ID, row))
   }
-  selectedIds.value = new Set(selectedIds.value)
-  localStorage.setItem(LS_KEY, JSON.stringify([...selectedIds.value]))
+  selectedItems.value = m
+  saveToStorage()
 }
+
 const toggleRow = (id) => {
-  const s = new Set(selectedIds.value)
-  s.has(id) ? s.delete(id) : s.add(id)
-  selectedIds.value = s
-  localStorage.setItem(LS_KEY, JSON.stringify([...selectedIds.value]))
+  const m = new Map(selectedItems.value)
+  if (m.has(id)) {
+    m.delete(id)
+  } else {
+    const row = data.value.find(r => r.RECORD_ID === id)
+    if (row) m.set(id, row)
+  }
+  selectedItems.value = m
+  saveToStorage()
 }
 
 const deselectAll = () => {
-  selectedIds.value = new Set()
+  selectedItems.value = new Map()
   localStorage.removeItem(LS_KEY)
 }
 
 const printPdf = () => {
-  const selected = data.value.filter(row => selectedIds.value.has(row.RECORD_ID))
+  // Usa i dati salvati nella Map — include record di tutte le pagine visitate
+  const selected = [...selectedItems.value.values()]
   if (!selected.length) return
 
   const columns = [
@@ -167,7 +183,6 @@ const printPdf = () => {
   w.document.close()
   w.focus()
   w.onload = () => { w.print(); w.close() }
-  // svuota selezioni dopo la stampa
   deselectAll()
 }
 
@@ -186,11 +201,12 @@ watch([searchOpras, searchOpdnr, searchDrconFrom, searchDrconTo, searchDrcorFrom
 })
 
 onMounted(() => {
-  // ripristina selezioni salvate
   try {
     const saved = JSON.parse(localStorage.getItem(LS_KEY) || '[]')
-    selectedIds.value = new Set(saved)
-  } catch { selectedIds.value = new Set() }
+    if (Array.isArray(saved)) {
+      selectedItems.value = new Map(saved.map(row => [row.RECORD_ID, row]))
+    }
+  } catch { selectedItems.value = new Map() }
   fetchData()
 })
 </script>
@@ -336,7 +352,7 @@ onMounted(() => {
               <td class="px-3 py-2 text-center border-r border-gray-100 w-8">
                 <input
                   type="checkbox"
-                  :checked="selectedIds.has(row.RECORD_ID)"
+                  :checked="selectedItems.has(row.RECORD_ID)"
                   @change="toggleRow(row.RECORD_ID)"
                   class="rounded border-gray-300 text-copam-blue cursor-pointer"
                 />
@@ -412,24 +428,24 @@ onMounted(() => {
       <button
         @click="deselectAll"
         class="inline-flex items-center gap-2 px-5 py-2 rounded-lg border border-gray-300 bg-white hover:bg-gray-50 text-gray-700 text-sm font-semibold shadow-sm transition-colors disabled:opacity-40 disabled:cursor-not-allowed"
-        :disabled="selectedIds.size === 0"
+        :disabled="selectedItems.size === 0"
       >
         <svg class="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
           <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
         </svg>
         Deseleziona
-        <span v-if="selectedIds.size > 0" class="bg-gray-200 text-gray-700 text-xs rounded-full px-1.5 py-0.5">{{ selectedIds.size }}</span>
+        <span v-if="selectedItems.size > 0" class="bg-gray-200 text-gray-700 text-xs rounded-full px-1.5 py-0.5">{{ selectedItems.size }}</span>
       </button>
       <button
         @click="printPdf"
         class="inline-flex items-center gap-2 px-5 py-2 rounded-lg bg-green-600 hover:bg-green-700 text-white text-sm font-semibold shadow transition-colors disabled:opacity-40 disabled:cursor-not-allowed"
-        :disabled="selectedIds.size === 0"
+        :disabled="selectedItems.size === 0"
       >
         <svg class="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
           <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 17h2a2 2 0 002-2v-4a2 2 0 00-2-2H5a2 2 0 00-2 2v4a2 2 0 002 2h2m2 4h6a2 2 0 002-2v-4a2 2 0 00-2-2H9a2 2 0 00-2 2v4a2 2 0 002 2zm8-12V5a2 2 0 00-2-2H9a2 2 0 00-2 2v4h10z" />
         </svg>
         Stampa
-        <span v-if="selectedIds.size > 0" class="bg-green-800 text-white text-xs rounded-full px-1.5 py-0.5">{{ selectedIds.size }}</span>
+        <span v-if="selectedItems.size > 0" class="bg-green-800 text-white text-xs rounded-full px-1.5 py-0.5">{{ selectedItems.size }}</span>
       </button>
     </div>
 
