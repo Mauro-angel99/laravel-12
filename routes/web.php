@@ -18,6 +18,7 @@ use App\Http\Controllers\UserController as ApiUserController;
 use App\Http\Controllers\BillOfMaterialsController;
 use App\Http\Controllers\ArticleSearchController;
 use App\Http\Controllers\SheetsController;
+use App\Http\Controllers\ProductionOrdersController;
 
 Route::middleware(['auth', 'role:admin'])->group(function () {
     Route::prefix('admin')->group(function () {
@@ -51,6 +52,11 @@ Route::middleware('auth')->group(function () {
     Route::get('/profile', [ProfileController::class, 'edit'])->name('profile.edit');
     Route::patch('/profile', [ProfileController::class, 'update'])->name('profile.update');
     Route::delete('/profile', [ProfileController::class, 'destroy'])->name('profile.destroy');
+});
+
+Route::middleware('auth')->group(function () {
+    Route::get('/production-orders', [ProductionOrdersController::class, 'index'])->name('production-orders.index');
+    Route::get('/api/production-orders', [ProductionOrdersController::class, 'list'])->name('production-orders.list');
 });
 
 

@@ -14,10 +14,15 @@ import {
 import { dashboard } from '@/routes';
 import { type NavItem } from '@/types';
 import { Link } from '@inertiajs/vue3';
-import { BookOpen, Folder, LayoutGrid, Warehouse } from 'lucide-vue-next';
+import { BookOpen, ClipboardList, Folder, LayoutGrid, Warehouse } from 'lucide-vue-next';
 import AppLogo from './AppLogo.vue';
 
 const mainNavItems: NavItem[] = [
+    {
+        title: 'Stato Ordini',
+        href: '/production-orders',
+        icon: ClipboardList,
+    },
     {
         title: 'Dashboard',
         href: dashboard(),

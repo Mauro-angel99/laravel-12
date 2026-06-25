@@ -15,6 +15,7 @@ import BillOfMaterialsList from './components/BillOfMaterialsList.vue'
 import ArticleSearchList from './components/ArticleSearchList.vue'
 import WorkParametersList from './pages/settings/General.vue'
 import SheetsList from './components/SheetsList.vue'
+import ProductionOrdersList from './components/ProductionOrdersList.vue'
 
 const app = createApp({})
 
@@ -26,6 +27,7 @@ app.component('distinta-base-list', BillOfMaterialsList)
 app.component('article-search-list', ArticleSearchList)
 app.component('work-parameters-list', WorkParametersList)
 app.component('sheets-list', SheetsList)
+app.component('production-orders-list', ProductionOrdersList)
 
 // monta l'app su un div con id app
 app.mount('#app')
