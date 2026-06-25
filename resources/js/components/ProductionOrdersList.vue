@@ -3,6 +3,7 @@ import { ref, watch, computed, onMounted } from 'vue'
 import axios from 'axios'
 
 const data = ref([])
+const LS_KEY = 'prod_orders_selected_ids'
 const selectedIds = ref(new Set())
 const searchOpras = ref('')
 const searchOpdnr = ref('')
@@ -33,7 +34,7 @@ const formatDate = (val) => {
 }
 
 const fetchData = async (page = 1) => {
-  selectedIds.value = new Set()
+  loading.value = true
   loading.value = true
   try {
     const params = { page }
@@ -89,11 +90,18 @@ const toggleAll = () => {
     data.value.forEach(row => selectedIds.value.add(row.RECORD_ID))
   }
   selectedIds.value = new Set(selectedIds.value)
+  localStorage.setItem(LS_KEY, JSON.stringify([...selectedIds.value]))
 }
 const toggleRow = (id) => {
   const s = new Set(selectedIds.value)
   s.has(id) ? s.delete(id) : s.add(id)
   selectedIds.value = s
+  localStorage.setItem(LS_KEY, JSON.stringify([...selectedIds.value]))
+}
+
+const deselectAll = () => {
+  selectedIds.value = new Set()
+  localStorage.removeItem(LS_KEY)
 }
 
 const printPdf = () => {
@@ -159,6 +167,8 @@ const printPdf = () => {
   w.document.close()
   w.focus()
   w.onload = () => { w.print(); w.close() }
+  // svuota selezioni dopo la stampa
+  deselectAll()
 }
 
 const goToPage = (page) => {
@@ -176,6 +186,11 @@ watch([searchOpras, searchOpdnr, searchDrconFrom, searchDrconTo, searchDrcorFrom
 })
 
 onMounted(() => {
+  // ripristina selezioni salvate
+  try {
+    const saved = JSON.parse(localStorage.getItem(LS_KEY) || '[]')
+    selectedIds.value = new Set(saved)
+  } catch { selectedIds.value = new Set() }
   fetchData()
 })
 </script>
@@ -393,7 +408,18 @@ onMounted(() => {
     </div>
 
     <!-- BOTTONE STAMPA -->
-    <div class="flex justify-end">
+    <div class="flex justify-end gap-2">
+      <button
+        @click="deselectAll"
+        class="inline-flex items-center gap-2 px-5 py-2 rounded-lg border border-gray-300 bg-white hover:bg-gray-50 text-gray-700 text-sm font-semibold shadow-sm transition-colors disabled:opacity-40 disabled:cursor-not-allowed"
+        :disabled="selectedIds.size === 0"
+      >
+        <svg class="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+        </svg>
+        Deseleziona
+        <span v-if="selectedIds.size > 0" class="bg-gray-200 text-gray-700 text-xs rounded-full px-1.5 py-0.5">{{ selectedIds.size }}</span>
+      </button>
       <button
         @click="printPdf"
         class="inline-flex items-center gap-2 px-5 py-2 rounded-lg bg-green-600 hover:bg-green-700 text-white text-sm font-semibold shadow transition-colors disabled:opacity-40 disabled:cursor-not-allowed"
