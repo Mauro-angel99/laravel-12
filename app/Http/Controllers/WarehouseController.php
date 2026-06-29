@@ -308,6 +308,43 @@ class WarehouseController extends Controller
         }
     }
 
+    public function destroyPosition(WarehousePosition $position)
+    {
+        try {
+            DB::beginTransaction();
+
+            $positionId   = $position->id;
+            $positionName = $position->warehouse_position;
+            $count        = $position->warehouses()->count();
+
+            // Elimina tutte le merci della posizione
+            $position->warehouses()->delete();
+            // Elimina la posizione stessa
+            $position->delete();
+
+            DB::commit();
+
+            Log::info('Warehouse position deleted', [
+                'position_id'   => $positionId,
+                'position_name' => $positionName,
+                'items_deleted' => $count,
+                'user_id'       => Auth::id(),
+            ]);
+
+            return response()->json([
+                'success' => true,
+                'message' => "Posizione \"{$positionName}\" e {$count} element" . ($count === 1 ? 'o eliminato' : 'i eliminati') . ' con successo',
+            ]);
+        } catch (\Exception $e) {
+            DB::rollBack();
+            Log::error('Error deleting warehouse position: ' . $e->getMessage());
+            return response()->json([
+                'success' => false,
+                'message' => 'Errore durante l\'eliminazione della posizione',
+            ], 500);
+        }
+    }
+
     // API: ricerca articolo da colata (A01_ART_SAD_LAM)
     public function lookupHeat(Request $request)
     {

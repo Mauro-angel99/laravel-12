@@ -147,6 +147,9 @@ Route::middleware('auth')->group(function () {
     Route::delete('/api/warehouse/{warehouse}', [WarehouseController::class, 'destroy'])
         ->name('warehouse.destroy');
 
+    Route::delete('/api/warehouse/positions/{position}', [WarehouseController::class, 'destroyPosition'])
+        ->name('warehouse.position.destroy');
+
     // API per rimuovere le merci con ordini di produzione terminati (OPSTA = 'TE')
     Route::delete('/api/warehouse-remove-terminated', [WarehouseController::class, 'removeTerminated'])
         ->name('warehouse.remove-terminated');
@@ -206,6 +209,8 @@ Route::middleware('auth')->group(function () {
     // Work Phase Images routes
     Route::get('/api/work-phase-images', [WorkPhaseImageController::class, 'index'])
         ->name('work-phase-images.index');
+    Route::get('/api/article-images', [WorkPhaseImageController::class, 'byArticle'])
+        ->name('article-images.index');
 
     Route::get('/api/work-phase-pdf', [WorkPhasePdfController::class, 'show'])
         ->name('work-phase-pdf.show');

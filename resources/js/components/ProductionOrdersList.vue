@@ -158,19 +158,19 @@ const printPdf = () => {
   <title>Stato Ordini di Produzione</title>
   <style>
     * { box-sizing: border-box; margin: 0; padding: 0; }
-    body { font-family: Arial, sans-serif; font-size: 8pt; padding: 12mm; }
-    h1 { font-size: 11pt; margin-bottom: 8px; color: #1e3a5f; }
-    p.meta { font-size: 7.5pt; color: #666; margin-bottom: 10px; }
-    table { width: 100%; border-collapse: collapse; }
-    th { background: #1e3a5f; color: #fff; padding: 4px 5px; text-align: left; font-size: 7pt; white-space: nowrap; }
-    td { padding: 3px 5px; border-bottom: 1px solid #e5e7eb; vertical-align: top; }
+    body { font-family: Arial, sans-serif; font-size: 8pt; padding: 10mm; display: flex; flex-direction: column; align-items: center; }
+    h1 { font-size: 11pt; margin-bottom: 6px; color: #000; align-self: flex-start; }
+    p.meta { font-size: 7.5pt; color: #666; margin-bottom: 10px; align-self: flex-start; }
+    table { border-collapse: collapse; border: 1px solid #d1d5db; }
+    th { background: #1e3a5f; color: #000; font-weight: bold; padding: 4px 5px; text-align: left; font-size: 7pt; white-space: nowrap; border-right: 1px solid #d1d5db; }
+    td { padding: 3px 5px; border: 1px solid #d1d5db; vertical-align: top; }
     tr:nth-child(even) td { background: #f8fafc; }
-    @media print { @page { size: A4 landscape; margin: 10mm; } }
+    @media print { @page { size: A4 landscape; margin: 0; } }
   </style>
 </head>
 <body>
   <h1>Stato Ordini di Produzione</h1>
-  <p class="meta">Stampato il ${new Date().toLocaleDateString('it-IT')} &mdash; ${selected.length} record selezionati</p>
+  <p class="meta">Stampato il ${new Date().toLocaleDateString('it-IT')}</p>
   <table>
     <thead><tr>${thead}</tr></thead>
     <tbody>${tbody}</tbody>
@@ -178,11 +178,19 @@ const printPdf = () => {
 </body>
 </html>`
 
-  const w = window.open('', '_blank', 'width=1200,height=800')
-  w.document.write(html)
-  w.document.close()
-  w.focus()
-  w.onload = () => { w.print(); w.close() }
+  const blob = new Blob([html], { type: 'text/html' })
+  const url = URL.createObjectURL(blob)
+  const iframe = document.createElement('iframe')
+  iframe.style.cssText = 'position:fixed;top:-9999px;left:-9999px;width:1px;height:1px;border:none;'
+  document.body.appendChild(iframe)
+  iframe.onload = () => {
+    iframe.contentWindow.print()
+    iframe.contentWindow.addEventListener('afterprint', () => {
+      document.body.removeChild(iframe)
+      URL.revokeObjectURL(url)
+    })
+  }
+  iframe.src = url
   deselectAll()
 }
 
@@ -191,6 +199,65 @@ const goToPage = (page) => {
     fetchData(page)
   }
 }
+
+// --- Modal immagini ---
+const imageModal = ref({ show: false, row: null })
+const images = ref([])
+const loadingImages = ref(false)
+const lightbox = ref({ show: false, currentIndex: 0, currentImage: null })
+
+const openImageModal = (row) => {
+  imageModal.value = { show: true, row }
+  images.value = []
+  loadImages(row.OPART)
+}
+
+const closeImageModal = () => {
+  imageModal.value = { show: false, row: null }
+  images.value = []
+  lightbox.value.show = false
+}
+
+const loadImages = async (opart) => {
+  loadingImages.value = true
+  try {
+    const res = await axios.get('/api/article-images', { params: { opart } })
+    images.value = res.data
+  } catch (e) {
+    console.error('Errore caricamento immagini:', e)
+  } finally {
+    loadingImages.value = false
+  }
+}
+
+const viewImage = (image) => {
+  const index = images.value.findIndex(img => img.id === image.id)
+  lightbox.value = { show: true, currentIndex: index, currentImage: image }
+}
+
+const closeLightbox = () => { lightbox.value.show = false }
+
+const nextImage = () => {
+  lightbox.value.currentIndex = (lightbox.value.currentIndex + 1) % images.value.length
+  lightbox.value.currentImage = images.value[lightbox.value.currentIndex]
+}
+
+const previousImage = () => {
+  lightbox.value.currentIndex = (lightbox.value.currentIndex - 1 + images.value.length) % images.value.length
+  lightbox.value.currentImage = images.value[lightbox.value.currentIndex]
+}
+
+const handleLightboxKey = (e) => {
+  if (!lightbox.value.show) return
+  if (e.key === 'ArrowRight') nextImage()
+  else if (e.key === 'ArrowLeft') previousImage()
+  else if (e.key === 'Escape') closeLightbox()
+}
+
+watch(() => lightbox.value.show, (v) => {
+  if (v) document.addEventListener('keydown', handleLightboxKey)
+  else document.removeEventListener('keydown', handleLightboxKey)
+})
 
 let searchTimeout
 watch([searchOpras, searchOpdnr, searchDrconFrom, searchDrconTo, searchDrcorFrom, searchDrcorTo, searchOpart], () => {
@@ -345,11 +412,12 @@ onMounted(() => {
 
             <!-- Righe dati -->
             <tr v-else v-for="(row, index) in data" :key="index"
+              @click="openImageModal(row)"
               :class="[
-                'transition-colors',
+                'transition-colors cursor-pointer',
                 index % 2 === 0 ? 'bg-white hover:bg-blue-50' : 'bg-gray-50/60 hover:bg-blue-50'
               ]">
-              <td class="px-3 py-2 text-center border-r border-gray-100 w-8">
+              <td class="px-3 py-2 text-center border-r border-gray-100 w-8" @click.stop>
                 <input
                   type="checkbox"
                   :checked="selectedItems.has(row.RECORD_ID)"
@@ -450,4 +518,126 @@ onMounted(() => {
     </div>
 
   </div>
+
+  <!-- MODAL IMMAGINI -->
+  <Teleport to="body">
+    <div v-if="imageModal.show" class="fixed inset-0 z-50 overflow-y-auto">
+      <div class="flex items-center justify-center min-h-screen px-4 py-8">
+        <div class="fixed inset-0 bg-gray-500/75" @click="closeImageModal"></div>
+
+        <div class="relative bg-white rounded-xl shadow-xl w-full max-w-4xl z-10 flex flex-col max-h-[90vh]">
+
+          <!-- Header -->
+          <div class="flex items-center justify-between px-6 py-4 border-b border-gray-200 bg-copam-blue rounded-t-xl">
+            <div>
+              <h3 class="text-base font-semibold text-white">Immagini articolo</h3>
+              <p class="text-xs text-blue-100 mt-0.5">
+                <span class="font-medium">{{ imageModal.row?.OPART }}</span>
+                <span v-if="imageModal.row?.OPRAS"> &mdash; {{ imageModal.row?.OPRAS }}</span>
+                <span class="ml-2 opacity-75">Ord. {{ imageModal.row?.RECORD_ID }}</span>
+              </p>
+            </div>
+            <button @click="closeImageModal" class="text-blue-200 hover:text-white transition-colors">
+              <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/>
+              </svg>
+            </button>
+          </div>
+
+          <!-- Body -->
+          <div class="p-6 overflow-y-auto flex-1">
+
+            <!-- Loading -->
+            <div v-if="loadingImages" class="flex flex-col items-center justify-center py-16">
+              <svg class="animate-spin h-8 w-8 text-copam-blue" fill="none" viewBox="0 0 24 24">
+                <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+              </svg>
+              <p class="mt-3 text-sm text-gray-500">Caricamento immagini...</p>
+            </div>
+
+            <!-- Gallery -->
+            <div v-else-if="images.length > 0">
+              <div class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-4">
+                <div v-for="image in images" :key="image.id"
+                  class="group cursor-pointer rounded-lg overflow-hidden border border-gray-200 hover:border-copam-blue hover:shadow-md transition-all"
+                  @click="viewImage(image)">
+                  <img :src="image.url" :alt="image.file_name"
+                    class="w-full h-28 object-cover group-hover:opacity-90 transition-opacity" />
+                  <div class="px-2 py-1.5 bg-gray-50">
+                    <p class="text-[10px] text-gray-500 truncate">{{ image.file_name }}</p>
+                    <p v-if="image.fllav" class="text-[10px] text-copam-blue font-medium truncate">{{ image.fllav }}</p>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <!-- Empty -->
+            <div v-else class="flex flex-col items-center justify-center py-16">
+              <svg class="h-14 w-14 text-gray-300" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"/>
+              </svg>
+              <p class="mt-3 text-sm font-medium text-gray-400">Nessuna immagine disponibile</p>
+              <p class="text-xs text-gray-300 mt-1">per l'articolo {{ imageModal.row?.OPART }}</p>
+            </div>
+          </div>
+
+          <!-- Footer -->
+          <div class="px-6 py-3 border-t border-gray-200 bg-gray-50 rounded-b-xl flex justify-end">
+            <button @click="closeImageModal"
+              class="inline-flex items-center gap-2 px-4 py-2 rounded-lg border border-gray-300 bg-white text-sm font-medium text-gray-700 hover:bg-gray-50 transition-colors">
+              <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/>
+              </svg>
+              Chiudi
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- LIGHTBOX -->
+    <div v-if="lightbox.show" class="fixed inset-0 z-[60] bg-black/95 flex items-center justify-center"
+      @click.self="closeLightbox">
+      <!-- Chiudi -->
+      <button @click="closeLightbox" class="absolute top-4 right-4 text-white hover:text-gray-300 z-10">
+        <svg class="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/>
+        </svg>
+      </button>
+      <!-- Precedente -->
+      <button v-if="images.length > 1" @click="previousImage"
+        class="absolute left-4 text-white hover:text-gray-300 z-10">
+        <svg class="w-12 h-12" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"/>
+        </svg>
+      </button>
+      <!-- Immagine -->
+      <div class="max-w-6xl max-h-full p-4 text-center">
+        <img :src="lightbox.currentImage?.url" :alt="lightbox.currentImage?.file_name"
+          class="max-w-full max-h-[85vh] object-contain mx-auto rounded" />
+        <p class="text-white text-sm mt-3">{{ lightbox.currentImage?.file_name }}</p>
+        <p v-if="images.length > 1" class="text-gray-400 text-xs mt-1">
+          {{ lightbox.currentIndex + 1 }} / {{ images.length }}
+        </p>
+      </div>
+      <!-- Successivo -->
+      <button v-if="images.length > 1" @click="nextImage"
+        class="absolute right-4 text-white hover:text-gray-300 z-10">
+        <svg class="w-12 h-12" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"/>
+        </svg>
+      </button>
+      <!-- Thumbnails -->
+      <div v-if="images.length > 1"
+        class="absolute bottom-4 left-1/2 -translate-x-1/2 flex gap-2 max-w-full overflow-x-auto px-4">
+        <button v-for="(img, idx) in images" :key="img.id" @click="lightbox.currentIndex = idx; lightbox.currentImage = img"
+          :class="['flex-shrink-0 w-14 h-14 rounded border-2 transition-all overflow-hidden',
+            idx === lightbox.currentIndex ? 'border-copam-blue scale-110' : 'border-gray-600 opacity-50 hover:opacity-100']">
+          <img :src="img.url" :alt="img.file_name" class="w-full h-full object-cover" />
+        </button>
+      </div>
+    </div>
+  </Teleport>
+
 </template>

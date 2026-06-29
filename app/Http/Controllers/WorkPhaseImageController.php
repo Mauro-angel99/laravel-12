@@ -14,6 +14,22 @@ use Illuminate\Support\Str;
 class WorkPhaseImageController extends Controller
 {
     /**
+     * Ottiene tutte le immagini per un dato OPART (tutte le fasi)
+     */
+    public function byArticle(Request $request): JsonResponse
+    {
+        $request->validate(['opart' => 'required|string|max:50']);
+
+        $images = WorkPhaseImage::where('opart', $request->opart)
+            ->with('uploader:id,name')
+            ->orderBy('fllav')
+            ->orderBy('created_at', 'desc')
+            ->get();
+
+        return response()->json($images);
+    }
+
+    /**
      * Ottiene tutte le immagini per un dato FLLAV e OPART
      */
     public function index(Request $request): JsonResponse
@@ -46,9 +62,9 @@ class WorkPhaseImageController extends Controller
                 // Genera un nome file unico
                 $fileName = $image->getClientOriginalName();
                 $extension = $image->getClientOriginalExtension();
-                $uniqueName = Str::slug(pathinfo($fileName, PATHINFO_FILENAME)) 
-                    . '_' . time() 
-                    . '_' . Str::random(8) 
+                $uniqueName = Str::slug(pathinfo($fileName, PATHINFO_FILENAME))
+                    . '_' . time()
+                    . '_' . Str::random(8)
                     . '.' . $extension;
 
                 // Salva il file nella directory work_phase_images
@@ -82,12 +98,11 @@ class WorkPhaseImageController extends Controller
             DB::commit();
 
             return response()->json([
-                'message' => count($uploadedImages) > 1 
-                    ? 'Immagini caricate con successo' 
+                'message' => count($uploadedImages) > 1
+                    ? 'Immagini caricate con successo'
                     : 'Immagine caricata con successo',
                 'images' => $uploadedImages,
             ], 201);
-
         } catch (\Exception $e) {
             DB::rollBack();
             Log::error('Errore upload immagini', [
@@ -120,7 +135,6 @@ class WorkPhaseImageController extends Controller
             return response()->json([
                 'message' => 'Immagine eliminata con successo'
             ]);
-
         } catch (\Exception $e) {
             Log::error('Errore eliminazione immagine', [
                 'error' => $e->getMessage(),
