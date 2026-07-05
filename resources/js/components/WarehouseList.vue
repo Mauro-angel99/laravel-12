@@ -47,7 +47,7 @@ const searchQuery = ref('')
 const filterPending = ref(false)
 const showCreateModal = ref(false)
 const showAddPositionModal = ref(false)
-const newPositionForm = ref({ name: '', quantity: null, pending: true, productionOrders: [''] })
+const newPositionForm = ref({ name: '', quantity: null, pending: false, productionOrders: [''] })
 const productionOrderRefs = ref([])
 const showProductsModal = ref(false)
 const showAddMerceInPositionModal = ref(false)
@@ -71,7 +71,7 @@ const formData = ref({
   product_description: '',
   notes: '',
   format: '',
-  pending: true,
+  pending: false,
   pending_code: '',
   started: false
 })
@@ -137,7 +137,7 @@ const openCreateModal = () => {
     product_description: '',
     notes: '',
     format: '',
-    pending: true,
+    pending: false,
     pending_code: '',
     started: false
   }
@@ -213,7 +213,7 @@ const savePosition = async () => {
     }
 
     showAddPositionModal.value = false
-    newPositionForm.value = { name: '', quantity: null, pending: true, productionOrders: [''] }
+    newPositionForm.value = { name: '', quantity: null, pending: false, productionOrders: [''] }
     fetchPositions(currentPage.value)
     const detail = orders.length > 0 ? ` con ${orders.length} ordine/i di produzione` : ''
     showMessageModal('success', 'Posizione creata', res.data.message + detail)

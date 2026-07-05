@@ -22,11 +22,15 @@ class ProductionOrdersController extends Controller
         $drcorFrom = $request->input('drcor_from', '');
         $drcorTo   = $request->input('drcor_to', '');
         $opart     = $request->input('opart', '');
+        $fasi      = $request->input('fasi', '');
         $page      = max(1, (int) $request->input('page', 1));
         $perPage   = 20;
         $offset    = ($page - 1) * $perPage;
 
-        $conditions = [];
+        $conditions = [
+            "OPSTA <> 'TE'",
+            "DRSTA <> 'EV'",
+        ];
         $params     = [];
 
         if (!empty($opras)) {
@@ -56,6 +60,10 @@ class ProductionOrdersController extends Controller
         if (!empty($opart)) {
             $conditions[] = 'OPART = ?';
             $params[]     = $opart;
+        }
+        if (!empty($fasi)) {
+            $conditions[] = 'FASI LIKE ?';
+            $params[]     = '%' . $fasi . '%';
         }
 
         $whereClause = !empty($conditions)

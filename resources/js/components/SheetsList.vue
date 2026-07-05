@@ -19,7 +19,7 @@ const searchQuery = ref('')
 // --- Modal aggiungi merce ---
 const showAddModal = ref(false)
 const isSaving = ref(false)
-const addForm = ref({ pending: true, heat: '', pending_code: '', position: '', product_code: '', production_order: '', format: '' })
+const addForm = ref({ pending: false, heat: '', pending_code: '', position: '', product_code: '', production_order: '', format: '' })
 const isLoadingHeat = ref(false)
 const filterPending = ref(false)
 
@@ -116,7 +116,7 @@ const deleteItem = async () => {
 
 // --- Aggiungi merce ---
 const openAddModal = () => {
-  addForm.value = { pending: true, heat: '', pending_code: '', position: '', product_code: '', production_order: '', format: '' }
+  addForm.value = { pending: false, heat: '', pending_code: '', position: '', product_code: '', production_order: '', format: '' }
   showAddModal.value = true
 }
 

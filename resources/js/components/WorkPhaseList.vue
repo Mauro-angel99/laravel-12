@@ -543,30 +543,41 @@ const confirmSelected = async () => {
 
   <!-- Modal conferma/errore -->
   <Teleport to="body">
-    <div v-if="messageModal.show" class="fixed inset-0 z-50 flex items-center justify-center px-4">
-      <div class="fixed inset-0 bg-gray-900 bg-opacity-50" @click="closeMessageModal"></div>
-      <div class="relative bg-white rounded-xl shadow-2xl w-full max-w-sm overflow-hidden">
-        <div :class="['px-5 py-4', messageModal.type === 'success' ? 'bg-green-600' : 'bg-red-600']">
-          <div class="flex items-center gap-3">
-            <div class="flex-shrink-0 bg-white/20 rounded-full p-1.5">
-              <svg v-if="messageModal.type === 'success'" class="h-5 w-5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7" />
+    <div v-if="messageModal.show" class="fixed inset-0 z-50 overflow-y-auto">
+      <div class="flex items-center justify-center min-h-screen px-4 pt-4 pb-20 text-center sm:block sm:p-0">
+        <div class="fixed inset-0 transition-opacity bg-gray-500 bg-opacity-75"></div>
+        <div class="inline-block align-bottom bg-white rounded-lg px-4 pt-5 pb-4 text-left overflow-hidden shadow-xl transform transition-all sm:my-8 sm:align-middle sm:max-w-lg sm:w-full sm:p-6">
+          <div class="sm:flex sm:items-start">
+            <div :class="[
+              'mx-auto flex-shrink-0 flex items-center justify-center h-12 w-12 rounded-full sm:mx-0 sm:h-10 sm:w-10',
+              messageModal.type === 'success' ? 'bg-green-100' : 'bg-red-100'
+            ]">
+              <svg v-if="messageModal.type === 'success'" class="h-6 w-6 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/>
               </svg>
-              <svg v-else class="h-5 w-5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+              <svg v-else class="h-6 w-6 text-red-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/>
               </svg>
             </div>
-            <h3 class="text-sm font-semibold text-white">{{ messageModal.title }}</h3>
+            <div class="mt-3 text-center sm:mt-0 sm:ml-4 sm:text-left">
+              <h3 class="text-lg leading-6 font-medium text-gray-900">{{ messageModal.title }}</h3>
+              <div class="mt-2">
+                <p class="text-xs text-gray-500">{{ messageModal.message }}</p>
+              </div>
+            </div>
           </div>
-        </div>
-        <div class="px-5 py-4">
-          <p class="text-xs text-gray-600">{{ messageModal.message }}</p>
-        </div>
-        <div class="border-t border-gray-100 px-5 py-3 flex justify-end bg-gray-50">
-          <button @click="closeMessageModal"
-            :class="['px-4 py-1.5 rounded-lg text-xs font-semibold text-white transition-colors', messageModal.type === 'success' ? 'bg-green-600 hover:bg-green-700' : 'bg-red-600 hover:bg-red-700']">
-            OK
-          </button>
+          <div class="mt-5 sm:mt-4 sm:flex sm:flex-row-reverse">
+            <button
+              type="button"
+              @click="closeMessageModal"
+              :class="[
+                'w-full inline-flex justify-center rounded-md border border-transparent shadow-sm px-4 py-2 text-base font-medium text-white focus:outline-none focus:ring-2 focus:ring-offset-2 sm:ml-3 sm:w-auto sm:text-xs',
+                messageModal.type === 'success' ? 'bg-green-600 hover:bg-green-700 focus:ring-green-500' : 'bg-red-600 hover:bg-red-700 focus:ring-red-500'
+              ]"
+            >
+              OK
+            </button>
+          </div>
         </div>
       </div>
     </div>

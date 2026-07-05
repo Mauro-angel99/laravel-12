@@ -14,6 +14,7 @@ const searchDrconTo = ref('')
 const searchDrcorFrom = ref('')
 const searchDrcorTo = ref('')
 const searchOpart = ref('')
+const searchFasi = ref('')
 const loading = ref(false)
 const currentPage = ref(1)
 const pagination = ref({
@@ -52,6 +53,7 @@ const fetchData = async (page = 1) => {
     if (searchDrcorFrom.value) params.drcor_from = searchDrcorFrom.value
     if (searchDrcorTo.value) params.drcor_to = searchDrcorTo.value
     if (searchOpart.value) params.opart = searchOpart.value
+    if (searchFasi.value) params.fasi = searchFasi.value
     const res = await axios.get('/api/production-orders', { params })
     data.value = res.data.data
     pagination.value = res.data.pagination
@@ -70,7 +72,7 @@ const applyFilters = () => {
 
 const hasFilters = () => {
   return searchOpras.value || searchOpdnr.value || searchDrconFrom.value || searchDrconTo.value ||
-         searchDrcorFrom.value || searchDrcorTo.value || searchOpart.value
+         searchDrcorFrom.value || searchDrcorTo.value || searchOpart.value || searchFasi.value
 }
 
 const clearAllFilters = () => {
@@ -81,6 +83,7 @@ const clearAllFilters = () => {
   searchDrcorFrom.value = ''
   searchDrcorTo.value = ''
   searchOpart.value = ''
+  searchFasi.value = ''
   applyFilters()
 }
 
@@ -200,22 +203,44 @@ const goToPage = (page) => {
   }
 }
 
-// --- Modal immagini ---
+// --- Modal immagini/pdf ---
 const imageModal = ref({ show: false, row: null })
 const images = ref([])
 const loadingImages = ref(false)
 const lightbox = ref({ show: false, currentIndex: 0, currentImage: null })
+const activeTab = ref('immagini')
+const pdfUrl = ref(null)
+const loadingPdf = ref(false)
 
 const openImageModal = (row) => {
   imageModal.value = { show: true, row }
   images.value = []
+  pdfUrl.value = null
+  activeTab.value = 'immagini'
   loadImages(row.OPART)
+  checkPdf(row.OPART)
 }
 
 const closeImageModal = () => {
   imageModal.value = { show: false, row: null }
   images.value = []
+  pdfUrl.value = null
+  activeTab.value = 'immagini'
   lightbox.value.show = false
+}
+
+const checkPdf = async (opart) => {
+  if (!opart) { pdfUrl.value = null; return }
+  const url = `/api/work-phase-pdf?opart=${encodeURIComponent(opart)}`
+  loadingPdf.value = true
+  try {
+    const response = await fetch(url, { method: 'HEAD' })
+    pdfUrl.value = response.ok ? url : null
+  } catch {
+    pdfUrl.value = null
+  } finally {
+    loadingPdf.value = false
+  }
 }
 
 const loadImages = async (opart) => {
@@ -260,7 +285,7 @@ watch(() => lightbox.value.show, (v) => {
 })
 
 let searchTimeout
-watch([searchOpras, searchOpdnr, searchDrconFrom, searchDrconTo, searchDrcorFrom, searchDrcorTo, searchOpart], () => {
+watch([searchOpras, searchOpdnr, searchDrconFrom, searchDrconTo, searchDrcorFrom, searchDrcorTo, searchOpart, searchFasi], () => {
   clearTimeout(searchTimeout)
   searchTimeout = setTimeout(() => {
     applyFilters()
@@ -304,7 +329,7 @@ onMounted(() => {
 
       <div class="p-4 space-y-3">
         <!-- Riga 1: testi -->
-        <div class="grid grid-cols-1 sm:grid-cols-3 gap-3">
+        <div class="grid grid-cols-1 sm:grid-cols-4 gap-3">
           <div>
             <label class="block text-[11px] font-black uppercase tracking-wider text-gray-700 mb-1">Ragione Sociale Cliente</label>
             <input type="text" v-model="searchOpras" placeholder="Ricerca parziale…"
@@ -318,6 +343,11 @@ onMounted(() => {
           <div>
             <label class="block text-[11px] font-black uppercase tracking-wider text-gray-700 mb-1">Codice Articolo</label>
             <input type="text" v-model="searchOpart" placeholder="Codice esatto…"
+              class="w-full px-3 py-1.5 border border-gray-300 rounded-lg text-xs focus:ring-2 focus:ring-copam-blue focus:border-copam-blue" />
+          </div>
+          <div>
+            <label class="block text-[11px] font-black uppercase tracking-wider text-gray-700 mb-1">Fasi</label>
+            <input type="text" v-model="searchFasi" placeholder="Ricerca parziale…"
               class="w-full px-3 py-1.5 border border-gray-300 rounded-lg text-xs focus:ring-2 focus:ring-copam-blue focus:border-copam-blue" />
           </div>
         </div>
@@ -530,7 +560,7 @@ onMounted(() => {
           <!-- Header -->
           <div class="flex items-center justify-between px-6 py-4 border-b border-gray-200 bg-copam-blue rounded-t-xl">
             <div>
-              <h3 class="text-base font-semibold text-white">Immagini articolo</h3>
+              <h3 class="text-base font-semibold text-white">Stato ordine</h3>
               <p class="text-xs text-blue-100 mt-0.5">
                 <span class="font-medium">{{ imageModal.row?.OPART }}</span>
                 <span v-if="imageModal.row?.OPRAS"> &mdash; {{ imageModal.row?.OPRAS }}</span>
@@ -544,41 +574,91 @@ onMounted(() => {
             </button>
           </div>
 
+          <!-- Tabs -->
+          <div class="border-b border-gray-200 px-6">
+            <nav class="-mb-px flex space-x-6">
+              <button
+                @click="activeTab = 'immagini'"
+                :class="[
+                  activeTab === 'immagini' ? 'border-copam-blue text-copam-blue' : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300',
+                  'whitespace-nowrap py-3 px-1 border-b-2 font-medium text-sm'
+                ]"
+              >Immagini</button>
+              <button
+                @click="activeTab = 'pdf'"
+                :class="[
+                  activeTab === 'pdf' ? 'border-copam-blue text-copam-blue' : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300',
+                  'whitespace-nowrap py-3 px-1 border-b-2 font-medium text-sm'
+                ]"
+              >PDF</button>
+            </nav>
+          </div>
+
           <!-- Body -->
           <div class="p-6 overflow-y-auto flex-1">
 
-            <!-- Loading -->
-            <div v-if="loadingImages" class="flex flex-col items-center justify-center py-16">
-              <svg class="animate-spin h-8 w-8 text-copam-blue" fill="none" viewBox="0 0 24 24">
-                <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
-                <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
-              </svg>
-              <p class="mt-3 text-sm text-gray-500">Caricamento immagini...</p>
-            </div>
+            <!-- Tab Immagini -->
+            <div v-show="activeTab === 'immagini'">
+              <!-- Loading -->
+              <div v-if="loadingImages" class="flex flex-col items-center justify-center py-16">
+                <svg class="animate-spin h-8 w-8 text-copam-blue" fill="none" viewBox="0 0 24 24">
+                  <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                  <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                </svg>
+                <p class="mt-3 text-sm text-gray-500">Caricamento immagini...</p>
+              </div>
 
-            <!-- Gallery -->
-            <div v-else-if="images.length > 0">
-              <div class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-4">
-                <div v-for="image in images" :key="image.id"
-                  class="group cursor-pointer rounded-lg overflow-hidden border border-gray-200 hover:border-copam-blue hover:shadow-md transition-all"
-                  @click="viewImage(image)">
-                  <img :src="image.url" :alt="image.file_name"
-                    class="w-full h-28 object-cover group-hover:opacity-90 transition-opacity" />
-                  <div class="px-2 py-1.5 bg-gray-50">
-                    <p class="text-[10px] text-gray-500 truncate">{{ image.file_name }}</p>
-                    <p v-if="image.fllav" class="text-[10px] text-copam-blue font-medium truncate">{{ image.fllav }}</p>
+              <!-- Gallery -->
+              <div v-else-if="images.length > 0">
+                <div class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-4">
+                  <div v-for="image in images" :key="image.id"
+                    class="group cursor-pointer rounded-lg overflow-hidden border border-gray-200 hover:border-copam-blue hover:shadow-md transition-all"
+                    @click="viewImage(image)">
+                    <img :src="image.url" :alt="image.file_name"
+                      class="w-full h-28 object-cover group-hover:opacity-90 transition-opacity" />
+                    <div class="px-2 py-1.5 bg-gray-50">
+                      <p class="text-[10px] text-gray-500 truncate">{{ image.file_name }}</p>
+                      <p v-if="image.fllav" class="text-[10px] text-copam-blue font-medium truncate">{{ image.fllav }}</p>
+                    </div>
                   </div>
                 </div>
               </div>
+
+              <!-- Empty -->
+              <div v-else class="flex flex-col items-center justify-center py-16">
+                <svg class="h-14 w-14 text-gray-300" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"/>
+                </svg>
+                <p class="mt-3 text-sm font-medium text-gray-400">Nessuna immagine disponibile</p>
+                <p class="text-xs text-gray-300 mt-1">per l'articolo {{ imageModal.row?.OPART }}</p>
+              </div>
             </div>
 
-            <!-- Empty -->
-            <div v-else class="flex flex-col items-center justify-center py-16">
-              <svg class="h-14 w-14 text-gray-300" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"/>
-              </svg>
-              <p class="mt-3 text-sm font-medium text-gray-400">Nessuna immagine disponibile</p>
-              <p class="text-xs text-gray-300 mt-1">per l'articolo {{ imageModal.row?.OPART }}</p>
+            <!-- Tab PDF -->
+            <div v-show="activeTab === 'pdf'">
+              <div v-if="loadingPdf" class="flex flex-col items-center justify-center py-16">
+                <svg class="animate-spin h-8 w-8 text-copam-blue" fill="none" viewBox="0 0 24 24">
+                  <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                  <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                </svg>
+                <p class="mt-3 text-sm text-gray-500">Caricamento PDF...</p>
+              </div>
+              <div v-else-if="pdfUrl" class="w-full">
+                <div class="bg-gray-100 rounded-lg p-4">
+                  <div class="flex items-center justify-between mb-3">
+                    <h4 class="text-sm font-medium text-gray-900">{{ imageModal.row?.OPART }}.pdf</h4>
+                    <a :href="pdfUrl" target="_blank" class="text-copam-blue hover:underline text-sm">Apri in nuova scheda</a>
+                  </div>
+                  <iframe :src="pdfUrl" class="w-full border-0 rounded" style="height: 600px;"></iframe>
+                </div>
+              </div>
+              <div v-else class="flex flex-col items-center justify-center py-16">
+                <svg class="h-14 w-14 text-gray-300" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M7 21h10a2 2 0 002-2V9.414a1 1 0 00-.293-.707l-5.414-5.414A1 1 0 0012.586 3H7a2 2 0 00-2 2v14a2 2 0 002 2z"/>
+                </svg>
+                <p class="mt-3 text-sm font-medium text-gray-400">Nessun PDF disponibile</p>
+                <p class="text-xs text-gray-300 mt-1">per l'articolo {{ imageModal.row?.OPART }}</p>
+              </div>
             </div>
           </div>
 
