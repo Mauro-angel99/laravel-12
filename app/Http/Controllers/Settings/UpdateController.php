@@ -39,23 +39,46 @@ class UpdateController extends Controller
             $runCmd('git config --global --add safe.directory ' . escapeshellarg($projectRoot), true);
             $runCmd('git config --global --add safe.directory \*', true);
 
-            // 2. Git stash
-            $runCmd('git stash', true);
+            // 2. Rimuovi eventuali lock file residui
+            $runCmd('rm -f .git/index.lock .git/MERGE_HEAD .git/CHERRY_PICK_HEAD', true);
 
-            // 3. Git pull
-            if (!$runCmd('git pull')) {
+            // 3. Interrompi eventuali operazioni in sospeso
+            $runCmd('git merge --abort 2>/dev/null || true', true);
+            $runCmd('git rebase --abort 2>/dev/null || true', true);
+
+            // 4. Git fetch (scarica i commit senza applicarli)
+            if (!$runCmd('git fetch origin')) {
                 return response()->json([
                     'success' => false,
-                    'message' => 'git pull fallito.',
+                    'message' => 'git fetch fallito: impossibile raggiungere il repository remoto.',
                     'output'  => $output,
                     'errors'  => $errors,
                 ], 500);
             }
 
-            // 4. Git stash pop
-            $runCmd('git stash pop', true);
+            // 5. Rileva il branch corrente
+            $branchLines = [];
+            exec('cd ' . escapeshellarg($projectRoot) . ' && HOME=/tmp git rev-parse --abbrev-ref HEAD 2>&1', $branchLines, $branchExit);
+            $branch = trim(implode('', $branchLines));
+            if (empty($branch) || $branch === 'HEAD' || $branchExit !== 0) {
+                $branch = 'main';
+            }
+            $output[] = ['cmd' => 'git branch', 'out' => "Branch corrente: {$branch}"];
 
-            // 5. npm build
+            // 6. Reset hard al branch remoto (nessun conflitto possibile)
+            if (!$runCmd("git reset --hard origin/{$branch}")) {
+                return response()->json([
+                    'success' => false,
+                    'message' => "git reset --hard origin/{$branch} fallito.",
+                    'output'  => $output,
+                    'errors'  => $errors,
+                ], 500);
+            }
+
+            // 7. Rimuovi file non tracciati che potrebbero interferire
+            $runCmd('git clean -fd', true);
+
+            // 8. npm build
             $nodeAvailable = !empty(shell_exec('which node 2>/dev/null'));
 
             if ($nodeAvailable) {
@@ -84,7 +107,7 @@ class UpdateController extends Controller
                 }
             }
 
-            // 6. Artisan migrate
+            // 9. Artisan migrate
             try {
                 Artisan::call('migrate', ['--force' => true]);
                 $output[] = ['cmd' => 'artisan migrate', 'out' => trim(Artisan::output())];
@@ -93,7 +116,7 @@ class UpdateController extends Controller
                 $errors[] = 'artisan migrate fallito: ' . $e->getMessage();
             }
 
-            // 7. Artisan optimize:clear
+            // 10. Artisan optimize:clear
             try {
                 Artisan::call('optimize:clear');
                 $output[] = ['cmd' => 'artisan optimize:clear', 'out' => trim(Artisan::output())];
