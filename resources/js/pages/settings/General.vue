@@ -612,7 +612,7 @@ onMounted(() => {
                 {{ isRemovingTerminated ? 'Rimozione in corso...' : 'Rimuovi terminati' }}
             </button>
             <span class="text-xs text-gray-500">
-                Elimina tutte le merci il cui ordine di produzione risulta terminato (<strong>OPSTA = "TE"</strong>).
+                Elimina tutte le merci il cui ordine di produzione risulta terminato.
             </span>
         </div>
 
@@ -893,7 +893,7 @@ onMounted(() => {
                         <h3 class="text-lg leading-6 font-medium text-gray-900">Rimuovi terminati</h3>
                         <div class="mt-2">
                             <p class="text-sm text-gray-500">
-                                Verranno eliminate tutte le merci il cui ordine di produzione risulta terminato (<strong>OPSTA = "TE"</strong>). Questa azione non può essere annullata.
+                                Verranno eliminate tutte le merci il cui ordine di produzione risulta terminato. Questa azione non può essere annullata.
                             </p>
                         </div>
                     </div>
