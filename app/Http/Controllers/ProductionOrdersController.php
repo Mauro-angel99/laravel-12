@@ -13,6 +13,98 @@ class ProductionOrdersController extends Controller
         return view('production-orders.index');
     }
 
+    /**
+     * Restituisce TUTTI i record filtrati (senza paginazione) per la selezione massiva.
+     */
+    public function selectAll(Request $request): \Illuminate\Http\JsonResponse
+    {
+        $opras     = $request->input('opras', '');
+        $opdnr     = $request->input('opdnr', '');
+        $drconFrom = $request->input('drcon_from', '');
+        $drconTo   = $request->input('drcon_to', '');
+        $drcorFrom = $request->input('drcor_from', '');
+        $drcorTo   = $request->input('drcor_to', '');
+        $opart     = $request->input('opart', '');
+        $fasi      = $request->input('fasi', '');
+
+        $conditions = [
+            "OPSTA <> 'TE'",
+            "DRSTA <> 'EV'",
+        ];
+        $params = [];
+
+        if (!empty($opras)) {
+            $conditions[] = 'OPRAS LIKE ?';
+            $params[] = '%' . $opras . '%';
+        }
+        if (!empty($opdnr)) {
+            $conditions[] = 'CAST(OPDNR AS NVARCHAR) = ?';
+            $params[] = $opdnr;
+        }
+        if (!empty($drconFrom)) {
+            $conditions[] = 'CAST(DRCON AS DATE) >= ?';
+            $params[] = $drconFrom;
+        }
+        if (!empty($drconTo)) {
+            $conditions[] = 'CAST(DRCON AS DATE) <= ?';
+            $params[] = $drconTo;
+        }
+        if (!empty($drcorFrom)) {
+            $conditions[] = 'CAST(DRCOR AS DATE) >= ?';
+            $params[] = $drcorFrom;
+        }
+        if (!empty($drcorTo)) {
+            $conditions[] = 'CAST(DRCOR AS DATE) <= ?';
+            $params[] = $drcorTo;
+        }
+        if (!empty($opart)) {
+            $conditions[] = 'OPART LIKE ?';
+            $params[] = '%' . $opart . '%';
+        }
+        if (!empty($fasi)) {
+            $conditions[] = 'FASI LIKE ?';
+            $params[] = '%' . $fasi . '%';
+        }
+
+        $whereClause = !empty($conditions) ? ' WHERE ' . implode(' AND ', $conditions) : '';
+
+        try {
+            $dati = DB::connection('sqlsrv_gestionale')->select(
+                'SELECT OPASS, RECORD_ID, OPART, OPDNR, DTRIC, OPRAS, OPCMM, OPUMP,
+                        OPQTA, OPQTP, OPQTD, FASI, ARMAT, DRCON, DRCOR
+                 FROM A01_SRC_PRO_FAS' . $whereClause . ' ORDER BY RECORD_ID DESC',
+                $params
+            );
+
+            $recordIds = array_map(fn($row) => (string) $row->RECORD_ID, $dati);
+            $positionsGrouped = [];
+            if (!empty($recordIds)) {
+                $wItems = Warehouse::with('warehousePosition:id,warehouse_position')
+                    ->whereIn('production_order', $recordIds)
+                    ->get();
+                foreach ($wItems as $w) {
+                    $key = (string) $w->production_order;
+                    if ($w->warehousePosition) {
+                        $pos = $w->warehousePosition->warehouse_position;
+                        if (!in_array($pos, $positionsGrouped[$key] ?? [])) {
+                            $positionsGrouped[$key][] = $pos;
+                        }
+                    }
+                }
+            }
+
+            $dati = array_map(function ($row) use ($positionsGrouped) {
+                $arr = (array) $row;
+                $arr['positions'] = $positionsGrouped[(string) $row->RECORD_ID] ?? [];
+                return $arr;
+            }, $dati);
+
+            return response()->json(['data' => $dati]);
+        } catch (\Exception $e) {
+            return response()->json(['error' => $e->getMessage()], 500);
+        }
+    }
+
     public function list(Request $request)
     {
         $opras     = $request->input('opras', '');
@@ -58,8 +150,8 @@ class ProductionOrdersController extends Controller
             $params[]     = $drcorTo;
         }
         if (!empty($opart)) {
-            $conditions[] = 'OPART = ?';
-            $params[]     = $opart;
+            $conditions[] = 'OPART LIKE ?';
+            $params[]     = '%' . $opart . '%';
         }
         if (!empty($fasi)) {
             $conditions[] = 'FASI LIKE ?';

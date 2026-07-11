@@ -56,6 +56,7 @@ Route::middleware('auth')->group(function () {
 
 Route::middleware('auth')->group(function () {
     Route::get('/production-orders', [ProductionOrdersController::class, 'index'])->name('production-orders.index');
+    Route::get('/api/production-orders/select-all', [ProductionOrdersController::class, 'selectAll'])->name('production-orders.select-all');
     Route::get('/api/production-orders', [ProductionOrdersController::class, 'list'])->name('production-orders.list');
 });
 

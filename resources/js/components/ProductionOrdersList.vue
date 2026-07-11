@@ -87,22 +87,44 @@ const clearAllFilters = () => {
   applyFilters()
 }
 
+const selectAllLoading = ref(false)
+
 const allSelected = computed(() =>
-  data.value.length > 0 && data.value.every(row => selectedItems.value.has(row.RECORD_ID))
+  pagination.value.total > 0 && selectedItems.value.size >= pagination.value.total
 )
 const someSelected = computed(() =>
-  data.value.some(row => selectedItems.value.has(row.RECORD_ID)) && !allSelected.value
+  selectedItems.value.size > 0 && !allSelected.value
 )
 
-const toggleAll = () => {
-  const m = new Map(selectedItems.value)
-  if (allSelected.value) {
-    data.value.forEach(row => m.delete(row.RECORD_ID))
-  } else {
-    data.value.forEach(row => m.set(row.RECORD_ID, row))
+const toggleAll = async () => {
+  if (selectedItems.value.size > 0) {
+    // Deseleziona tutto
+    selectedItems.value = new Map()
+    saveToStorage()
+    return
   }
-  selectedItems.value = m
-  saveToStorage()
+  // Seleziona tutti i record filtrati (tutte le pagine)
+  selectAllLoading.value = true
+  try {
+    const params = {}
+    if (searchOpras.value) params.opras = searchOpras.value
+    if (searchOpdnr.value) params.opdnr = searchOpdnr.value
+    if (searchDrconFrom.value) params.drcon_from = searchDrconFrom.value
+    if (searchDrconTo.value) params.drcon_to = searchDrconTo.value
+    if (searchDrcorFrom.value) params.drcor_from = searchDrcorFrom.value
+    if (searchDrcorTo.value) params.drcor_to = searchDrcorTo.value
+    if (searchOpart.value) params.opart = searchOpart.value
+    if (searchFasi.value) params.fasi = searchFasi.value
+    const res = await axios.get('/api/production-orders/select-all', { params })
+    const m = new Map()
+    res.data.data.forEach((row) => m.set(row.RECORD_ID, row))
+    selectedItems.value = m
+    saveToStorage()
+  } catch (e) {
+    console.error(e)
+  } finally {
+    selectAllLoading.value = false
+  }
 }
 
 const toggleRow = (id) => {
@@ -342,7 +364,7 @@ onMounted(() => {
           </div>
           <div>
             <label class="block text-[11px] font-black uppercase tracking-wider text-gray-700 mb-1">Codice Articolo</label>
-            <input type="text" v-model="searchOpart" placeholder="Codice esatto…"
+            <input type="text" v-model="searchOpart" placeholder="Ricerca parziale…"
               class="w-full px-3 py-1.5 border border-gray-300 rounded-lg text-xs focus:ring-2 focus:ring-copam-blue focus:border-copam-blue" />
           </div>
           <div>
@@ -407,7 +429,21 @@ onMounted(() => {
         <table class="w-full text-xs">
           <thead>
             <tr class="bg-copam-blue text-white">
-              <th class="px-3 py-2.5 border-r border-blue-400/40 w-8"></th>
+              <th class="px-3 py-2.5 border-r border-blue-400/40 w-8 text-center">
+                <svg v-if="selectAllLoading" class="animate-spin h-4 w-4 text-white mx-auto" fill="none" viewBox="0 0 24 24">
+                  <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                  <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z"></path>
+                </svg>
+                <input
+                  v-else
+                  type="checkbox"
+                  :checked="allSelected"
+                  :indeterminate="someSelected"
+                  @change="toggleAll"
+                  class="rounded border-gray-300 text-copam-blue cursor-pointer"
+                  title="Seleziona tutto"
+                />
+              </th>
               <th class="px-3 py-2.5 text-left font-semibold uppercase tracking-wider border-r border-blue-400/40 whitespace-nowrap">Posizioni</th>
               <th class="px-3 py-2.5 text-left font-semibold uppercase tracking-wider border-r border-blue-400/40 whitespace-nowrap">Assieme</th>
               <th class="px-3 py-2.5 text-left font-semibold uppercase tracking-wider border-r border-blue-400/40 whitespace-nowrap">Ord. Prod.</th>
