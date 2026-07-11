@@ -288,6 +288,7 @@ const exportExcel = () => {
   XLSX.utils.book_append_sheet(wb, ws, 'Ordini di Produzione')
 
   XLSX.writeFile(wb, `ordini_produzione_${new Date().toISOString().slice(0, 10)}.xlsx`)
+  deselectAll()
 }
 
 const goToPage = (page) => {
