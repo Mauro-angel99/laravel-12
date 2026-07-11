@@ -1,6 +1,7 @@
 <script setup>
 import { ref, watch, computed, onMounted } from 'vue'
 import axios from 'axios'
+import * as XLSX from 'xlsx'
 
 const data = ref([])
 const LS_KEY = 'prod_orders_selected_rows'
@@ -217,6 +218,76 @@ const printPdf = () => {
   }
   iframe.src = url
   deselectAll()
+}
+
+const exportExcel = () => {
+  const selected = [...selectedItems.value.values()]
+  if (!selected.length) return
+
+  const columns = [
+    { key: 'positions',  label: 'Posizioni',             fmt: (v) => Array.isArray(v) ? v.join(', ') : (v || '') },
+    { key: 'OPASS',      label: 'Assieme' },
+    { key: 'RECORD_ID',  label: 'Ord. Prod.' },
+    { key: 'OPART',      label: 'Articolo' },
+    { key: 'OPDNR',      label: 'Nr. Documento' },
+    { key: 'DTRIC',      label: 'Rif. Cliente' },
+    { key: 'OPRAS',      label: 'Ragione Sociale' },
+    { key: 'OPCMM',      label: 'Commessa' },
+    { key: 'OPUMP',      label: 'U. M.' },
+    { key: 'OPQTA',      label: 'Q.tà' },
+    { key: 'OPQTP',      label: 'Q.tà prod.' },
+    { key: 'OPQTD',      label: 'Q.tà da prod.' },
+    { key: 'FASI',       label: 'Fasi incomplete' },
+    { key: 'ARMAT',      label: 'Materiale art.' },
+    { key: 'DRCON',      label: 'Cons. ns. magazzino', fmt: formatDate },
+    { key: 'DRCOR',      label: 'Cons. richiesta',     fmt: formatDate },
+  ]
+
+  // Costruisce array di oggetti per SheetJS
+  const rows = selected.map(row => {
+    const obj = {}
+    columns.forEach(c => {
+      const val = row[c.key] ?? ''
+      obj[c.label] = c.fmt ? c.fmt(val) : (val ?? '')
+    })
+    return obj
+  })
+
+  const ws = XLSX.utils.json_to_sheet(rows, { header: columns.map(c => c.label) })
+
+  // Larghezze colonne automatiche basate sul contenuto
+  const colWidths = columns.map(c => {
+    const maxLen = Math.max(
+      c.label.length,
+      ...selected.map(row => {
+        const val = row[c.key] ?? ''
+        const formatted = c.fmt ? c.fmt(val) : String(val ?? '')
+        return formatted.length
+      })
+    )
+    return { wch: Math.min(maxLen + 2, 60) }
+  })
+  ws['!cols'] = colWidths
+
+  // Stile intestazione: sfondo blu, testo bianco, grassetto
+  const headerStyle = {
+    font: { bold: true, color: { rgb: 'FFFFFF' } },
+    fill: { fgColor: { rgb: '1E3A5F' } },
+    alignment: { horizontal: 'center', vertical: 'center' },
+    border: {
+      bottom: { style: 'thin', color: { rgb: 'CCCCCC' } },
+      right:  { style: 'thin', color: { rgb: 'CCCCCC' } },
+    },
+  }
+  columns.forEach((_, i) => {
+    const cellRef = XLSX.utils.encode_cell({ r: 0, c: i })
+    if (ws[cellRef]) ws[cellRef].s = headerStyle
+  })
+
+  const wb = XLSX.utils.book_new()
+  XLSX.utils.book_append_sheet(wb, ws, 'Ordini di Produzione')
+
+  XLSX.writeFile(wb, `ordini_produzione_${new Date().toISOString().slice(0, 10)}.xlsx`)
 }
 
 const goToPage = (page) => {
@@ -580,6 +651,17 @@ onMounted(() => {
         </svg>
         Stampa
         <span v-if="selectedItems.size > 0" class="bg-green-800 text-white text-xs rounded-full px-1.5 py-0.5">{{ selectedItems.size }}</span>
+      </button>
+      <button
+        @click="exportExcel"
+        class="inline-flex items-center gap-2 px-5 py-2 rounded-lg bg-emerald-700 hover:bg-emerald-800 text-white text-sm font-semibold shadow transition-colors disabled:opacity-40 disabled:cursor-not-allowed"
+        :disabled="selectedItems.size === 0"
+      >
+        <svg class="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 10v6m0 0l-3-3m3 3l3-3M3 17V7a2 2 0 012-2h6l2 2h6a2 2 0 012 2v8a2 2 0 01-2 2H5a2 2 0 01-2-2z" />
+        </svg>
+        Esporta XLSX
+        <span v-if="selectedItems.size > 0" class="bg-emerald-900 text-white text-xs rounded-full px-1.5 py-0.5">{{ selectedItems.size }}</span>
       </button>
     </div>
 
