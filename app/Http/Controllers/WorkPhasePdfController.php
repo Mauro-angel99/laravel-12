@@ -9,6 +9,40 @@ use Symfony\Component\HttpFoundation\BinaryFileResponse;
 
 class WorkPhasePdfController extends Controller
 {
+    /**
+     * Verifica se il PDF esiste senza restituire il file (evita problemi con HEAD in produzione).
+     */
+    public function check(Request $request): \Illuminate\Http\JsonResponse
+    {
+        $validated = $request->validate([
+            'opart' => ['required', 'string', 'max:255'],
+        ]);
+
+        $opart = trim($validated['opart']);
+
+        if ($opart === '' || str_contains($opart, '/') || str_contains($opart, '\\')) {
+            return response()->json(['exists' => false]);
+        }
+
+        $setting  = FilePathSetting::first();
+        $basePath = trim((string) ($setting?->pdf_path ?? ''));
+
+        if ($basePath === '') {
+            Log::warning('PDF check: pdf_path non configurato');
+            return response()->json(['exists' => false]);
+        }
+
+        foreach ($this->buildCandidateNames($opart, $setting) as $fileName) {
+            $pdfPath = rtrim($basePath, "\\/") . DIRECTORY_SEPARATOR . $fileName;
+            if (is_file($pdfPath)) {
+                return response()->json(['exists' => true]);
+            }
+        }
+
+        Log::info('PDF check: non trovato', ['opart' => $opart, 'pdf_path' => $basePath]);
+        return response()->json(['exists' => false]);
+    }
+
     public function show(Request $request): BinaryFileResponse
     {
         $validated = $request->validate([

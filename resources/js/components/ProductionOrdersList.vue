@@ -325,11 +325,12 @@ const closeImageModal = () => {
 
 const checkPdf = async (opart) => {
   if (!opart) { pdfUrl.value = null; return }
-  const url = `/api/work-phase-pdf?opart=${encodeURIComponent(opart)}`
   loadingPdf.value = true
   try {
-    const response = await fetch(url, { method: 'HEAD' })
-    pdfUrl.value = response.ok ? url : null
+    const res = await axios.get('/api/work-phase-pdf/check', { params: { opart } })
+    pdfUrl.value = res.data.exists
+      ? `/api/work-phase-pdf?opart=${encodeURIComponent(opart)}`
+      : null
   } catch {
     pdfUrl.value = null
   } finally {

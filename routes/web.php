@@ -213,6 +213,8 @@ Route::middleware('auth')->group(function () {
     Route::get('/api/article-images', [WorkPhaseImageController::class, 'byArticle'])
         ->name('article-images.index');
 
+    Route::get('/api/work-phase-pdf/check', [WorkPhasePdfController::class, 'check'])
+        ->name('work-phase-pdf.check');
     Route::get('/api/work-phase-pdf', [WorkPhasePdfController::class, 'show'])
         ->name('work-phase-pdf.show');
 

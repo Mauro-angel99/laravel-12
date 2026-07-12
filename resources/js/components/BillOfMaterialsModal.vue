@@ -887,12 +887,14 @@ const buildPdfUrl = () => {
 }
 
 const checkPdf = async () => {
-  const url = buildPdfUrl()
-  if (!url) { pdfUrl.value = null; return }
+  const artCode = props.item?.DBART
+  if (!artCode) { pdfUrl.value = null; return }
   loadingPdf.value = true
   try {
-    const response = await fetch(url, { method: 'HEAD' })
-    pdfUrl.value = response.ok ? url : null
+    const res = await axios.get('/api/work-phase-pdf/check', { params: { opart: artCode } })
+    pdfUrl.value = res.data.exists
+      ? `/api/work-phase-pdf?opart=${encodeURIComponent(artCode)}`
+      : null
   } catch {
     pdfUrl.value = null
   } finally {
