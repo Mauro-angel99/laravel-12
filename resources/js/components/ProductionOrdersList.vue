@@ -160,9 +160,9 @@ const printPdf = () => {
     { key: 'OPRAS',      label: 'Ragione Sociale' },
     { key: 'OPCMM',      label: 'Commessa' },
     { key: 'OPUMP',      label: 'U. M.' },
-    { key: 'OPQTA',      label: 'Q.tà' },
-    { key: 'OPQTP',      label: 'Q.tà prod.' },
-    { key: 'OPQTD',      label: 'Q.tà da prod.' },
+    { key: 'OPQTA',      label: 'Q.tà',           fmt: (v) => v != null && v !== '' ? Math.ceil(Number(v)) : '' },
+    { key: 'OPQTP',      label: 'Q.tà prod.',      fmt: (v) => v != null && v !== '' ? Math.ceil(Number(v)) : '' },
+    { key: 'OPQTD',      label: 'Q.tà da prod.',   fmt: (v) => v != null && v !== '' ? Math.ceil(Number(v)) : '' },
     { key: 'FASI',       label: 'Fasi incomplete' },
     { key: 'ARMAT',      label: 'Materiale art.' },
     { key: 'DRCON',      label: 'Cons. ns. magazzino', fmt: formatDate },
@@ -234,9 +234,9 @@ const exportExcel = () => {
     { key: 'OPRAS',      label: 'Ragione Sociale' },
     { key: 'OPCMM',      label: 'Commessa' },
     { key: 'OPUMP',      label: 'U. M.' },
-    { key: 'OPQTA',      label: 'Q.tà' },
-    { key: 'OPQTP',      label: 'Q.tà prod.' },
-    { key: 'OPQTD',      label: 'Q.tà da prod.' },
+    { key: 'OPQTA',      label: 'Q.tà',           fmt: (v) => v != null && v !== '' ? Math.ceil(Number(v)) : '' },
+    { key: 'OPQTP',      label: 'Q.tà prod.',      fmt: (v) => v != null && v !== '' ? Math.ceil(Number(v)) : '' },
+    { key: 'OPQTD',      label: 'Q.tà da prod.',   fmt: (v) => v != null && v !== '' ? Math.ceil(Number(v)) : '' },
     { key: 'FASI',       label: 'Fasi incomplete' },
     { key: 'ARMAT',      label: 'Materiale art.' },
     { key: 'DRCON',      label: 'Cons. ns. magazzino', fmt: formatDate },
@@ -580,9 +580,9 @@ onMounted(() => {
               <td class="px-3 py-2 text-gray-700 border-r border-gray-100">{{ row.OPRAS }}</td>
               <td class="px-3 py-2 whitespace-nowrap text-gray-700 border-r border-gray-100">{{ row.OPCMM }}</td>
               <td class="px-3 py-2 whitespace-nowrap text-center text-gray-700 border-r border-gray-100">{{ row.OPUMP }}</td>
-              <td class="px-3 py-2 whitespace-nowrap text-right text-gray-700 border-r border-gray-100">{{ row.OPQTA }}</td>
-              <td class="px-3 py-2 whitespace-nowrap text-right text-gray-700 border-r border-gray-100">{{ row.OPQTP }}</td>
-              <td class="px-3 py-2 whitespace-nowrap text-right text-gray-700 border-r border-gray-100">{{ row.OPQTD }}</td>
+              <td class="px-3 py-2 whitespace-nowrap text-right text-gray-700 border-r border-gray-100">{{ row.OPQTA != null && row.OPQTA !== '' ? Math.ceil(Number(row.OPQTA)) : '' }}</td>
+              <td class="px-3 py-2 whitespace-nowrap text-right text-gray-700 border-r border-gray-100">{{ row.OPQTP != null && row.OPQTP !== '' ? Math.ceil(Number(row.OPQTP)) : '' }}</td>
+              <td class="px-3 py-2 whitespace-nowrap text-right text-gray-700 border-r border-gray-100">{{ row.OPQTD != null && row.OPQTD !== '' ? Math.ceil(Number(row.OPQTD)) : '' }}</td>
               <td class="px-3 py-2 text-gray-700 border-r border-gray-100">{{ row.FASI }}</td>
               <td class="px-3 py-2 whitespace-nowrap text-gray-700 border-r border-gray-100">{{ row.ARMAT }}</td>
               <td class="px-3 py-2 whitespace-nowrap text-gray-700 border-r border-gray-100">{{ formatDate(row.DRCON) }}</td>
