@@ -1,6 +1,7 @@
 <script setup>
 import { ref, watch, onMounted } from 'vue'
 import axios from 'axios'
+import * as XLSX from 'xlsx'
 import AssignedWorkPhaseModal from './AssignedWorkPhaseModal.vue'
 import flatpickr from 'flatpickr'
 import 'flatpickr/dist/flatpickr.css'
@@ -29,6 +30,7 @@ const dateToPicker = ref(null)
 const dateFromInstance = ref(null)
 const dateToInstance = ref(null)
 const loading = ref(false)
+const exportLoading = ref(false)
 const currentPage = ref(1)
 const showModal = ref(false)
 const selectedAssignment = ref(null)
@@ -89,6 +91,84 @@ const clearAllFilters = () => {
   if (dateFromInstance.value) dateFromInstance.value.clear()
   if (dateToInstance.value) dateToInstance.value.clear()
   applyFilters()
+}
+
+const exportExcel = async () => {
+  exportLoading.value = true
+  try {
+    const params = {}
+    if (searchFllav.value) params.fllav = searchFllav.value
+    if (searchDtras.value) params.dtras = searchDtras.value
+    if (searchDtric.value) params.dtric = searchDtric.value
+    if (searchDtnum.value) params.dtnum = searchDtnum.value
+    if (searchIdopr.value) params.idopr = searchIdopr.value
+    if (searchOpart.value) params.opart = searchOpart.value
+    if (dateFrom.value) params.date_from = dateFrom.value
+    if (dateTo.value) params.date_to = dateTo.value
+    if (showOnlyWorked.value) params.only_worked = '1'
+    if (showOnlyAvailable.value) params.only_available = '1'
+
+    const res = await axios.get('/api/assigned-work-phases/export', { params })
+    const records = res.data.data
+
+    if (!records.length) return
+
+    const columns = [
+      { key: 'DRCMM',         label: 'DRCMM',             fmt: (r) => r.work_phase?.DRCMM ?? '' },
+      { key: 'positions',     label: 'Posizioni',         fmt: (r) => Array.isArray(r.work_phase?.positions) ? r.work_phase.positions.join(', ') : '' },
+      { key: 'FLASS',         label: 'FLASS',             fmt: (r) => r.work_phase?.FLASS ?? '' },
+      { key: 'IDOPR',         label: 'IDOPR',             fmt: (r) => r.work_phase?.IDOPR ?? '' },
+      { key: 'FLSEQ',         label: 'FLSEQ',             fmt: (r) => r.work_phase?.FLSEQ ?? '' },
+      { key: 'FLLAV',         label: 'FLLAV',             fmt: (r) => r.work_phase?.FLLAV ?? '' },
+      { key: 'OPART',         label: 'Articolo',          fmt: (r) => r.work_phase?.OPART ?? '' },
+      { key: 'FLDES',         label: 'Descrizione',       fmt: (r) => r.work_phase?.FLDES ?? '' },
+      { key: 'DTRAS',         label: 'Rag. Soc.',         fmt: (r) => r.work_phase?.DTRAS ?? '' },
+      { key: 'DTRIC',         label: 'N. Ord. Cli.',      fmt: (r) => r.work_phase?.DTRIC ?? '' },
+      { key: 'DTNUM',         label: 'N. Ns. Ord.',       fmt: (r) => r.work_phase?.DTNUM ?? '' },
+      { key: 'DRCON',         label: 'Consegna',          fmt: (r) => formatDate(r.work_phase?.DRCON) },
+      { key: 'assigned_user', label: 'Assegnato a',       fmt: (r) => r.assigned_user?.name ?? '' },
+      { key: 'created_at',    label: 'Data Assegnazione', fmt: (r) => formatDate(r.created_at) },
+    ]
+
+    const rows = records.map(r => {
+      const obj = {}
+      columns.forEach(c => { obj[c.label] = c.fmt(r) })
+      return obj
+    })
+
+    const ws = XLSX.utils.json_to_sheet(rows, { header: columns.map(c => c.label) })
+
+    const colWidths = columns.map(c => {
+      const maxLen = Math.max(
+        c.label.length,
+        ...records.map(r => String(c.fmt(r) ?? '').length)
+      )
+      return { wch: Math.min(maxLen + 2, 60) }
+    })
+    ws['!cols'] = colWidths
+
+    const headerStyle = {
+      font: { bold: true, color: { rgb: 'FFFFFF' } },
+      fill: { fgColor: { rgb: '1E3A5F' } },
+      alignment: { horizontal: 'center', vertical: 'center' },
+      border: {
+        bottom: { style: 'thin', color: { rgb: 'CCCCCC' } },
+        right:  { style: 'thin', color: { rgb: 'CCCCCC' } },
+      },
+    }
+    columns.forEach((_, i) => {
+      const cellRef = XLSX.utils.encode_cell({ r: 0, c: i })
+      if (ws[cellRef]) ws[cellRef].s = headerStyle
+    })
+
+    const wb = XLSX.utils.book_new()
+    XLSX.utils.book_append_sheet(wb, ws, 'Fasi Assegnate')
+    XLSX.writeFile(wb, `fasi_assegnate_${new Date().toISOString().slice(0, 10)}.xlsx`)
+  } catch (error) {
+    console.error(error)
+  } finally {
+    exportLoading.value = false
+  }
 }
 
 // Watchers per i campi di ricerca con debounce
@@ -232,12 +312,12 @@ onMounted(async () => {
               class="w-full px-3 py-1.5 border border-gray-300 rounded-lg text-xs focus:ring-2 focus:ring-copam-blue focus:border-copam-blue" />
           </div>
           <div>
-            <label class="block text-[11px] font-black uppercase tracking-wider text-gray-700 mb-1">Data da</label>
+            <label class="block text-[11px] font-black uppercase tracking-wider text-gray-700 mb-1">Data cons. ns. magazz. da</label>
             <input ref="dateFromPicker" type="text" v-model="dateFrom"
               class="w-full px-3 py-1.5 border border-gray-300 rounded-lg text-xs focus:ring-2 focus:ring-copam-blue focus:border-copam-blue" />
           </div>
           <div>
-            <label class="block text-[11px] font-black uppercase tracking-wider text-gray-700 mb-1">Data a</label>
+            <label class="block text-[11px] font-black uppercase tracking-wider text-gray-700 mb-1">Data cons. ns. magazz. a</label>
             <input ref="dateToPicker" type="text" v-model="dateTo"
               class="w-full px-3 py-1.5 border border-gray-300 rounded-lg text-xs focus:ring-2 focus:ring-copam-blue focus:border-copam-blue" />
           </div>
@@ -298,6 +378,21 @@ onMounted(async () => {
             di <span class="font-semibold text-gray-700">{{ pagination.total }}</span> record
           </span>
         </span>
+        <button
+          @click="exportExcel"
+          :disabled="exportLoading || pagination.total === 0"
+          class="inline-flex items-center gap-2 px-5 py-2 rounded-lg bg-emerald-700 hover:bg-emerald-800 text-white text-sm font-semibold shadow transition-colors disabled:opacity-40 disabled:cursor-not-allowed"
+        >
+          <svg v-if="exportLoading" class="animate-spin h-4 w-4" viewBox="0 0 24 24">
+            <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4" fill="none"></circle>
+            <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+          </svg>
+          <svg v-else class="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 10v6m0 0l-3-3m3 3l3-3M3 17V7a2 2 0 012-2h6l2 2h6a2 2 0 012 2v8a2 2 0 01-2 2H5a2 2 0 01-2-2z" />
+          </svg>
+          {{ exportLoading ? 'Esportazione...' : 'Esporta XLSX' }}
+          <span v-if="!exportLoading && pagination.total > 0" class="bg-emerald-900 text-white text-xs rounded-full px-1.5 py-0.5">{{ pagination.total }}</span>
+        </button>
       </div>
 
       <div class="overflow-x-auto">
@@ -305,6 +400,8 @@ onMounted(async () => {
           <thead>
             <tr class="bg-copam-blue text-white">
               <th class="px-3 py-2.5 text-center font-semibold uppercase tracking-wider border-r border-blue-400/40 w-8">#</th>
+              <th class="px-3 py-2.5 text-left font-semibold uppercase tracking-wider border-r border-blue-400/40">DRCMM</th>
+              <th class="px-3 py-2.5 text-left font-semibold uppercase tracking-wider border-r border-blue-400/40">Posizioni</th>
               <th class="px-3 py-2.5 text-left font-semibold uppercase tracking-wider border-r border-blue-400/40">FLASS</th>
               <th class="px-3 py-2.5 text-left font-semibold uppercase tracking-wider border-r border-blue-400/40">IDOPR</th>
               <th class="px-3 py-2.5 text-left font-semibold uppercase tracking-wider border-r border-blue-400/40">FLSEQ</th>
@@ -322,7 +419,7 @@ onMounted(async () => {
           <tbody class="divide-y divide-gray-100">
             <!-- Loading -->
             <tr v-if="loading">
-              <td :colspan="isAdmin ? 13 : 12" class="px-3 py-10 text-center text-gray-400">
+              <td :colspan="isAdmin ? 15 : 14" class="px-3 py-10 text-center text-gray-400">
                 <div class="flex items-center justify-center gap-2">
                   <svg class="animate-spin h-5 w-5 text-copam-blue" viewBox="0 0 24 24">
                     <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4" fill="none"></circle>
@@ -350,6 +447,17 @@ onMounted(async () => {
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
                   </svg>
                 </button>
+              </td>
+              <td class="px-3 py-2 whitespace-nowrap text-gray-700 border-r border-gray-100">
+                {{ assignment.work_phase?.DRCMM ?? '' }}
+              </td>
+              <td class="px-3 py-2 border-r border-gray-100">
+                <div class="flex flex-wrap gap-1">
+                  <span
+                    v-for="pos in assignment.work_phase?.positions" :key="pos"
+                    class="inline-block px-1.5 py-0.5 rounded bg-copam-blue/10 text-copam-blue font-semibold text-[10px] whitespace-nowrap"
+                  >{{ pos }}</span>
+                </div>
               </td>
               <td class="px-3 py-2 whitespace-nowrap font-medium text-gray-800 border-r border-gray-100">
                 {{ assignment.work_phase?.FLASS || 'N/D' }}
@@ -398,7 +506,7 @@ onMounted(async () => {
 
             <!-- Empty state -->
             <tr v-if="!loading && !assignedWorkPhases.length">
-              <td :colspan="isAdmin ? 13 : 12" class="px-3 py-16 text-center">
+              <td :colspan="isAdmin ? 15 : 14" class="px-3 py-16 text-center">
                 <svg class="mx-auto h-10 w-10 text-gray-300" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2" />
                 </svg>

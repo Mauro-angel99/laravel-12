@@ -94,6 +94,10 @@ Route::middleware('auth')->group(function () {
     Route::get('/api/assigned-work-phases', [WorkPhaseAssignmentController::class, 'list'])
         ->name('assigned-work-phases.list');
 
+    // API per esportare tutti i record filtrati (senza paginazione)
+    Route::get('/api/assigned-work-phases/export', [WorkPhaseAssignmentController::class, 'exportAll'])
+        ->name('assigned-work-phases.export');
+
     // API per rimuovere un'assegnazione
     Route::delete('/api/work-phase-assignments/{id}', [WorkPhaseAssignmentController::class, 'destroy'])
         ->name('work-phase-assignments.destroy');

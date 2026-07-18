@@ -76,6 +76,7 @@ class WorkPhaseAssignmentController extends Controller
                     'd.DTRIC',
                     'd.DTNUM',
                     'd.DRCON',
+                    'd.DRCMM',
                     'p.OPART',
                     DB::raw('a.ARMAT as MATERIALE'),
                     DB::raw('a.ARDMZ as SPESSORE'),
@@ -164,6 +165,30 @@ class WorkPhaseAssignmentController extends Controller
             $total = $filteredAssignments->count();
             $paginatedAssignments = $filteredAssignments->slice($offset, $perPage)->values();
 
+            // Aggiunge le posizioni magazzino per i record paginati
+            $idoprList = $paginatedAssignments
+                ->map(fn($a) => isset($a->work_phase) ? (string) $a->work_phase->IDOPR : null)
+                ->filter()->unique()->values()->toArray();
+            if (!empty($idoprList)) {
+                $positionsGrouped = [];
+                $wItems = \App\Models\Warehouse::with('warehousePosition:id,warehouse_position')
+                    ->whereIn('production_order', $idoprList)->get();
+                foreach ($wItems as $w) {
+                    $key = (string) $w->production_order;
+                    if ($w->warehousePosition) {
+                        $pos = $w->warehousePosition->warehouse_position;
+                        if (!in_array($pos, $positionsGrouped[$key] ?? [])) {
+                            $positionsGrouped[$key][] = $pos;
+                        }
+                    }
+                }
+                $paginatedAssignments->each(function ($assignment) use ($positionsGrouped) {
+                    if (isset($assignment->work_phase)) {
+                        $assignment->work_phase->positions = $positionsGrouped[(string) ($assignment->work_phase->IDOPR ?? '')] ?? [];
+                    }
+                });
+            }
+
             return response()->json([
                 'data' => $paginatedAssignments,
                 'pagination' => [
@@ -189,6 +214,155 @@ class WorkPhaseAssignmentController extends Controller
                 'to' => 0,
             ]
         ]);
+    }
+
+    // API: esporta tutti i record filtrati (senza paginazione) per XLSX
+    public function exportAll(Request $request)
+    {
+        $user = Auth::user();
+
+        $query = WorkPhaseAssignment::query();
+
+        $isAdmin = $user->roles()->where('name', 'admin')->exists();
+        if (!$isAdmin) {
+            $query->where('assigned_to', $user->id);
+        }
+
+        $allAssignments = $query->with(['assignedUser', 'assignedBy'])
+            ->orderBy('created_at', 'desc')
+            ->get();
+
+        $workPhaseIds = $allAssignments->pluck('work_phase_id')->unique()->toArray();
+
+        $hasFilters = $request->filled('fllav')
+            || $request->filled('dtras')
+            || $request->filled('dtric')
+            || $request->filled('dtnum')
+            || $request->filled('idopr')
+            || $request->filled('opart')
+            || $request->filled('date_from')
+            || $request->filled('date_to')
+            || $request->filled('only_worked')
+            || $request->filled('only_available');
+
+        if (empty($workPhaseIds)) {
+            return response()->json(['data' => []]);
+        }
+
+        $workPhaseQuery = DB::connection('sqlsrv_gestionale')
+            ->table('A01_ORD_FAS as f')
+            ->leftJoin('A01_DOC_VER_ALL as d', 'f.FLASS', '=', 'd.DROPR')
+            ->leftJoin('A01_ORD_PRO_ALL as p', 'f.IDOPR', '=', 'p.RECORD_ID')
+            ->leftJoin('A01_ART_ICO as a', 'p.OPART', '=', 'a.CDART')
+            ->select(
+                'f.RECORD_ID',
+                'f.FLASS',
+                'f.IDOPR',
+                'f.FLSEQ',
+                'f.FLLAV',
+                'f.FLDES',
+                'f.FLQTA',
+                'f.FLQTB',
+                'f.FLQTD',
+                'f.FLCON',
+                'd.DTRAS',
+                'd.DTRIC',
+                'd.DTNUM',
+                'd.DRCON',
+                'd.DRCMM',
+                'p.OPART',
+                DB::raw('a.ARMAT as MATERIALE'),
+                DB::raw('a.ARDMZ as SPESSORE'),
+                DB::raw('a.ARPRF as PROFILO')
+            )
+            ->whereIn('f.RECORD_ID', $workPhaseIds);
+
+        if ($hasFilters) {
+            if ($request->filled('fllav')) {
+                $workPhaseQuery->where('f.FLLAV', 'like', '%' . $request->input('fllav') . '%');
+            }
+            if ($request->filled('dtras')) {
+                $workPhaseQuery->where('d.DTRAS', 'like', '%' . $request->input('dtras') . '%');
+            }
+            if ($request->filled('dtric')) {
+                $workPhaseQuery->where('d.DTRIC', 'like', '%' . $request->input('dtric') . '%');
+            }
+            if ($request->filled('dtnum')) {
+                $workPhaseQuery->where('d.DTNUM', 'like', '%' . $request->input('dtnum') . '%');
+            }
+            if ($request->filled('idopr')) {
+                $workPhaseQuery->where('f.IDOPR', 'like', '%' . $request->input('idopr') . '%');
+            }
+            if ($request->filled('opart')) {
+                $workPhaseQuery->where('p.OPART', 'like', '%' . $request->input('opart') . '%');
+            }
+            if ($request->filled('date_from')) {
+                $dateFrom = \DateTime::createFromFormat('d/m/Y', $request->input('date_from'));
+                if ($dateFrom) {
+                    $workPhaseQuery->whereRaw(
+                        "CONVERT(DATETIME, f.FLCON, 120) >= CONVERT(DATETIME, ?, 120)",
+                        [$dateFrom->format('Y-m-d') . ' 00:00:00.000']
+                    );
+                }
+            }
+            if ($request->filled('date_to')) {
+                $dateTo = \DateTime::createFromFormat('d/m/Y', $request->input('date_to'));
+                if ($dateTo) {
+                    $workPhaseQuery->whereRaw(
+                        "CONVERT(DATETIME, f.FLCON, 120) <= CONVERT(DATETIME, ?, 120)",
+                        [$dateTo->format('Y-m-d') . ' 23:59:59.999']
+                    );
+                }
+            }
+            if ($request->filled('only_worked')) {
+                $workPhaseQuery->where('f.FLQTB', '=', 0);
+            }
+            if ($request->filled('only_available')) {
+                $workPhaseQuery->where('f.FLQTD', '>', 0)->where('f.FLQTB', '=', 0);
+            }
+        }
+
+        $workPhases = $workPhaseQuery->get()->keyBy('RECORD_ID');
+
+        if ($hasFilters && $workPhases->isEmpty()) {
+            return response()->json(['data' => []]);
+        }
+
+        $filteredAssignments = $allAssignments->map(function ($assignment) use ($workPhases, $hasFilters) {
+            $workPhase = $workPhases->get($assignment->work_phase_id);
+            if ($workPhase) {
+                $assignment->work_phase = $workPhase;
+            } elseif ($hasFilters) {
+                return null;
+            }
+            return $assignment;
+        })->filter()->values();
+
+        // Aggiunge le posizioni magazzino
+        $idoprList = $filteredAssignments
+            ->map(fn($a) => isset($a->work_phase) ? (string) $a->work_phase->IDOPR : null)
+            ->filter()->unique()->values()->toArray();
+        if (!empty($idoprList)) {
+            $positionsGrouped = [];
+            $wItems = \App\Models\Warehouse::with('warehousePosition:id,warehouse_position')
+                ->whereIn('production_order', $idoprList)->get();
+            foreach ($wItems as $w) {
+                $key = (string) $w->production_order;
+                if ($w->warehousePosition) {
+                    $pos = $w->warehousePosition->warehouse_position;
+                    if (!in_array($pos, $positionsGrouped[$key] ?? [])) {
+                        $positionsGrouped[$key][] = $pos;
+                    }
+                }
+            }
+            $filteredAssignments->each(function ($assignment) use ($positionsGrouped) {
+                if (isset($assignment->work_phase)) {
+                    $assignment->work_phase->positions = $positionsGrouped[(string) ($assignment->work_phase->IDOPR ?? '')] ?? [];
+                }
+            });
+        }
+
+        return response()->json(['data' => $filteredAssignments]);
     }
 
     /**
