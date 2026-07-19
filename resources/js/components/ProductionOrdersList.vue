@@ -496,6 +496,41 @@ onMounted(() => {
             di <span class="font-semibold text-gray-700">{{ pagination.total }}</span> record
           </span>
         </span>
+        <div class="flex items-center gap-2">
+          <button
+            @click="deselectAll"
+            class="inline-flex items-center gap-2 px-5 py-2 rounded-lg border border-gray-300 bg-white hover:bg-gray-50 text-gray-700 text-sm font-semibold shadow-sm transition-colors disabled:opacity-40 disabled:cursor-not-allowed"
+            :disabled="selectedItems.size === 0"
+          >
+            <svg class="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+            </svg>
+            Deseleziona
+            <span v-if="selectedItems.size > 0" class="bg-gray-200 text-gray-700 text-xs rounded-full px-1.5 py-0.5">{{ selectedItems.size }}</span>
+          </button>
+          <button
+            @click="printPdf"
+            class="inline-flex items-center gap-2 px-5 py-2 rounded-lg bg-green-600 hover:bg-green-700 text-white text-sm font-semibold shadow transition-colors disabled:opacity-40 disabled:cursor-not-allowed"
+            :disabled="selectedItems.size === 0"
+          >
+            <svg class="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 17h2a2 2 0 002-2v-4a2 2 0 00-2-2H5a2 2 0 00-2 2v4a2 2 0 002 2h2m2 4h6a2 2 0 002-2v-4a2 2 0 00-2-2H9a2 2 0 00-2 2v4a2 2 0 002 2zm8-12V5a2 2 0 00-2-2H9a2 2 0 00-2 2v4h10z" />
+            </svg>
+            Stampa
+            <span v-if="selectedItems.size > 0" class="bg-green-800 text-white text-xs rounded-full px-1.5 py-0.5">{{ selectedItems.size }}</span>
+          </button>
+          <button
+            @click="exportExcel"
+            class="inline-flex items-center gap-2 px-5 py-2 rounded-lg bg-emerald-700 hover:bg-emerald-800 text-white text-sm font-semibold shadow transition-colors disabled:opacity-40 disabled:cursor-not-allowed"
+            :disabled="selectedItems.size === 0"
+          >
+            <svg class="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 10v6m0 0l-3-3m3 3l3-3M3 17V7a2 2 0 012-2h6l2 2h6a2 2 0 012 2v8a2 2 0 01-2 2H5a2 2 0 01-2-2z" />
+            </svg>
+            Esporta XLSX
+            <span v-if="selectedItems.size > 0" class="bg-emerald-900 text-white text-xs rounded-full px-1.5 py-0.5">{{ selectedItems.size }}</span>
+          </button>
+        </div>
       </div>
 
       <div class="overflow-x-auto">
@@ -628,43 +663,6 @@ onMounted(() => {
           </button>
         </div>
       </div>
-    </div>
-
-    <!-- BOTTONE STAMPA -->
-    <div class="flex justify-end gap-2">
-      <button
-        @click="deselectAll"
-        class="inline-flex items-center gap-2 px-5 py-2 rounded-lg border border-gray-300 bg-white hover:bg-gray-50 text-gray-700 text-sm font-semibold shadow-sm transition-colors disabled:opacity-40 disabled:cursor-not-allowed"
-        :disabled="selectedItems.size === 0"
-      >
-        <svg class="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
-        </svg>
-        Deseleziona
-        <span v-if="selectedItems.size > 0" class="bg-gray-200 text-gray-700 text-xs rounded-full px-1.5 py-0.5">{{ selectedItems.size }}</span>
-      </button>
-      <button
-        @click="printPdf"
-        class="inline-flex items-center gap-2 px-5 py-2 rounded-lg bg-green-600 hover:bg-green-700 text-white text-sm font-semibold shadow transition-colors disabled:opacity-40 disabled:cursor-not-allowed"
-        :disabled="selectedItems.size === 0"
-      >
-        <svg class="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 17h2a2 2 0 002-2v-4a2 2 0 00-2-2H5a2 2 0 00-2 2v4a2 2 0 002 2h2m2 4h6a2 2 0 002-2v-4a2 2 0 00-2-2H9a2 2 0 00-2 2v4a2 2 0 002 2zm8-12V5a2 2 0 00-2-2H9a2 2 0 00-2 2v4h10z" />
-        </svg>
-        Stampa
-        <span v-if="selectedItems.size > 0" class="bg-green-800 text-white text-xs rounded-full px-1.5 py-0.5">{{ selectedItems.size }}</span>
-      </button>
-      <button
-        @click="exportExcel"
-        class="inline-flex items-center gap-2 px-5 py-2 rounded-lg bg-emerald-700 hover:bg-emerald-800 text-white text-sm font-semibold shadow transition-colors disabled:opacity-40 disabled:cursor-not-allowed"
-        :disabled="selectedItems.size === 0"
-      >
-        <svg class="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 10v6m0 0l-3-3m3 3l3-3M3 17V7a2 2 0 012-2h6l2 2h6a2 2 0 012 2v8a2 2 0 01-2 2H5a2 2 0 01-2-2z" />
-        </svg>
-        Esporta XLSX
-        <span v-if="selectedItems.size > 0" class="bg-emerald-900 text-white text-xs rounded-full px-1.5 py-0.5">{{ selectedItems.size }}</span>
-      </button>
     </div>
 
   </div>
