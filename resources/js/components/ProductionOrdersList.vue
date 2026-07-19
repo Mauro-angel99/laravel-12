@@ -302,7 +302,7 @@ const imageModal = ref({ show: false, row: null })
 const images = ref([])
 const loadingImages = ref(false)
 const lightbox = ref({ show: false, currentIndex: 0, currentImage: null })
-const activeTab = ref('immagini')
+const activeTab = ref('pdf')
 const pdfUrl = ref(null)
 const loadingPdf = ref(false)
 
@@ -310,7 +310,7 @@ const openImageModal = (row) => {
   imageModal.value = { show: true, row }
   images.value = []
   pdfUrl.value = null
-  activeTab.value = 'immagini'
+  activeTab.value = 'pdf'
   loadImages(row.OPART)
   checkPdf(row.OPART)
 }
@@ -319,7 +319,7 @@ const closeImageModal = () => {
   imageModal.value = { show: false, row: null }
   images.value = []
   pdfUrl.value = null
-  activeTab.value = 'immagini'
+  activeTab.value = 'pdf'
   lightbox.value.show = false
 }
 
@@ -698,19 +698,19 @@ onMounted(() => {
           <div class="border-b border-gray-200 px-6">
             <nav class="-mb-px flex space-x-6">
               <button
-                @click="activeTab = 'immagini'"
-                :class="[
-                  activeTab === 'immagini' ? 'border-copam-blue text-copam-blue' : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300',
-                  'whitespace-nowrap py-3 px-1 border-b-2 font-medium text-sm'
-                ]"
-              >Immagini</button>
-              <button
                 @click="activeTab = 'pdf'"
                 :class="[
                   activeTab === 'pdf' ? 'border-copam-blue text-copam-blue' : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300',
                   'whitespace-nowrap py-3 px-1 border-b-2 font-medium text-sm'
                 ]"
               >PDF</button>
+              <button
+                @click="activeTab = 'immagini'"
+                :class="[
+                  activeTab === 'immagini' ? 'border-copam-blue text-copam-blue' : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300',
+                  'whitespace-nowrap py-3 px-1 border-b-2 font-medium text-sm'
+                ]"
+              >Immagini</button>
             </nav>
           </div>
 

@@ -21,6 +21,7 @@ const searchDtric = ref('')
 const searchDtnum = ref('')
 const searchIdopr = ref('')
 const searchOpart = ref('')
+const searchDrcmm = ref('')
 const showOnlyWorked = ref(true)
 const showOnlyAvailable = ref(true)
 const dateFrom = ref('')
@@ -44,7 +45,7 @@ const pagination = ref({
   has_more_pages: false
 })
 
-const fetchAssignedWorkPhases = async (fllav = '', dtras = '', dtric = '', dtnum = '', idopr = '', opart = '', fromDate = '', toDate = '', onlyWorked = false, onlyAvailable = false, page = 1) => {
+const fetchAssignedWorkPhases = async (fllav = '', dtras = '', dtric = '', dtnum = '', idopr = '', opart = '', drcmm = '', fromDate = '', toDate = '', onlyWorked = false, onlyAvailable = false, page = 1) => {
   loading.value = true
   try {
     const params = {
@@ -56,6 +57,7 @@ const fetchAssignedWorkPhases = async (fllav = '', dtras = '', dtric = '', dtnum
     if (dtnum) params.dtnum = dtnum
     if (idopr) params.idopr = idopr
     if (opart) params.opart = opart
+    if (drcmm) params.drcmm = drcmm
     if (fromDate) params.date_from = fromDate
     if (toDate) params.date_to = toDate
     if (onlyWorked) params.only_worked = '1'
@@ -74,7 +76,7 @@ const fetchAssignedWorkPhases = async (fllav = '', dtras = '', dtric = '', dtnum
 
 const applyFilters = () => {
   currentPage.value = 1
-  fetchAssignedWorkPhases(searchFllav.value, searchDtras.value, searchDtric.value, searchDtnum.value, searchIdopr.value, searchOpart.value, dateFrom.value, dateTo.value, showOnlyWorked.value, showOnlyAvailable.value, 1)
+  fetchAssignedWorkPhases(searchFllav.value, searchDtras.value, searchDtric.value, searchDtnum.value, searchIdopr.value, searchOpart.value, searchDrcmm.value, dateFrom.value, dateTo.value, showOnlyWorked.value, showOnlyAvailable.value, 1)
 }
 
 const clearAllFilters = () => {
@@ -84,6 +86,7 @@ const clearAllFilters = () => {
   searchDtnum.value = ''
   searchIdopr.value = ''
   searchOpart.value = ''
+  searchDrcmm.value = ''
   showOnlyWorked.value = false
   showOnlyAvailable.value = false
   dateFrom.value = ''
@@ -103,6 +106,7 @@ const exportExcel = async () => {
     if (searchDtnum.value) params.dtnum = searchDtnum.value
     if (searchIdopr.value) params.idopr = searchIdopr.value
     if (searchOpart.value) params.opart = searchOpart.value
+    if (searchDrcmm.value) params.drcmm = searchDrcmm.value
     if (dateFrom.value) params.date_from = dateFrom.value
     if (dateTo.value) params.date_to = dateTo.value
     if (showOnlyWorked.value) params.only_worked = '1'
@@ -173,7 +177,7 @@ const exportExcel = async () => {
 
 // Watchers per i campi di ricerca con debounce
 let searchTimeout
-watch([searchFllav, searchDtras, searchDtric, searchDtnum, searchIdopr, searchOpart], () => {
+watch([searchFllav, searchDtras, searchDtric, searchDtnum, searchIdopr, searchOpart, searchDrcmm], () => {
   clearTimeout(searchTimeout)
   searchTimeout = setTimeout(() => {
     applyFilters()
@@ -195,7 +199,7 @@ watch(showOnlyAvailable, () => { applyFilters() })
 
 const goToPage = (page) => {
   if (page >= 1 && page <= pagination.value.last_page) {
-    fetchAssignedWorkPhases(searchFllav.value, searchDtras.value, searchDtric.value, searchDtnum.value, searchIdopr.value, searchOpart.value, dateFrom.value, dateTo.value, showOnlyWorked.value, showOnlyAvailable.value, page)
+    fetchAssignedWorkPhases(searchFllav.value, searchDtras.value, searchDtric.value, searchDtnum.value, searchIdopr.value, searchOpart.value, searchDrcmm.value, dateFrom.value, dateTo.value, showOnlyWorked.value, showOnlyAvailable.value, page)
   }
 }
 
@@ -234,7 +238,7 @@ const removeAssignment = async (assignment) => {
     async () => {
       try {
         await axios.delete(`/api/work-phase-assignments/${assignment.id}`)
-        await fetchAssignedWorkPhases(searchFllav.value, searchDtras.value, searchDtric.value, searchDtnum.value, searchIdopr.value, searchOpart.value, dateFrom.value, dateTo.value, showOnlyWorked.value, showOnlyAvailable.value, currentPage.value)
+        await fetchAssignedWorkPhases(searchFllav.value, searchDtras.value, searchDtric.value, searchDtnum.value, searchIdopr.value, searchOpart.value, searchDrcmm.value, dateFrom.value, dateTo.value, showOnlyWorked.value, showOnlyAvailable.value, currentPage.value)
       } catch (error) {
         console.error(error)
       }
@@ -293,7 +297,7 @@ onMounted(async () => {
           <span class="text-sm font-semibold text-white">Filtri di ricerca</span>
         </div>
         <button
-          v-if="searchFllav || searchDtras || searchDtric || searchDtnum || searchIdopr || searchOpart || showOnlyWorked || showOnlyAvailable || dateFrom || dateTo"
+          v-if="searchFllav || searchDtras || searchDtric || searchDtnum || searchIdopr || searchOpart || searchDrcmm || showOnlyWorked || showOnlyAvailable || dateFrom || dateTo"
           @click="clearAllFilters"
           class="inline-flex items-center gap-1 text-xs text-blue-100 hover:text-white transition-colors"
         >
@@ -339,6 +343,11 @@ onMounted(async () => {
           <div>
             <label class="block text-[11px] font-black uppercase tracking-wider text-gray-700 mb-1">Ord. Prod.</label>
             <input type="text" v-model="searchIdopr"
+              class="w-full px-3 py-1.5 border border-gray-300 rounded-lg text-xs focus:ring-2 focus:ring-copam-blue focus:border-copam-blue" />
+          </div>
+          <div>
+            <label class="block text-[11px] font-black uppercase tracking-wider text-gray-700 mb-1">Commessa</label>
+            <input type="text" v-model="searchDrcmm"
               class="w-full px-3 py-1.5 border border-gray-300 rounded-lg text-xs focus:ring-2 focus:ring-copam-blue focus:border-copam-blue" />
           </div>
           <div>
