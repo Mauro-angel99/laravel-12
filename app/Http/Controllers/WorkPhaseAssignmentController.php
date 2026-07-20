@@ -106,7 +106,7 @@ class WorkPhaseAssignmentController extends Controller
                     $workPhaseQuery->where('p.OPART', 'like', '%' . $request->input('opart') . '%');
                 }
                 if ($request->filled('drcmm')) {
-                    $workPhaseQuery->where('d.DRCMM', 'like', '%' . $request->input('drcmm') . '%');
+                    $workPhaseQuery->where('d.DRCMM', '=', $request->input('drcmm'));
                 }
                 if ($request->filled('date_from')) {
                     $dateFrom = \DateTime::createFromFormat('d/m/Y', $request->input('date_from'));
@@ -302,7 +302,7 @@ class WorkPhaseAssignmentController extends Controller
                 $workPhaseQuery->where('p.OPART', 'like', '%' . $request->input('opart') . '%');
             }
             if ($request->filled('drcmm')) {
-                $workPhaseQuery->where('d.DRCMM', 'like', '%' . $request->input('drcmm') . '%');
+                $workPhaseQuery->where('d.DRCMM', '=', $request->input('drcmm'));
             }
             if ($request->filled('date_from')) {
                 $dateFrom = \DateTime::createFromFormat('d/m/Y', $request->input('date_from'));

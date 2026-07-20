@@ -23,6 +23,7 @@ class WorkPhaseController extends Controller
         $dtnum = $request->input('dtnum', '');
         $idopr = $request->input('idopr', '');
         $opart = $request->input('opart', '');
+        $drcmm = $request->input('drcmm', '');
         $onlyWorked = $request->input('only_worked', '');
         $onlyAvailable = $request->input('only_available', '');
         $dateFrom = $request->input('date_from', '');
@@ -201,6 +202,7 @@ class WorkPhaseController extends Controller
                 d.DTRIC,
                 d.DTNUM,
                 d.DRCON,
+                d.DRCMM,
                 p.OPART,
                 a.ARMAT AS MATERIALE,
                 a.ARDMZ AS SPESSORE,
@@ -287,6 +289,15 @@ class WorkPhaseController extends Controller
                 $searchParam = '%' . $opart . '%';
                 $params[] = $searchParam;
                 $countParams[] = $searchParam;
+            }
+
+            // Filtro per DRCMM (Commessa)
+            if (!empty($drcmm)) {
+                $condition = 'd.DRCMM = ?';
+                $conditions[] = $condition;
+                $countConditions[] = $condition;
+                $params[] = $drcmm;
+                $countParams[] = $drcmm;
             }
 
             // Filtro per solo lavorati (FLQTB = 0)
@@ -420,6 +431,116 @@ class WorkPhaseController extends Controller
         ]);
     }
 
+    // API: esporta tutti i record filtrati (senza paginazione) per XLSX
+    public function exportAll(Request $request)
+    {
+        $search        = $request->input('search', '');
+        $fllav         = $request->input('fllav', '');
+        $dtras         = $request->input('dtras', '');
+        $dtric         = $request->input('dtric', '');
+        $dtnum         = $request->input('dtnum', '');
+        $idopr         = $request->input('idopr', '');
+        $opart         = $request->input('opart', '');
+        $drcmm         = $request->input('drcmm', '');
+        $onlyWorked    = $request->input('only_worked', '');
+        $onlyAvailable = $request->input('only_available', '');
+        $dateFrom      = $request->input('date_from', '');
+        $dateTo        = $request->input('date_to', '');
+        $sort          = $request->input('sort', 'drcon_asc');
+
+        try {
+            $query = 'SELECT
+                f.RECORD_ID, f.FLASS, f.IDOPR, f.FLSEQ, f.FLLAV, f.FLDES,
+                f.FLQTA, f.FLQTB, f.FLQTD, f.FLCON,
+                d.DTRAS, d.DTRIC, d.DTNUM, d.DRCON, d.DRCMM,
+                p.OPART,
+                a.ARMAT AS MATERIALE, a.ARDMZ AS SPESSORE, a.ARPRF AS PROFILO
+            FROM dbo.A01_ORD_FAS f
+            LEFT JOIN dbo.A01_ORD_COM_LAM l ON f.IDOPR = l.IDORD
+            LEFT JOIN dbo.A01_DOC_VER_ALL d ON f.FLASS = d.DROPR
+            LEFT JOIN dbo.A01_ORD_PRO_ALL p ON f.IDOPR = p.RECORD_ID
+            LEFT JOIN dbo.A01_ART_ICO a ON p.OPART = a.CDART';
+
+            $params     = [];
+            $conditions = ['f.FLACT = 1'];
+
+            if (!empty($search)) {
+                $conditions[] = '(f.FLDES LIKE ? OR f.FLASS LIKE ?)';
+                $p = '%' . $search . '%';
+                $params[] = $p;
+                $params[] = $p;
+            }
+            if (!empty($fllav)) {
+                $conditions[] = 'f.FLLAV LIKE ?';
+                $params[] = '%' . $fllav . '%';
+            }
+            if (!empty($dtras)) {
+                $conditions[] = 'd.DTRAS LIKE ?';
+                $params[] = '%' . $dtras . '%';
+            }
+            if (!empty($dtric)) {
+                $conditions[] = 'd.DTRIC LIKE ?';
+                $params[] = '%' . $dtric . '%';
+            }
+            if (!empty($dtnum)) {
+                $conditions[] = 'd.DTNUM LIKE ?';
+                $params[] = '%' . $dtnum . '%';
+            }
+            if (!empty($idopr)) {
+                $conditions[] = 'f.IDOPR LIKE ?';
+                $params[] = '%' . $idopr . '%';
+            }
+            if (!empty($opart)) {
+                $conditions[] = 'p.OPART LIKE ?';
+                $params[] = '%' . $opart . '%';
+            }
+            if (!empty($drcmm)) {
+                $conditions[] = 'd.DRCMM = ?';
+                $params[] = $drcmm;
+            }
+            if (!empty($onlyWorked)) {
+                $conditions[] = 'f.FLQTB = 0';
+            }
+            if (!empty($onlyAvailable)) {
+                $conditions[] = '(f.FLQTD > 0 AND f.FLQTB = 0)';
+            }
+
+            if (!empty($dateFrom)) {
+                $parsed = \DateTime::createFromFormat('Y-m-d', $dateFrom)
+                    ?: \DateTime::createFromFormat('d/m/Y', $dateFrom);
+                if ($parsed) {
+                    $conditions[] = 'CONVERT(DATETIME, f.FLCON, 120) >= CONVERT(DATETIME, ?, 120)';
+                    $params[] = $parsed->format('Y-m-d') . ' 00:00:00.000';
+                }
+            }
+            if (!empty($dateTo)) {
+                $parsed = \DateTime::createFromFormat('Y-m-d', $dateTo)
+                    ?: \DateTime::createFromFormat('d/m/Y', $dateTo);
+                if ($parsed) {
+                    $conditions[] = 'CONVERT(DATETIME, f.FLCON, 120) <= CONVERT(DATETIME, ?, 120)';
+                    $params[] = $parsed->format('Y-m-d') . ' 23:59:59.999';
+                }
+            }
+
+            $whereClause = ' WHERE ' . implode(' AND ', $conditions);
+
+            $orderBy = match ($sort) {
+                'drcon_desc' => 'd.DRCON DESC, f.RECORD_ID DESC',
+                'dtras_asc'  => 'd.DTRAS ASC, f.RECORD_ID DESC',
+                'flnot_asc'  => 'f.FLNOT ASC, f.RECORD_ID DESC',
+                'armat_asc'  => 'l.ARMAT ASC, f.RECORD_ID DESC',
+                'ardmz_asc'  => 'l.ARDMZ ASC, f.RECORD_ID DESC',
+                default      => 'd.DRCON ASC, f.RECORD_ID DESC',
+            };
+
+            $dati = DB::connection('sqlsrv_gestionale')
+                ->select($query . $whereClause . ' ORDER BY ' . $orderBy, $params);
+
+            return response()->json(['data' => $dati]);
+        } catch (\Exception $e) {
+            return response()->json(['error' => $e->getMessage()], 500);
+        }
+    }
 
     // API: conferma selezionati
     public function confirm(Request $request)

@@ -67,6 +67,9 @@ Route::middleware('auth')->group(function () {
 
     // API per Vue: restituisce dati JSON
     Route::get('/api/work-phases', [WorkPhaseController::class, 'list'])->name('workphases.list');
+
+    // API per esportare tutti i record filtrati (senza paginazione)
+    Route::get('/api/work-phases/export', [WorkPhaseController::class, 'exportAll'])->name('workphases.export');
 });
 
 Route::middleware('auth')->group(function () {

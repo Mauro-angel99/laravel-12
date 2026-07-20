@@ -1,6 +1,7 @@
 <script setup>
 import { ref, watch, onMounted } from 'vue'
 import axios from 'axios'
+import * as XLSX from 'xlsx'
 import WorkPhaseAssModal from './WorkPhaseAssModal.vue'
 import flatpickr from 'flatpickr'
 import 'flatpickr/dist/flatpickr.css'
@@ -14,6 +15,7 @@ const searchDtric = ref('')
 const searchDtnum = ref('')
 const searchIdopr = ref('')
 const searchOpart = ref('')
+const searchDrcmm = ref('')
 const showOnlyWorked = ref(true)
 const showOnlyAvailable = ref(true)
 const dateFrom = ref('')
@@ -24,6 +26,7 @@ const dateFromInstance = ref(null)
 const dateToInstance = ref(null)
 const selected = ref([])
 const loading = ref(false)
+const exportLoading = ref(false)
 const currentPage = ref(1)
 const showModal = ref(false)
 const selectedPhase = ref(null)
@@ -63,7 +66,7 @@ const closeMessageModal = () => {
   messageModal.value.show = false
 }
 
-const fetchWorkPhases = async (searchTerm = '', fllav = '', dtras = '', dtric = '', dtnum = '', idopr = '', opart = '', fromDate = '', toDate = '', onlyWorked = false, onlyAvailable = false, page = 1) => {
+const fetchWorkPhases = async (searchTerm = '', fllav = '', dtras = '', dtric = '', dtnum = '', idopr = '', opart = '', drcmm = '', fromDate = '', toDate = '', onlyWorked = false, onlyAvailable = false, page = 1) => {
   loading.value = true
   try {
     const params = {
@@ -76,6 +79,7 @@ const fetchWorkPhases = async (searchTerm = '', fllav = '', dtras = '', dtric = 
     if (dtnum) params.dtnum = dtnum
     if (idopr) params.idopr = idopr
     if (opart) params.opart = opart
+    if (drcmm) params.drcmm = drcmm
     if (fromDate) params.date_from = fromDate
     if (toDate) params.date_to = toDate
     if (onlyWorked) params.only_worked = '1'
@@ -94,8 +98,8 @@ const fetchWorkPhases = async (searchTerm = '', fllav = '', dtras = '', dtric = 
 }
 
 const applyFilters = () => {
-  currentPage.value = 1 // Reset alla prima pagina quando si applicano filtri
-  fetchWorkPhases(search.value, searchFllav.value, searchDtras.value, searchDtric.value, searchDtnum.value, searchIdopr.value, searchOpart.value, dateFrom.value, dateTo.value, showOnlyWorked.value, showOnlyAvailable.value, 1)
+  currentPage.value = 1
+  fetchWorkPhases(search.value, searchFllav.value, searchDtras.value, searchDtric.value, searchDtnum.value, searchIdopr.value, searchOpart.value, searchDrcmm.value, dateFrom.value, dateTo.value, showOnlyWorked.value, showOnlyAvailable.value, 1)
 }
 
 const clearAllFilters = () => {
@@ -106,6 +110,7 @@ const clearAllFilters = () => {
   searchDtnum.value = ''
   searchIdopr.value = ''
   searchOpart.value = ''
+  searchDrcmm.value = ''
   showOnlyWorked.value = false
   showOnlyAvailable.value = false
   dateFrom.value = ''
@@ -124,7 +129,7 @@ const clearAllFilters = () => {
 
 const goToPage = (page) => {
   if (page >= 1 && page <= pagination.value.last_page) {
-    fetchWorkPhases(search.value, searchFllav.value, searchDtras.value, searchDtric.value, searchDtnum.value, searchIdopr.value, searchOpart.value, dateFrom.value, dateTo.value, showOnlyWorked.value, showOnlyAvailable.value, page)
+    fetchWorkPhases(search.value, searchFllav.value, searchDtras.value, searchDtric.value, searchDtnum.value, searchIdopr.value, searchOpart.value, searchDrcmm.value, dateFrom.value, dateTo.value, showOnlyWorked.value, showOnlyAvailable.value, page)
   }
 }
 
@@ -196,12 +201,12 @@ onMounted(async () => {
 
   // Carica i dati iniziali
   await fetchUsers();
-  await fetchWorkPhases('', '', '', '', '', '', '', '', '', showOnlyWorked.value, showOnlyAvailable.value, 1);
+  await fetchWorkPhases('', '', '', '', '', '', '', '', '', '', showOnlyWorked.value, showOnlyAvailable.value, 1);
 });
 
 // Watcher per la ricerca con debounce
 let searchTimeout
-watch([search, searchFllav, searchDtras, searchDtric, searchDtnum, searchIdopr, searchOpart], () => {
+watch([search, searchFllav, searchDtras, searchDtric, searchDtnum, searchIdopr, searchOpart, searchDrcmm], () => {
   clearTimeout(searchTimeout)
   searchTimeout = setTimeout(() => {
     applyFilters()
@@ -231,6 +236,78 @@ watch(showOnlyAvailable, () => {
 watch(sortBy, () => {
   applyFilters()
 })
+
+const exportExcel = async () => {
+  exportLoading.value = true
+  try {
+    const params = {}
+    if (search.value) params.search = search.value
+    if (searchFllav.value) params.fllav = searchFllav.value
+    if (searchDtras.value) params.dtras = searchDtras.value
+    if (searchDtric.value) params.dtric = searchDtric.value
+    if (searchDtnum.value) params.dtnum = searchDtnum.value
+    if (searchIdopr.value) params.idopr = searchIdopr.value
+    if (searchOpart.value) params.opart = searchOpart.value
+    if (searchDrcmm.value) params.drcmm = searchDrcmm.value
+    if (dateFrom.value) params.date_from = dateFrom.value
+    if (dateTo.value) params.date_to = dateTo.value
+    if (showOnlyWorked.value) params.only_worked = '1'
+    if (showOnlyAvailable.value) params.only_available = '1'
+    if (sortBy.value) params.sort = sortBy.value
+
+    const res = await axios.get('/api/work-phases/export', { params })
+    const records = res.data.data
+    if (!records.length) return
+
+    const columns = [
+      { key: 'DRCMM',    label: 'Commessa',      fmt: (r) => r.DRCMM ?? '' },
+      { key: 'DRCON',    label: 'DRCON',         fmt: (r) => formatDate(r.DRCON) },
+      { key: 'FLASS',    label: 'FLASS',         fmt: (r) => r.FLASS ?? '' },
+      { key: 'IDOPR',    label: 'IDOPR',         fmt: (r) => r.IDOPR ?? '' },
+      { key: 'FLSEQ',    label: 'FLSEQ',         fmt: (r) => r.FLSEQ ?? '' },
+      { key: 'FLLAV',    label: 'FLLAV',         fmt: (r) => r.FLLAV ?? '' },
+      { key: 'OPART',    label: 'Articolo',      fmt: (r) => r.OPART ?? '' },
+      { key: 'FLDES',    label: 'Descrizione',   fmt: (r) => r.FLDES ?? '' },
+      { key: 'DTRAS',    label: 'Rag. Soc.',     fmt: (r) => r.DTRAS ?? '' },
+      { key: 'DTRIC',    label: 'N. Ord. Cli.',  fmt: (r) => r.DTRIC ?? '' },
+      { key: 'DTNUM',    label: 'N. Ns. Ord.',   fmt: (r) => r.DTNUM ?? '' },
+      { key: 'FLCON',    label: 'FLCON',         fmt: (r) => formatDate(r.FLCON) },
+    ]
+
+    const rows = records.map(r => {
+      const obj = {}
+      columns.forEach(c => { obj[c.label] = c.fmt(r) })
+      return obj
+    })
+
+    const ws = XLSX.utils.json_to_sheet(rows, { header: columns.map(c => c.label) })
+
+    const colWidths = columns.map(c => {
+      const maxLen = Math.max(c.label.length, ...records.map(r => String(c.fmt(r) ?? '').length))
+      return { wch: Math.min(maxLen + 2, 60) }
+    })
+    ws['!cols'] = colWidths
+
+    const headerStyle = {
+      font: { bold: true, color: { rgb: 'FFFFFF' } },
+      fill: { fgColor: { rgb: '1E3A5F' } },
+      alignment: { horizontal: 'center', vertical: 'center' },
+      border: { bottom: { style: 'thin', color: { rgb: 'CCCCCC' } }, right: { style: 'thin', color: { rgb: 'CCCCCC' } } },
+    }
+    columns.forEach((_, i) => {
+      const cellRef = XLSX.utils.encode_cell({ r: 0, c: i })
+      if (ws[cellRef]) ws[cellRef].s = headerStyle
+    })
+
+    const wb = XLSX.utils.book_new()
+    XLSX.utils.book_append_sheet(wb, ws, 'Fasi di Lavoro')
+    XLSX.writeFile(wb, `fasi_lavoro_${new Date().toISOString().slice(0, 10)}.xlsx`)
+  } catch (error) {
+    console.error(error)
+  } finally {
+    exportLoading.value = false
+  }
+}
 
 const confirmSelected = async () => {
   if (!selected.value.length) {
@@ -284,7 +361,7 @@ const confirmSelected = async () => {
           <span class="text-sm font-semibold text-white">Filtri di ricerca</span>
         </div>
         <button
-          v-if="searchFllav || searchDtras || searchDtric || searchDtnum || searchIdopr || searchOpart || showOnlyWorked || showOnlyAvailable || dateFrom || dateTo"
+          v-if="searchFllav || searchDtras || searchDtric || searchDtnum || searchIdopr || searchOpart || searchDrcmm || showOnlyWorked || showOnlyAvailable || dateFrom || dateTo"
           @click="clearAllFilters"
           class="inline-flex items-center gap-1 text-xs text-blue-100 hover:text-white transition-colors"
         >
@@ -330,6 +407,11 @@ const confirmSelected = async () => {
           <div>
             <label class="block text-[11px] font-black uppercase tracking-wider text-gray-700 mb-1">Ord. Prod.</label>
             <input type="text" v-model="searchIdopr"
+              class="w-full px-3 py-1.5 border border-gray-300 rounded-lg text-xs focus:ring-2 focus:ring-copam-blue focus:border-copam-blue" />
+          </div>
+          <div>
+            <label class="block text-[11px] font-black uppercase tracking-wider text-gray-700 mb-1">Commessa</label>
+            <input type="text" v-model="searchDrcmm"
               class="w-full px-3 py-1.5 border border-gray-300 rounded-lg text-xs focus:ring-2 focus:ring-copam-blue focus:border-copam-blue" />
           </div>
           <div>
@@ -384,6 +466,21 @@ const confirmSelected = async () => {
         <span v-if="selected.length" class="text-xs font-semibold text-copam-blue">
           {{ selected.length }} selezionat{{ selected.length === 1 ? 'o' : 'i' }}
         </span>
+        <button
+          @click="exportExcel"
+          :disabled="exportLoading || pagination.total === 0"
+          class="inline-flex items-center gap-2 px-5 py-2 rounded-lg bg-emerald-700 hover:bg-emerald-800 text-white text-sm font-semibold shadow transition-colors disabled:opacity-40 disabled:cursor-not-allowed"
+        >
+          <svg v-if="exportLoading" class="animate-spin h-4 w-4" viewBox="0 0 24 24">
+            <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4" fill="none"></circle>
+            <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+          </svg>
+          <svg v-else class="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 10v6m0 0l-3-3m3 3l3-3M3 17V7a2 2 0 012-2h6l2 2h6a2 2 0 012 2v8a2 2 0 01-2 2H5a2 2 0 01-2-2z" />
+          </svg>
+          {{ exportLoading ? 'Esportazione...' : 'Esporta XLSX' }}
+          <span v-if="!exportLoading && pagination.total > 0" class="bg-emerald-900 text-white text-xs rounded-full px-1.5 py-0.5">{{ pagination.total }}</span>
+        </button>
       </div>
 
       <div ref="tableContainer" class="overflow-x-auto">
