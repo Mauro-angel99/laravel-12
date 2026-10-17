@@ -453,14 +453,29 @@ class WarehouseController extends Controller
                 ]);
             }
 
-            // RECORD_ID è int: filtra solo i valori numerici prima di interrogare SQL Server
-            $numericOrders = array_values(array_filter($productionOrders, fn($v) => ctype_digit((string) $v)));
+            // RECORD_ID è int: filtra solo i valori numerici che rientrano nel range int di SQL Server,
+            // altrimenti un valore errato (es. '112000174344') fa fallire l'intera query
+            $numericOrders = array_values(array_filter(
+                $productionOrders,
+                fn($v) => ctype_digit((string) $v) && (int) $v <= 2147483647
+            ));
+
+            // Ordini non validi (non numerici o fuori range): ignorati ma segnalati
+            $invalidOrders = array_values(array_diff($productionOrders, $numericOrders));
+            $invalidNote = '';
+            if (!empty($invalidOrders)) {
+                Log::warning('Remove terminated: skipped invalid production orders', [
+                    'production_orders' => $invalidOrders,
+                    'user_id' => Auth::id()
+                ]);
+                $invalidNote = '. Ordini non validi ignorati: ' . implode(', ', $invalidOrders);
+            }
 
             if (empty($numericOrders)) {
                 DB::commit();
                 return response()->json([
                     'success' => true,
-                    'message' => 'Nessun ordine di produzione numerico da verificare',
+                    'message' => 'Nessun ordine di produzione numerico da verificare' . $invalidNote,
                     'deleted' => 0,
                 ]);
             }
@@ -483,7 +498,7 @@ class WarehouseController extends Controller
                 DB::commit();
                 return response()->json([
                     'success' => true,
-                    'message' => 'Nessuna merce con ordini terminati trovata',
+                    'message' => 'Nessuna merce con ordini terminati trovata' . $invalidNote,
                     'deleted' => 0,
                 ]);
             }
@@ -516,7 +531,7 @@ class WarehouseController extends Controller
 
             return response()->json([
                 'success' => true,
-                'message' => "Rimossi {$deleted} element" . ($deleted === 1 ? 'o' : 'i') . ' con ordini terminati',
+                'message' => "Rimossi {$deleted} element" . ($deleted === 1 ? 'o' : 'i') . ' con ordini terminati' . $invalidNote,
                 'deleted' => $deleted,
             ]);
         } catch (\Exception $e) {
