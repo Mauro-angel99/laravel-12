@@ -119,6 +119,28 @@ class RunUpdate extends Command
                 $errors[] = 'artisan migrate fallito: ' . $e->getMessage();
             }
 
+            // 6b. Link public/storage relativo (funziona anche dal container nginx).
+            // Creato a mano: storage:link --relative richiede symfony/filesystem, assente in prod
+            $updateStep('Link storage...');
+            $link = public_path('storage');
+            $target = '../storage/app/public';
+            if (is_link($link) && readlink($link) === $target) {
+                $output[] = ['cmd' => 'storage link', 'out' => 'Link già presente'];
+            } elseif (file_exists($link) && !is_link($link)) {
+                $output[] = ['cmd' => 'storage link', 'out' => 'public/storage è una cartella, link non creato'];
+                $errors[] = 'public/storage esiste come cartella: link storage non creato';
+            } else {
+                if (is_link($link)) {
+                    @unlink($link);
+                }
+                if (@symlink($target, $link)) {
+                    $output[] = ['cmd' => 'storage link', 'out' => "Creato public/storage -> {$target}"];
+                } else {
+                    $output[] = ['cmd' => 'storage link', 'out' => 'Creazione link fallita'];
+                    $errors[] = 'Creazione link public/storage fallita';
+                }
+            }
+
             // 7. Artisan optimize:clear
             $updateStep('Pulizia cache...');
             try {
