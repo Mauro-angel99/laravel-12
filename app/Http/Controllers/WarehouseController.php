@@ -466,13 +466,18 @@ class WarehouseController extends Controller
             }
 
             // Trova gli ordini di produzione con OPSTA = 'TE' in A01_ORD_PRO_ALL
-            $terminated = DB::connection('sqlsrv_gestionale')
-                ->table('A01_ORD_PRO_ALL')
-                ->whereIn('RECORD_ID', $numericOrders)
-                ->where('OPSTA', 'TE')
-                ->pluck('RECORD_ID')
-                ->map(fn($v) => (string) $v)
-                ->toArray();
+            // A blocchi: SQL Server accetta al massimo 2100 parametri per query
+            $terminated = [];
+            foreach (array_chunk($numericOrders, 1000) as $chunk) {
+                $found = DB::connection('sqlsrv_gestionale')
+                    ->table('A01_ORD_PRO_ALL')
+                    ->whereIn('RECORD_ID', $chunk)
+                    ->where('OPSTA', 'TE')
+                    ->pluck('RECORD_ID')
+                    ->map(fn($v) => (string) $v)
+                    ->toArray();
+                $terminated = array_merge($terminated, $found);
+            }
 
             if (empty($terminated)) {
                 DB::commit();
