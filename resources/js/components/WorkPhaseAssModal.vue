@@ -34,7 +34,7 @@
             <p class="text-[10px] font-bold uppercase tracking-widest text-gray-700 mb-2">Identificazione</p>
             <div class="grid grid-cols-2 gap-3">
               <div class="bg-gray-50 rounded-lg px-4 py-3">
-                <p class="text-[10px] font-semibold uppercase tracking-wider text-gray-700">Commessa</p>
+                <p class="text-[10px] font-semibold uppercase tracking-wider text-gray-700">ORD. PROD. ASSIEME</p>
                 <p class="text-sm font-semibold text-gray-800 mt-0.5">{{ phase?.FLASS || '—' }}</p>
               </div>
               <div class="bg-gray-50 rounded-lg px-4 py-3">

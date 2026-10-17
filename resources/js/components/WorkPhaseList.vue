@@ -260,7 +260,7 @@ const exportExcel = async () => {
     if (!records.length) return
 
     const columns = [
-      { key: 'DRCMM',    label: 'Commessa',      fmt: (r) => r.DRCMM ?? '' },
+      { key: 'DRCMM',    label: 'ORD. PROD. ASSIEME',      fmt: (r) => r.DRCMM ?? '' },
       { key: 'DRCON',    label: 'DRCON',         fmt: (r) => formatDate(r.DRCON) },
       { key: 'FLASS',    label: 'FLASS',         fmt: (r) => r.FLASS ?? '' },
       { key: 'IDOPR',    label: 'IDOPR',         fmt: (r) => r.IDOPR ?? '' },
@@ -410,7 +410,7 @@ const confirmSelected = async () => {
               class="w-full px-3 py-1.5 border border-gray-300 rounded-lg text-xs focus:ring-2 focus:ring-copam-blue focus:border-copam-blue" />
           </div>
           <div>
-            <label class="block text-[11px] font-black uppercase tracking-wider text-gray-700 mb-1">Commessa</label>
+            <label class="block text-[11px] font-black uppercase tracking-wider text-gray-700 mb-1">ORD. PROD. ASSIEME</label>
             <input type="text" v-model="searchDrcmm"
               class="w-full px-3 py-1.5 border border-gray-300 rounded-lg text-xs focus:ring-2 focus:ring-copam-blue focus:border-copam-blue" />
           </div>
