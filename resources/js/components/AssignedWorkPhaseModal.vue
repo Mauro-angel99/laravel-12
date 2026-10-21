@@ -90,7 +90,13 @@
                       'whitespace-nowrap py-4 px-1 border-b-2 font-medium text-sm'
                     ]"
                   >
-                    N.C.
+                    <span class="inline-flex items-center gap-1.5">
+                      N.C.
+                      <span v-if="nonConformities.length > 0"
+                        class="inline-flex items-center justify-center min-w-[1.25rem] h-5 px-1.5 rounded-full bg-red-600 text-white text-[11px] font-bold leading-none">
+                        {{ nonConformities.length }}
+                      </span>
+                    </span>
                   </button>
                   <button
                     @click="activeTab = 'alert'"
