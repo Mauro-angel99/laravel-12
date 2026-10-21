@@ -49,8 +49,8 @@
                             </x-slot>
                         </x-dropdown>
                     </div>
-                    <x-nav-link :href="route('article-search.index')" :active="request()->routeIs('article-search.index')">
-                        {{ __('Ricerca Articolo') }}
+                    <x-nav-link :href="route('articles.index')" :active="request()->routeIs('articles.index')">
+                        {{ __('Articoli') }}
                     </x-nav-link>
                     <x-nav-link :href="route('production-orders.index')" :active="request()->routeIs('production-orders.index')">
                         {{ __('Stato Ordini') }}
@@ -184,8 +184,8 @@
                     </x-responsive-nav-link>
                 </div>
             </div>
-            <x-responsive-nav-link :href="route('article-search.index')" :active="request()->routeIs('article-search.index')">
-                {{ __('Ricerca Articolo') }}
+            <x-responsive-nav-link :href="route('articles.index')" :active="request()->routeIs('articles.index')">
+                {{ __('Articoli') }}
             </x-responsive-nav-link>
             <x-responsive-nav-link :href="route('production-orders.index')" :active="request()->routeIs('production-orders.index')">
                 {{ __('Stato Ordini') }}

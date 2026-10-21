@@ -17,6 +17,7 @@ use App\Http\Controllers\WorkPhasePdfController;
 use App\Http\Controllers\UserController as ApiUserController;
 use App\Http\Controllers\BillOfMaterialsController;
 use App\Http\Controllers\ArticleSearchController;
+use App\Http\Controllers\ArticleAlertController;
 use App\Http\Controllers\SheetsController;
 use App\Http\Controllers\ProductionOrdersController;
 
@@ -80,8 +81,13 @@ Route::middleware('auth')->group(function () {
 });
 
 Route::middleware('auth')->group(function () {
-    Route::get('/article-search', [ArticleSearchController::class, 'index'])->name('article-search.index');
+    Route::get('/articles', [ArticleSearchController::class, 'index'])->name('articles.index');
+    Route::redirect('/article-search', '/articles', 301);
     Route::get('/api/article-search', [ArticleSearchController::class, 'list'])->name('article-search.list');
+    Route::get('/api/article-alerts', [ArticleAlertController::class, 'index'])->name('article-alerts.index');
+    Route::post('/api/article-alerts', [ArticleAlertController::class, 'store'])->name('article-alerts.store');
+    Route::put('/api/article-alerts/{alert}', [ArticleAlertController::class, 'update'])->name('article-alerts.update');
+    Route::delete('/api/article-alerts/{alert}', [ArticleAlertController::class, 'destroy'])->name('article-alerts.destroy');
 });
 
 Route::middleware('auth')->group(function () {

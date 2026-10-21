@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\ArticleAlert;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 
@@ -77,6 +78,17 @@ class ArticleSearchController extends Controller
 
             $dati = DB::connection('sqlsrv_gestionale')
                 ->select($query, $params);
+
+            // Numero di alert (DB locale) per gli articoli della pagina corrente
+            $codes = array_values(array_filter(array_map(fn($row) => $row->CDART, $dati)));
+            $alertCounts = empty($codes) ? collect() : ArticleAlert::whereIn('cdart', $codes)
+                ->selectRaw('cdart, COUNT(*) as total')
+                ->groupBy('cdart')
+                ->pluck('total', 'cdart');
+
+            foreach ($dati as $row) {
+                $row->alerts_count = (int) ($alertCounts[$row->CDART] ?? 0);
+            }
 
             $lastPage = max(1, ceil($total / $perPage));
             $from = $total > 0 ? $offset + 1 : 0;

@@ -1,6 +1,7 @@
 <script setup>
 import { ref, watch, onMounted } from 'vue'
 import axios from 'axios'
+import ArticleAlerts from './ArticleAlerts.vue'
 
 const data = ref([])
 const searchCdart = ref('')
@@ -61,6 +62,22 @@ const goToPage = (page) => {
   if (page >= 1 && page <= pagination.value.last_page) {
     fetchData(page)
   }
+}
+
+// Modal alert
+const alertModal = ref({ show: false, article: null })
+
+const openAlertModal = (row) => {
+  alertModal.value = { show: true, article: row }
+}
+
+const closeAlertModal = () => {
+  alertModal.value = { show: false, article: null }
+}
+
+// Tiene allineato il colore dell'icona in tabella con gli alert presenti nella modal
+const onAlertCount = (count) => {
+  if (alertModal.value.article) alertModal.value.article.alerts_count = count
 }
 
 let searchTimeout
@@ -153,13 +170,14 @@ onMounted(() => {
               <th class="px-3 py-2.5 text-left font-semibold uppercase tracking-wider border-r border-blue-400/40">Descrizione</th>
               <th class="px-3 py-2.5 text-left font-semibold uppercase tracking-wider border-r border-blue-400/40">Materiale</th>
               <th class="px-3 py-2.5 text-left font-semibold uppercase tracking-wider border-r border-blue-400/40">Spessore</th>
-              <th class="px-3 py-2.5 text-left font-semibold uppercase tracking-wider">Profilo</th>
+              <th class="px-3 py-2.5 text-left font-semibold uppercase tracking-wider border-r border-blue-400/40">Profilo</th>
+              <th class="px-3 py-2.5 text-center font-semibold uppercase tracking-wider">Alert</th>
             </tr>
           </thead>
           <tbody class="divide-y divide-gray-100">
             <!-- Loading -->
             <tr v-if="loading">
-              <td colspan="5" class="px-3 py-10 text-center text-gray-400">
+              <td colspan="6" class="px-3 py-10 text-center text-gray-400">
                 <div class="flex items-center justify-center gap-2">
                   <svg class="animate-spin h-5 w-5 text-copam-blue" viewBox="0 0 24 24">
                     <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4" fill="none"></circle>
@@ -180,12 +198,28 @@ onMounted(() => {
               <td class="px-3 py-2 text-gray-700 border-r border-gray-100">{{ row.ARDES }}</td>
               <td class="px-3 py-2 whitespace-nowrap text-gray-700 border-r border-gray-100">{{ row.ARMAT }}</td>
               <td class="px-3 py-2 whitespace-nowrap text-gray-700 border-r border-gray-100">{{ row.ARDMZ }}</td>
-              <td class="px-3 py-2 whitespace-nowrap text-gray-700">{{ row.ARPRF }}</td>
+              <td class="px-3 py-2 whitespace-nowrap text-gray-700 border-r border-gray-100">{{ row.ARPRF }}</td>
+              <td class="px-3 py-2 text-center">
+                <button
+                  v-if="row.CDART?.toString().trim()"
+                  type="button"
+                  @click="openAlertModal(row)"
+                  :title="row.alerts_count ? `${row.alerts_count} alert` : 'Nessun alert'"
+                  :class="[
+                    'inline-flex items-center justify-center p-1 rounded transition-colors',
+                    row.alerts_count > 0 ? 'text-yellow-500 hover:text-yellow-600 hover:bg-yellow-50' : 'text-gray-300 hover:text-gray-500 hover:bg-gray-100'
+                  ]"
+                >
+                  <svg class="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
+                  </svg>
+                </button>
+              </td>
             </tr>
 
             <!-- Empty state -->
             <tr v-if="!loading && !data.length">
-              <td colspan="5" class="px-3 py-16 text-center">
+              <td colspan="6" class="px-3 py-16 text-center">
                 <svg class="mx-auto h-10 w-10 text-gray-300" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2" />
                 </svg>
@@ -219,6 +253,41 @@ onMounted(() => {
             class="px-2 py-1 text-xs rounded border border-gray-200 bg-white text-gray-600 hover:bg-gray-100 disabled:opacity-40 disabled:cursor-not-allowed transition-colors">
             &raquo;
           </button>
+        </div>
+      </div>
+    </div>
+
+    <!-- MODAL ALERT -->
+    <div v-if="alertModal.show" class="fixed inset-0 z-50 overflow-y-auto" role="dialog" aria-modal="true">
+      <div class="flex items-center justify-center min-h-screen px-4 py-8">
+        <div class="fixed inset-0 bg-gray-500 bg-opacity-75 transition-opacity" aria-hidden="true" @click="closeAlertModal"></div>
+
+        <div class="relative bg-white rounded-xl text-left overflow-hidden shadow-xl w-full max-w-2xl">
+          <!-- Header -->
+          <div class="bg-copam-blue px-6 py-4 flex items-center justify-between">
+            <div class="flex items-center gap-3">
+              <h3 class="text-base font-semibold text-white">Alert</h3>
+              <span v-if="alertModal.article?.CDART" class="bg-white/20 text-white text-xs font-mono px-2 py-0.5 rounded">{{ alertModal.article.CDART }}</span>
+            </div>
+            <button @click="closeAlertModal" class="text-white/70 hover:text-white transition-colors">
+              <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+              </svg>
+            </button>
+          </div>
+
+          <!-- Contenuto -->
+          <div class="px-6 py-4">
+            <ArticleAlerts :cdart="alertModal.article?.CDART?.toString() ?? ''" @count="onAlertCount" />
+          </div>
+
+          <!-- Footer -->
+          <div class="bg-gray-50 px-6 py-3 flex justify-end border-t border-gray-100">
+            <button @click="closeAlertModal"
+              class="px-4 py-2 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-lg hover:bg-gray-50 transition-colors">
+              Chiudi
+            </button>
+          </div>
         </div>
       </div>
     </div>

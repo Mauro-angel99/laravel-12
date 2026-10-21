@@ -92,6 +92,23 @@
                   >
                     N.C.
                   </button>
+                  <button
+                    @click="activeTab = 'alert'"
+                    :class="[
+                      activeTab === 'alert'
+                        ? 'border-copam-blue text-copam-blue'
+                        : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300',
+                      'whitespace-nowrap py-4 px-1 border-b-2 font-medium text-sm'
+                    ]"
+                  >
+                    <span class="inline-flex items-center gap-1.5">
+                      Alert
+                      <span v-if="alertsCount > 0"
+                        class="inline-flex items-center justify-center min-w-[1.25rem] h-5 px-1.5 rounded-full bg-red-600 text-white text-[11px] font-bold leading-none">
+                        {{ alertsCount }}
+                      </span>
+                    </span>
+                  </button>
                 </nav>
               </div>
 
@@ -478,6 +495,12 @@
                   <p class="mt-1 text-xs text-gray-400">Articolo: {{ assignment?.work_phase?.OPART }}</p>
                 </div>
               </div>
+
+              <!-- Tab Alert (articolo padre, stessa logica delle N.C.) -->
+              <div v-if="activeTab === 'alert'">
+                <p class="mb-3 text-xs text-gray-500">Articolo: {{ assignment?.work_phase?.OPART || 'N/D' }}</p>
+                <ArticleAlerts :cdart="assignment?.work_phase?.OPART?.toString() ?? ''" readonly />
+              </div>
             </div>
           </div>
         <!-- Modal Footer -->
@@ -687,6 +710,7 @@
 <script setup lang="ts">
 import { ref, watch, computed } from 'vue';
 import axios from 'axios';
+import ArticleAlerts from './ArticleAlerts.vue';
 
 const props = defineProps({
   show: {
@@ -719,6 +743,21 @@ const isDragging = ref(false);
 const nonConformities = ref([]);
 const loadingNC = ref(false);
 const ncError = ref(null);
+
+// Alert articolo (badge sulla tab)
+const alertsCount = ref(0);
+
+const fetchAlertsCount = async () => {
+  alertsCount.value = 0;
+  const opart = props.assignment?.work_phase?.OPART?.toString().trim();
+  if (!opart) return;
+  try {
+    const res = await axios.get('/api/article-alerts', { params: { cdart: opart } });
+    alertsCount.value = res.data.data?.length ?? 0;
+  } catch {
+    // badge non mostrato in caso di errore
+  }
+};
 
 // Warehouse position state
 const warehousePosition = ref([]);
@@ -822,6 +861,7 @@ const loadParameterValues = async () => {
 
 watch(() => props.show, async (newVal) => {
   if (newVal) {
+    fetchAlertsCount();
     await fetchParameters();
     await loadParameterValues();
     await fetchImages();
@@ -850,6 +890,7 @@ const close = () => {
   nonConformities.value = []
   ncError.value = null
   warehousePosition.value = []
+  alertsCount.value = 0
 }
 
 const formatDate = (dateString) => {
