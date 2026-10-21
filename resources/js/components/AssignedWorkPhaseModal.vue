@@ -122,7 +122,11 @@
                     <div class="bg-gray-50 px-4 py-2 border-b border-gray-200">
                       <h4 class="text-xs font-semibold text-gray-700 uppercase tracking-wider">Identificazione</h4>
                     </div>
-                    <div class="grid grid-cols-2 sm:grid-cols-4 gap-px bg-gray-100">
+                    <div class="grid grid-cols-2 sm:grid-cols-5 gap-px bg-gray-100">
+                      <div class="bg-white px-4 py-3 col-span-2 sm:col-span-1">
+                        <p class="text-xs text-gray-700 uppercase tracking-wide">Articolo padre</p>
+                        <p class="mt-0.5 text-sm font-medium text-gray-800">{{ assignment?.work_phase?.OPART_PADRE || '&mdash;' }}</p>
+                      </div>
                       <div class="bg-white px-4 py-3">
                         <p class="text-xs text-gray-700 uppercase tracking-wide">FLASS</p>
                         <p class="mt-0.5 text-sm font-medium text-gray-800">{{ assignment?.work_phase?.FLASS || '&mdash;' }}</p>
