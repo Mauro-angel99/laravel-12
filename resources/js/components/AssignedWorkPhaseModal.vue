@@ -474,7 +474,7 @@
                       </tr>
                     </tbody>
                   </table>
-                  <p class="mt-2 px-3 text-xs text-gray-500">Articolo: {{ assignment?.work_phase?.OPART }}</p>
+                  <p class="mt-2 px-3 text-xs text-gray-500">Articolo padre: {{ assignment?.work_phase?.OPART_PADRE }}</p>
                 </div>
 
                 <!-- NC Error -->
@@ -492,14 +492,14 @@
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path>
                   </svg>
                   <p class="mt-2 text-sm text-gray-500">Nessuna non conformità</p>
-                  <p class="mt-1 text-xs text-gray-400">Articolo: {{ assignment?.work_phase?.OPART }}</p>
+                  <p class="mt-1 text-xs text-gray-400">Articolo padre: {{ assignment?.work_phase?.OPART_PADRE || 'non trovato' }}</p>
                 </div>
               </div>
 
               <!-- Tab Alert (articolo padre, stessa logica delle N.C.) -->
               <div v-if="activeTab === 'alert'">
-                <p class="mb-3 text-xs text-gray-500">Articolo: {{ assignment?.work_phase?.OPART || 'N/D' }}</p>
-                <ArticleAlerts :cdart="assignment?.work_phase?.OPART?.toString() ?? ''" readonly />
+                <p class="mb-3 text-xs text-gray-500">Articolo padre: {{ assignment?.work_phase?.OPART_PADRE || 'non trovato' }}</p>
+                <ArticleAlerts :cdart="assignment?.work_phase?.OPART_PADRE?.toString() ?? ''" readonly />
               </div>
             </div>
           </div>
@@ -749,7 +749,7 @@ const alertsCount = ref(0);
 
 const fetchAlertsCount = async () => {
   alertsCount.value = 0;
-  const opart = props.assignment?.work_phase?.OPART?.toString().trim();
+  const opart = props.assignment?.work_phase?.OPART_PADRE?.toString().trim();
   if (!opart) return;
   try {
     const res = await axios.get('/api/article-alerts', { params: { cdart: opart } });
@@ -957,7 +957,7 @@ const checkPdf = async () => {
 
 // Non Conformity management functions
 const fetchNonConformities = async () => {
-  const opart = props.assignment?.work_phase?.OPART;
+  const opart = props.assignment?.work_phase?.OPART_PADRE;
   ncError.value = null;
   
   if (!opart) {

@@ -79,6 +79,8 @@ class WorkPhaseAssignmentController extends Controller
                     'd.DRCON',
                     'd.DRCMM',
                     'p.OPART',
+                    // Articolo padre (usato per N.C. e alert): OPART di A01_ORD_FFA_INF con lo stesso FLASS
+                    DB::raw('(SELECT TOP 1 i.OPART FROM A01_ORD_FFA_INF i WHERE i.FLASS = f.FLASS) as OPART_PADRE'),
                     DB::raw('a.ARMAT as MATERIALE'),
                     DB::raw('a.ARDMZ as SPESSORE'),
                     DB::raw('a.ARPRF as PROFILO')
