@@ -36,7 +36,7 @@ Route::middleware(['auth', 'role:admin'])->group(function () {
     Route::post('/api/permissions', [PermissionsController::class, 'storePermission']);
     Route::delete('/api/permissions/{permission}', [PermissionsController::class, 'destroyPermission']);
 
-    // Log prese visione fasi di lavoro (solo admin)
+    // Log inizio lavoro fasi di lavoro (solo admin)
     Route::get('/admin/acknowledgements', [WorkPhaseAcknowledgementController::class, 'index'])
         ->name('acknowledgements.index');
     Route::get('/api/work-phase-acknowledgements', [WorkPhaseAcknowledgementController::class, 'list'])
@@ -130,11 +130,11 @@ Route::middleware('auth')->group(function () {
     Route::get('/api/job-parameter-values', [WorkPhaseAssignmentController::class, 'getParameters'])
         ->name('job-parameter-values.get');
 
-    // API per verificare lo stato di presa visione di una fase di lavoro
+    // API per verificare lo stato di inizio lavoro di una fase di lavoro
     Route::get('/api/work-phase-acknowledgements/status', [WorkPhaseAcknowledgementController::class, 'status'])
         ->name('acknowledgements.status');
 
-    // API per registrare la presa visione di una fase di lavoro
+    // API per registrare l'inizio lavoro di una fase di lavoro
     Route::post('/api/work-phase-acknowledgements', [WorkPhaseAcknowledgementController::class, 'store'])
         ->name('acknowledgements.store');
 });

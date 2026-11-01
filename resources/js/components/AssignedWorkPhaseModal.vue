@@ -306,9 +306,9 @@
                     </p>
                   </div>
 
-                  <!-- Presa visione -->
+                  <!-- Inizio lavoro -->
                   <div class="flex justify-end pt-4 border-t border-gray-200">
-                    <!-- Avviso: fase già presa in visione -->
+                    <!-- Avviso: lavoro già iniziato -->
                     <div
                       v-if="acknowledgement"
                       class="inline-flex items-center gap-2 rounded-md border border-green-200 bg-green-50 px-4 py-2 text-sm font-medium text-green-700"
@@ -316,10 +316,10 @@
                       <svg class="w-5 h-5 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/>
                       </svg>
-                      <span>Presa visione il {{ acknowledgement.viewed_at }}</span>
+                      <span>Inizio lavoro il {{ acknowledgement.viewed_at }}</span>
                     </div>
 
-                    <!-- Bottone Registra presa visione -->
+                    <!-- Bottone Registra inizio lavoro -->
                     <button
                       v-else
                       @click="confirmAcknowledgement"
@@ -330,7 +330,7 @@
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/>
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"/>
                       </svg>
-                      {{ acknowledging ? 'Registrazione...' : 'Registra presa visione' }}
+                      {{ acknowledging ? 'Registrazione...' : 'Registra inizio lavoro' }}
                     </button>
                   </div>
                 </div>
@@ -978,7 +978,7 @@ const saveParameters = async () => {
   }
 }
 
-// Presa visione
+// Inizio lavoro
 const acknowledging = ref(false);
 const acknowledgement = ref(null);
 
@@ -1000,14 +1000,14 @@ const checkAcknowledgement = async () => {
       acknowledgement.value = res.data.data;
     }
   } catch (error) {
-    console.error('Errore nel controllo della presa visione:', error);
+    console.error('Errore nel controllo dell\'inizio lavoro:', error);
   }
 };
 
 const confirmAcknowledgement = () => {
   showConfirmModal(
-    'Registra presa visione',
-    'Confermi di aver preso visione di questa fase di lavoro?',
+    'Registra inizio lavoro',
+    'Confermi l\'inizio lavoro di questa fase?',
     registerAcknowledgement,
     'success'
   );
@@ -1030,10 +1030,10 @@ const registerAcknowledgement = async () => {
       idopr: wp.IDOPR?.toString().trim() || null,
     });
     acknowledgement.value = res.data.data;
-    showMessageModal('success', 'Successo', `Presa visione registrata il ${res.data.data.viewed_at}`);
+    showMessageModal('success', 'Successo', `Inizio lavoro registrato il ${res.data.data.viewed_at}`);
   } catch (error) {
-    console.error('Errore nella registrazione della presa visione:', error);
-    showMessageModal('error', 'Errore', 'Errore nella registrazione della presa visione');
+    console.error('Errore nella registrazione dell\'inizio lavoro:', error);
+    showMessageModal('error', 'Errore', 'Errore nella registrazione dell\'inizio lavoro');
   } finally {
     acknowledging.value = false;
   }

@@ -64,7 +64,7 @@ watch(filters, () => {
 
 onMounted(() => fetchData())
 
-// Eliminazione presa visione
+// Eliminazione inizio lavoro
 const deleting = ref(false)
 const confirmDelete = ref({ show: false, row: null })
 
@@ -148,8 +148,8 @@ const exportExcel = async () => {
     })
 
     const wb = XLSX.utils.book_new()
-    XLSX.utils.book_append_sheet(wb, ws, 'Prese Visione')
-    XLSX.writeFile(wb, `prese_visione_${new Date().toISOString().slice(0, 10)}.xlsx`)
+    XLSX.utils.book_append_sheet(wb, ws, 'Inizio Lavoro')
+    XLSX.writeFile(wb, `inizio_lavoro_${new Date().toISOString().slice(0, 10)}.xlsx`)
   } catch (error) {
     console.error(error)
   } finally {
@@ -288,7 +288,7 @@ const exportExcel = async () => {
               <td class="px-3 py-2 whitespace-nowrap text-center">
                 <button
                   @click="askDelete(row)"
-                  title="Elimina presa visione"
+                  title="Elimina inizio lavoro"
                   class="inline-flex items-center justify-center rounded-md p-1.5 text-red-600 hover:bg-red-50 hover:text-red-700 focus:outline-none focus:ring-2 focus:ring-red-400 transition-colors"
                 >
                   <svg class="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -304,7 +304,7 @@ const exportExcel = async () => {
                 <svg class="mx-auto h-10 w-10 text-gray-300" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2" />
                 </svg>
-                <p class="mt-2 text-xs font-medium text-gray-400">Nessuna presa visione registrata</p>
+                <p class="mt-2 text-xs font-medium text-gray-400">Nessun inizio lavoro registrato</p>
               </td>
             </tr>
           </tbody>
@@ -355,9 +355,9 @@ const exportExcel = async () => {
               </svg>
             </div>
             <div>
-              <h3 class="text-base font-semibold text-gray-900">Elimina presa visione</h3>
+              <h3 class="text-base font-semibold text-gray-900">Elimina inizio lavoro</h3>
               <p class="mt-1 text-sm text-gray-500">
-                Sei sicuro di voler eliminare questa presa visione
+                Sei sicuro di voler eliminare questo inizio lavoro
                 <span v-if="confirmDelete.row?.viewed_at" class="font-medium text-gray-700">del {{ confirmDelete.row.viewed_at }}</span>?
                 L'operazione non è reversibile.
               </p>

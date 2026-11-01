@@ -18,7 +18,7 @@ return new class extends Migration
             $table->string('flass', 50)->nullable()->comment('FLASS');
             $table->string('fllav', 50)->nullable()->comment('FLLAV');
             $table->string('idopr', 50)->nullable()->index()->comment('IDOPR');
-            $table->unsignedBigInteger('user_id')->nullable()->comment('Operatore che ha registrato la presa visione');
+            $table->unsignedBigInteger('user_id')->nullable()->comment('Operatore che ha registrato l\'inizio lavoro');
             $table->string('user_name')->nullable()->comment('Nome operatore al momento della registrazione');
             $table->timestamps();
 

@@ -57,7 +57,7 @@
                     </x-nav-link>
                     @if (Auth::user()->hasRole('admin'))
                         <x-nav-link :href="route('acknowledgements.index')" :active="request()->routeIs('acknowledgements.index')">
-                            {{ __('Prese Visione') }}
+                            {{ __('Inizio Lavoro') }}
                         </x-nav-link>
                     @endif
 
@@ -197,7 +197,7 @@
             </x-responsive-nav-link>
             @if (Auth::user()->hasRole('admin'))
                 <x-responsive-nav-link :href="route('acknowledgements.index')" :active="request()->routeIs('acknowledgements.index')">
-                    {{ __('Prese Visione') }}
+                    {{ __('Inizio Lavoro') }}
                 </x-responsive-nav-link>
             @endif
             {{-- @if (Auth::user()->hasRole('admin'))

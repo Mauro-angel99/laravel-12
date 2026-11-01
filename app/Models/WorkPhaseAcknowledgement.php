@@ -23,7 +23,7 @@ class WorkPhaseAcknowledgement extends Model
     ];
 
     /**
-     * Relazione con l'operatore che ha registrato la presa visione
+     * Relazione con l'operatore che ha registrato l'inizio lavoro
      */
     public function user(): BelongsTo
     {

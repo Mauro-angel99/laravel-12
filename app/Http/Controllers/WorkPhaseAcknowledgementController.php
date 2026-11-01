@@ -12,7 +12,7 @@ use Illuminate\Support\Facades\Log;
 class WorkPhaseAcknowledgementController extends Controller
 {
     /**
-     * Pagina log prese visione (solo admin)
+     * Pagina log inizio lavoro (solo admin)
      */
     public function index()
     {
@@ -20,7 +20,7 @@ class WorkPhaseAcknowledgementController extends Controller
     }
 
     /**
-     * Elenco paginato delle prese visione (solo admin)
+     * Elenco paginato degli inizi lavoro (solo admin)
      */
     public function list(Request $request): JsonResponse
     {
@@ -77,7 +77,7 @@ class WorkPhaseAcknowledgementController extends Controller
     }
 
     /**
-     * Esporta tutte le prese visione filtrate (senza paginazione) per XLSX (solo admin)
+     * Esporta tutti gli inizi lavoro filtrati (senza paginazione) per XLSX (solo admin)
      */
     public function export(Request $request): JsonResponse
     {
@@ -156,7 +156,7 @@ class WorkPhaseAcknowledgementController extends Controller
     }
 
     /**
-     * Registra una presa visione della fase di lavoro
+     * Registra un inizio lavoro della fase di lavoro
      */
     public function store(Request $request): JsonResponse
     {
@@ -185,7 +185,7 @@ class WorkPhaseAcknowledgementController extends Controller
 
             return response()->json([
                 'success' => true,
-                'message' => 'Presa visione registrata con successo',
+                'message' => 'Inizio lavoro registrato con successo',
                 'data' => [
                     'id' => $ack->id,
                     'viewed_at' => $ack->created_at->timezone('Europe/Rome')->format('d/m/Y H:i:s'),
@@ -198,13 +198,13 @@ class WorkPhaseAcknowledgementController extends Controller
 
             return response()->json([
                 'success' => false,
-                'message' => 'Errore durante la registrazione della presa visione',
+                'message' => 'Errore durante la registrazione dell\'inizio lavoro',
             ], 500);
         }
     }
 
     /**
-     * Elimina una presa visione (solo admin)
+     * Elimina un inizio lavoro (solo admin)
      */
     public function destroy(WorkPhaseAcknowledgement $acknowledgement): JsonResponse
     {
@@ -213,7 +213,7 @@ class WorkPhaseAcknowledgementController extends Controller
 
             return response()->json([
                 'success' => true,
-                'message' => 'Presa visione eliminata con successo',
+                'message' => 'Inizio lavoro eliminato con successo',
             ]);
         } catch (\Exception $e) {
             Log::error('Error deleting work phase acknowledgement: ' . $e->getMessage(), [
@@ -223,7 +223,7 @@ class WorkPhaseAcknowledgementController extends Controller
 
             return response()->json([
                 'success' => false,
-                'message' => "Errore durante l'eliminazione della presa visione",
+                'message' => "Errore durante l'eliminazione dell'inizio lavoro",
             ], 500);
         }
     }
