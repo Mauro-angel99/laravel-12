@@ -305,6 +305,34 @@
                       Nessun parametro configurato per questa lavorazione
                     </p>
                   </div>
+
+                  <!-- Presa visione -->
+                  <div class="flex justify-end pt-4 border-t border-gray-200">
+                    <!-- Avviso: fase già presa in visione -->
+                    <div
+                      v-if="acknowledgement"
+                      class="inline-flex items-center gap-2 rounded-md border border-green-200 bg-green-50 px-4 py-2 text-sm font-medium text-green-700"
+                    >
+                      <svg class="w-5 h-5 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/>
+                      </svg>
+                      <span>Presa visione il {{ acknowledgement.viewed_at }}</span>
+                    </div>
+
+                    <!-- Bottone Registra presa visione -->
+                    <button
+                      v-else
+                      @click="confirmAcknowledgement"
+                      :disabled="acknowledging"
+                      class="inline-flex items-center gap-2 justify-center rounded-md border border-transparent shadow-sm px-4 py-2 bg-green-600 text-base font-medium text-white hover:bg-green-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-green-500 disabled:opacity-50 disabled:cursor-not-allowed sm:text-sm"
+                    >
+                      <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/>
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"/>
+                      </svg>
+                      {{ acknowledging ? 'Registrazione...' : 'Registra presa visione' }}
+                    </button>
+                  </div>
                 </div>
               </div>
 
@@ -540,8 +568,11 @@
 
       <div class="inline-block align-bottom bg-white rounded-lg px-4 pt-5 pb-4 text-left overflow-hidden shadow-xl transform transition-all sm:my-8 sm:align-middle sm:max-w-lg sm:w-full sm:p-6">
         <div class="sm:flex sm:items-start">
-          <div class="mx-auto flex-shrink-0 flex items-center justify-center h-12 w-12 rounded-full bg-red-100 sm:mx-0 sm:h-10 sm:w-10">
-            <svg class="h-6 w-6 text-red-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <div :class="[
+            'mx-auto flex-shrink-0 flex items-center justify-center h-12 w-12 rounded-full sm:mx-0 sm:h-10 sm:w-10',
+            confirmModal.variant === 'success' ? 'bg-green-100' : 'bg-red-100'
+          ]">
+            <svg :class="['h-6 w-6', confirmModal.variant === 'success' ? 'text-green-600' : 'text-red-600']" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"></path>
             </svg>
           </div>
@@ -562,7 +593,12 @@
           <button 
             type="button"
             @click="confirmModal.onConfirm"
-            class="w-full inline-flex justify-center rounded-md border border-transparent shadow-sm px-4 py-2 bg-red-600 text-base font-medium text-white hover:bg-red-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-red-500 sm:ml-3 sm:w-auto sm:text-sm"
+            :class="[
+              'w-full inline-flex justify-center rounded-md border border-transparent shadow-sm px-4 py-2 text-base font-medium text-white focus:outline-none focus:ring-2 focus:ring-offset-2 sm:ml-3 sm:w-auto sm:text-sm',
+              confirmModal.variant === 'success'
+                ? 'bg-green-600 hover:bg-green-700 focus:ring-green-500'
+                : 'bg-red-600 hover:bg-red-700 focus:ring-red-500'
+            ]"
           >
             Ok
           </button>
@@ -804,6 +840,7 @@ const confirmModal = ref({
   show: false,
   title: '',
   message: '',
+  variant: 'danger',
   onConfirm: null
 });
 
@@ -815,11 +852,12 @@ const closeMessageModal = () => {
   messageModal.value.show = false;
 };
 
-const showConfirmModal = (title, message, onConfirm) => {
+const showConfirmModal = (title, message, onConfirm, variant = 'danger') => {
   confirmModal.value = {
     show: true,
     title,
     message,
+    variant,
     onConfirm: () => {
       confirmModal.value.show = false;
       onConfirm();
@@ -878,6 +916,7 @@ watch(() => props.show, async (newVal) => {
     await checkPdf();
     await fetchNonConformities();
     await fetchWarehousePosition();
+    await checkAcknowledgement();
   }
 });
 
@@ -901,6 +940,7 @@ const close = () => {
   ncError.value = null
   warehousePosition.value = []
   alertsCount.value = 0
+  acknowledgement.value = null
 }
 
 const formatDate = (dateString) => {
@@ -937,6 +977,67 @@ const saveParameters = async () => {
     saving.value = false;
   }
 }
+
+// Presa visione
+const acknowledging = ref(false);
+const acknowledgement = ref(null);
+
+const checkAcknowledgement = async () => {
+  acknowledgement.value = null;
+  const wp = props.assignment?.work_phase;
+  if (!wp) return;
+  try {
+    const res = await axios.get('/api/work-phase-acknowledgements/status', {
+      params: {
+        opart_padre: wp.OPART_PADRE?.toString().trim() || null,
+        opart: wp.OPART?.toString().trim() || null,
+        flass: wp.FLASS?.toString().trim() || null,
+        fllav: wp.FLLAV?.toString().trim() || null,
+        idopr: wp.IDOPR?.toString().trim() || null,
+      }
+    });
+    if (res.data.acknowledged) {
+      acknowledgement.value = res.data.data;
+    }
+  } catch (error) {
+    console.error('Errore nel controllo della presa visione:', error);
+  }
+};
+
+const confirmAcknowledgement = () => {
+  showConfirmModal(
+    'Registra presa visione',
+    'Confermi di aver preso visione di questa fase di lavoro?',
+    registerAcknowledgement,
+    'success'
+  );
+};
+
+const registerAcknowledgement = async () => {
+  const wp = props.assignment?.work_phase;
+  if (!wp) {
+    showMessageModal('error', 'Errore', 'Dati mancanti per la registrazione');
+    return;
+  }
+
+  acknowledging.value = true;
+  try {
+    const res = await axios.post('/api/work-phase-acknowledgements', {
+      opart_padre: wp.OPART_PADRE?.toString().trim() || null,
+      opart: wp.OPART?.toString().trim() || null,
+      flass: wp.FLASS?.toString().trim() || null,
+      fllav: wp.FLLAV?.toString().trim() || null,
+      idopr: wp.IDOPR?.toString().trim() || null,
+    });
+    acknowledgement.value = res.data.data;
+    showMessageModal('success', 'Successo', `Presa visione registrata il ${res.data.data.viewed_at}`);
+  } catch (error) {
+    console.error('Errore nella registrazione della presa visione:', error);
+    showMessageModal('error', 'Errore', 'Errore nella registrazione della presa visione');
+  } finally {
+    acknowledging.value = false;
+  }
+};
 
 // PDF management functions
 // PDF management functions

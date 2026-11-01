@@ -55,6 +55,11 @@
                     <x-nav-link :href="route('production-orders.index')" :active="request()->routeIs('production-orders.index')">
                         {{ __('Stato Ordini') }}
                     </x-nav-link>
+                    @if (Auth::user()->hasRole('admin'))
+                        <x-nav-link :href="route('acknowledgements.index')" :active="request()->routeIs('acknowledgements.index')">
+                            {{ __('Prese Visione') }}
+                        </x-nav-link>
+                    @endif
 
                     {{-- @if (Auth::user()->hasRole('admin'))
                         <x-nav-link :href="route('processing-parameters.index')" :active="request()->routeIs('processing-parameters.index')">
@@ -190,6 +195,11 @@
             <x-responsive-nav-link :href="route('production-orders.index')" :active="request()->routeIs('production-orders.index')">
                 {{ __('Stato Ordini') }}
             </x-responsive-nav-link>
+            @if (Auth::user()->hasRole('admin'))
+                <x-responsive-nav-link :href="route('acknowledgements.index')" :active="request()->routeIs('acknowledgements.index')">
+                    {{ __('Prese Visione') }}
+                </x-responsive-nav-link>
+            @endif
             {{-- @if (Auth::user()->hasRole('admin'))
                 <x-responsive-nav-link :href="route('processing-parameters.index')" :active="request()->routeIs('processing-parameters.index')">
                     {{ __('Parametri di lavorazione') }}

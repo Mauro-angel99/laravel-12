@@ -20,6 +20,7 @@ use App\Http\Controllers\ArticleSearchController;
 use App\Http\Controllers\ArticleAlertController;
 use App\Http\Controllers\SheetsController;
 use App\Http\Controllers\ProductionOrdersController;
+use App\Http\Controllers\WorkPhaseAcknowledgementController;
 
 Route::middleware(['auth', 'role:admin'])->group(function () {
     Route::prefix('admin')->group(function () {
@@ -34,6 +35,16 @@ Route::middleware(['auth', 'role:admin'])->group(function () {
     Route::delete('/api/permissions/roles/{role}', [PermissionsController::class, 'destroyRole']);
     Route::post('/api/permissions', [PermissionsController::class, 'storePermission']);
     Route::delete('/api/permissions/{permission}', [PermissionsController::class, 'destroyPermission']);
+
+    // Log prese visione fasi di lavoro (solo admin)
+    Route::get('/admin/acknowledgements', [WorkPhaseAcknowledgementController::class, 'index'])
+        ->name('acknowledgements.index');
+    Route::get('/api/work-phase-acknowledgements', [WorkPhaseAcknowledgementController::class, 'list'])
+        ->name('acknowledgements.list');
+    Route::get('/api/work-phase-acknowledgements/export', [WorkPhaseAcknowledgementController::class, 'export'])
+        ->name('acknowledgements.export');
+    Route::delete('/api/work-phase-acknowledgements/{acknowledgement}', [WorkPhaseAcknowledgementController::class, 'destroy'])
+        ->name('acknowledgements.destroy');
 });
 
 // API routes
@@ -118,6 +129,14 @@ Route::middleware('auth')->group(function () {
     // API per recuperare i parametri di un job/articolo
     Route::get('/api/job-parameter-values', [WorkPhaseAssignmentController::class, 'getParameters'])
         ->name('job-parameter-values.get');
+
+    // API per verificare lo stato di presa visione di una fase di lavoro
+    Route::get('/api/work-phase-acknowledgements/status', [WorkPhaseAcknowledgementController::class, 'status'])
+        ->name('acknowledgements.status');
+
+    // API per registrare la presa visione di una fase di lavoro
+    Route::post('/api/work-phase-acknowledgements', [WorkPhaseAcknowledgementController::class, 'store'])
+        ->name('acknowledgements.store');
 });
 
 // Warehouse routes
