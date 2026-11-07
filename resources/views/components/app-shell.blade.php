@@ -20,14 +20,22 @@
         @include('layouts.sidebar', ['unreadCommunications' => $unreadCommunications])
     </aside>
 
-    <div @click="menuOpen = false" aria-hidden="true"
-        :class="menuOpen ? 'opacity-100' : 'pointer-events-none opacity-0'"
-        class="pointer-events-none fixed inset-0 z-40 bg-gray-900/20 opacity-0 transition-opacity duration-200 motion-reduce:transition-none lg:hidden print:!hidden">
+    {{-- x-show invece di classi alternate: con :class le classi statiche restano, e un
+         pointer-events-none fisso lascerebbe passare il click che deve chiudere il menu. --}}
+    <div x-show="menuOpen" @click="menuOpen = false" aria-hidden="true" style="display: none"
+        x-transition:enter="transition-opacity duration-200 motion-reduce:transition-none"
+        x-transition:enter-start="opacity-0" x-transition:enter-end="opacity-100"
+        x-transition:leave="transition-opacity duration-200 motion-reduce:transition-none"
+        x-transition:leave-start="opacity-100" x-transition:leave-end="opacity-0"
+        class="fixed inset-0 z-40 bg-gray-900/20 lg:hidden print:!hidden">
     </div>
 
-    <aside x-effect="$el.inert = !menuOpen" inert
-        :class="menuOpen ? 'translate-x-0' : '-translate-x-full'"
-        class="fixed inset-y-0 left-0 z-[45] w-64 -translate-x-full border-r border-gray-200 bg-white shadow-xl transition-transform duration-200 ease-out motion-reduce:transition-none lg:hidden print:!hidden">
+    <aside x-show="menuOpen" style="display: none"
+        x-transition:enter="transition-transform duration-200 ease-out motion-reduce:transition-none"
+        x-transition:enter-start="-translate-x-full" x-transition:enter-end="translate-x-0"
+        x-transition:leave="transition-transform duration-200 ease-out motion-reduce:transition-none"
+        x-transition:leave-start="translate-x-0" x-transition:leave-end="-translate-x-full"
+        class="fixed inset-y-0 left-0 z-[45] w-64 border-r border-gray-200 bg-white shadow-xl lg:hidden print:!hidden">
         @include('layouts.sidebar', ['unreadCommunications' => $unreadCommunications])
     </aside>
 
