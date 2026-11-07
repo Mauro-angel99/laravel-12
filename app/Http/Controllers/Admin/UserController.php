@@ -66,6 +66,7 @@ class UserController extends Controller
             'name' => $validated['name'],
             'email' => $validated['email'],
             'password' => Hash::make($validated['password']),
+            'is_moderator' => $request->boolean('is_moderator'),
         ]);
 
         // Assign selected role
@@ -106,6 +107,7 @@ class UserController extends Controller
 
         $user->name = $validated['name'];
         $user->email = $validated['email'];
+        $user->is_moderator = $request->boolean('is_moderator');
         if (! empty($validated['password'])) {
             $user->password = Hash::make($validated['password']);
         }

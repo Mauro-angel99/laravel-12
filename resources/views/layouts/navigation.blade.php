@@ -1,4 +1,8 @@
-<nav x-data="{ open: false }" class="bg-white border-b border-gray-100">
+@php
+    // Comunicazioni assegnate all'utente e non ancora lette (valore iniziale del badge nel menu, poi aggiornato via polling)
+    $unreadCommunications = Auth::user()->receivedCommunications()->wherePivotNull('read_at')->count();
+@endphp
+<nav x-data="{ open: false }" x-init="$store.communications.start({{ $unreadCommunications }})" class="bg-white border-b border-gray-100">
     <!-- Primary Navigation Menu -->
     <div class="max-w-8xl mx-auto px-4 sm:px-6 lg:px-8">
         <div class="flex justify-between h-16">
@@ -58,6 +62,17 @@
                     @if (Auth::user()->hasRole('admin'))
                         <x-nav-link :href="route('acknowledgements.index')" :active="request()->routeIs('acknowledgements.index')">
                             {{ __('Inizio Lavoro') }}
+                        </x-nav-link>
+                    @endif
+                    <x-nav-link :href="route('communications.inbox')" :active="request()->routeIs('communications.inbox')">
+                        {{ __('Comunicazioni') }}
+                        <span x-show="$store.communications.unread > 0" x-text="$store.communications.unread"
+                            @if ($unreadCommunications === 0) style="display: none" @endif
+                            class="ms-1.5 inline-flex items-center justify-center min-w-[1.25rem] h-5 px-1.5 rounded-full bg-red-600 text-white text-[11px] font-bold leading-none">{{ $unreadCommunications }}</span>
+                    </x-nav-link>
+                    @if (Auth::user()->is_moderator)
+                        <x-nav-link :href="route('communications.manage')" :active="request()->routeIs('communications.manage')">
+                            {{ __('Gestione Comunicazioni') }}
                         </x-nav-link>
                     @endif
 
@@ -198,6 +213,17 @@
             @if (Auth::user()->hasRole('admin'))
                 <x-responsive-nav-link :href="route('acknowledgements.index')" :active="request()->routeIs('acknowledgements.index')">
                     {{ __('Inizio Lavoro') }}
+                </x-responsive-nav-link>
+            @endif
+            <x-responsive-nav-link :href="route('communications.inbox')" :active="request()->routeIs('communications.inbox')">
+                {{ __('Comunicazioni') }}
+                <span x-show="$store.communications.unread > 0" x-text="$store.communications.unread"
+                    @if ($unreadCommunications === 0) style="display: none" @endif
+                    class="ms-1.5 inline-flex items-center justify-center min-w-[1.25rem] h-5 px-1.5 rounded-full bg-red-600 text-white text-[11px] font-bold leading-none">{{ $unreadCommunications }}</span>
+            </x-responsive-nav-link>
+            @if (Auth::user()->is_moderator)
+                <x-responsive-nav-link :href="route('communications.manage')" :active="request()->routeIs('communications.manage')">
+                    {{ __('Gestione Comunicazioni') }}
                 </x-responsive-nav-link>
             @endif
             {{-- @if (Auth::user()->hasRole('admin'))

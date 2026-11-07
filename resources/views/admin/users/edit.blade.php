@@ -42,6 +42,16 @@
                             </select>
                         </div>
 
+                        <div class="flex items-center gap-2">
+                            <input type="checkbox" name="is_moderator" id="is_moderator" value="1"
+                                class="rounded border-gray-300 text-copam-blue shadow-sm focus:ring-copam-blue"
+                                {{ old('is_moderator', $user->is_moderator) ? 'checked' : '' }}>
+                            <label for="is_moderator" class="text-sm font-medium text-gray-700">
+                                Moderatore
+                                <span class="block text-xs font-normal text-gray-500">Può accedere a Gestione Comunicazioni e assegnare le comunicazioni agli utenti</span>
+                            </label>
+                        </div>
+
                         <div>
                             <x-input-label for="password" :value="__('New Password')" />
                             <x-text-input id="password" name="password" type="password" class="mt-1 block w-full"

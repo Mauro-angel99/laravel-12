@@ -4,6 +4,7 @@ namespace App\Models;
 
 // use Illuminate\Contracts\Auth\MustVerifyEmail;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
+use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
 use Laravel\Fortify\TwoFactorAuthenticatable;
@@ -24,6 +25,7 @@ class User extends Authenticatable
         'name',
         'email',
         'password',
+        'is_moderator',
     ];
 
     /**
@@ -46,6 +48,17 @@ class User extends Authenticatable
         return [
             'email_verified_at' => 'datetime',
             'password' => 'hashed',
+            'is_moderator' => 'boolean',
         ];
+    }
+
+    /**
+     * Comunicazioni assegnate all'utente dai moderatori
+     */
+    public function receivedCommunications(): BelongsToMany
+    {
+        return $this->belongsToMany(Communication::class)
+            ->withPivot('read_at')
+            ->withTimestamps();
     }
 }

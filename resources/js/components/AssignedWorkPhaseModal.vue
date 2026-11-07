@@ -99,6 +99,23 @@
                     </span>
                   </button>
                   <button
+                    @click="activeTab = 'comunicazione'"
+                    :class="[
+                      activeTab === 'comunicazione'
+                        ? 'border-copam-blue text-copam-blue'
+                        : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300',
+                      'whitespace-nowrap py-4 px-1 border-b-2 font-medium text-sm'
+                    ]"
+                  >
+                    <span class="inline-flex items-center gap-1.5">
+                      Comunicazione
+                      <span v-if="communicationsCount > 0"
+                        class="inline-flex items-center justify-center min-w-[1.25rem] h-5 px-1.5 rounded-full bg-copam-blue text-white text-[11px] font-bold leading-none">
+                        {{ communicationsCount }}
+                      </span>
+                    </span>
+                  </button>
+                  <button
                     @click="activeTab = 'alert'"
                     :class="[
                       activeTab === 'alert'
@@ -534,6 +551,11 @@
                 </div>
               </div>
 
+              <!-- Tab Comunicazione (v-show: resta montato per il badge sulla tab) -->
+              <div v-show="activeTab === 'comunicazione'">
+                <WorkPhaseCommunications :work-phase="assignment?.work_phase" @count="communicationsCount = $event" />
+              </div>
+
               <!-- Tab Alert (articolo padre, stessa logica delle N.C.) -->
               <div v-if="activeTab === 'alert'">
                 <p class="mb-3 text-xs text-gray-500">Articolo padre: {{ assignment?.work_phase?.OPART_PADRE || 'non trovato' }}</p>
@@ -757,6 +779,7 @@
 import { ref, watch, computed } from 'vue';
 import axios from 'axios';
 import ArticleAlerts from './ArticleAlerts.vue';
+import WorkPhaseCommunications from './WorkPhaseCommunications.vue';
 
 const props = defineProps({
   show: {
@@ -804,6 +827,9 @@ const fetchAlertsCount = async () => {
     // badge non mostrato in caso di errore
   }
 };
+
+// Comunicazioni (badge sulla tab)
+const communicationsCount = ref(0);
 
 // Warehouse position state
 const warehousePosition = ref([]);
@@ -940,6 +966,7 @@ const close = () => {
   ncError.value = null
   warehousePosition.value = []
   alertsCount.value = 0
+  communicationsCount.value = 0
   acknowledgement.value = null
 }
 

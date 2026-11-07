@@ -90,6 +90,9 @@
                                         class="px-6 py-4 text-left text-xs font-medium text-gray-500 uppercase tracking-wider border-r border-gray-200">
                                         Ruolo</th>
                                     <th
+                                        class="px-6 py-4 text-left text-xs font-medium text-gray-500 uppercase tracking-wider border-r border-gray-200">
+                                        Moderatore</th>
+                                    <th
                                         class="px-6 py-4 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                                         Azioni</th>
                                 </tr>
@@ -106,6 +109,14 @@
                                         <td
                                             class="px-6 py-4 whitespace-nowrap text-sm text-gray-500 border-r border-gray-200">
                                             {{ $user->roles->pluck('name')->join(', ') }}</td>
+                                        <td
+                                            class="px-6 py-4 whitespace-nowrap text-sm text-gray-500 border-r border-gray-200">
+                                            @if ($user->is_moderator)
+                                                <span class="inline-block bg-blue-100 text-copam-blue text-xs font-semibold px-2 py-0.5 rounded">Sì</span>
+                                            @else
+                                                &mdash;
+                                            @endif
+                                        </td>
                                         <td class="px-6 py-4 whitespace-nowrap text-sm font-medium">
                                             <a href="{{ route('users.edit', $user) }}"
                                                 class="text-white hover:text-white bg-copam-blue hover:bg-copam-blue-hover px-3 py-1 rounded-md text-sm font-medium transition duration-150 ease-in-out">

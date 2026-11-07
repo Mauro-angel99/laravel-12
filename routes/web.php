@@ -21,6 +21,7 @@ use App\Http\Controllers\ArticleAlertController;
 use App\Http\Controllers\SheetsController;
 use App\Http\Controllers\ProductionOrdersController;
 use App\Http\Controllers\WorkPhaseAcknowledgementController;
+use App\Http\Controllers\CommunicationController;
 
 Route::middleware(['auth', 'role:admin'])->group(function () {
     Route::prefix('admin')->group(function () {
@@ -137,6 +138,39 @@ Route::middleware('auth')->group(function () {
     // API per registrare l'inizio lavoro di una fase di lavoro
     Route::post('/api/work-phase-acknowledgements', [WorkPhaseAcknowledgementController::class, 'store'])
         ->name('acknowledgements.store');
+});
+
+// Comunicazioni fasi di lavoro
+Route::middleware('auth')->group(function () {
+    // Pagina comunicazioni ricevute dall'utente
+    Route::get('/communications', [CommunicationController::class, 'inbox'])
+        ->name('communications.inbox');
+    Route::get('/api/communications/inbox', [CommunicationController::class, 'inboxList'])
+        ->name('communications.inbox-list');
+    Route::get('/api/communications/unread-count', [CommunicationController::class, 'unreadCount'])
+        ->name('communications.unread-count');
+    Route::post('/api/communications/{communication}/read', [CommunicationController::class, 'markRead'])
+        ->name('communications.mark-read');
+
+    // Comunicazioni dalla modal Fase di Lavoro
+    Route::get('/api/communications/work-phase', [CommunicationController::class, 'forWorkPhase'])
+        ->name('communications.work-phase');
+    Route::post('/api/communications', [CommunicationController::class, 'store'])
+        ->name('communications.store');
+    Route::put('/api/communications/{communication}', [CommunicationController::class, 'update'])
+        ->name('communications.update');
+    Route::delete('/api/communications/{communication}', [CommunicationController::class, 'destroy'])
+        ->name('communications.destroy');
+});
+
+// Gestione comunicazioni (solo moderatori)
+Route::middleware(['auth', 'moderator'])->group(function () {
+    Route::get('/communications/manage', [CommunicationController::class, 'manage'])
+        ->name('communications.manage');
+    Route::get('/api/communications/manage', [CommunicationController::class, 'manageList'])
+        ->name('communications.manage-list');
+    Route::put('/api/communications/{communication}/recipients', [CommunicationController::class, 'assign'])
+        ->name('communications.assign');
 });
 
 // Warehouse routes
