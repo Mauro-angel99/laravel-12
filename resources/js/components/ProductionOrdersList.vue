@@ -488,7 +488,8 @@ onMounted(() => {
     <div class="bg-white rounded-xl shadow-sm border border-gray-200 overflow-hidden">
 
       <!-- Info risultati -->
-      <div class="px-4 py-2 border-b border-gray-100 flex items-center justify-between bg-gray-50">
+      <!-- Su mobile i pulsanti vanno sotto il contatore e riempiono la riga, andando a capo se non ci stanno -->
+      <div class="px-4 py-2 border-b border-gray-100 flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between bg-gray-50">
         <span class="text-xs text-gray-500">
           <span v-if="loading">Caricamento...</span>
           <span v-else>
@@ -496,10 +497,10 @@ onMounted(() => {
             di <span class="font-semibold text-gray-700">{{ pagination.total }}</span> record
           </span>
         </span>
-        <div class="flex items-center gap-2">
+        <div class="flex flex-wrap items-center gap-2">
           <button
             @click="deselectAll"
-            class="inline-flex items-center gap-2 px-5 py-2 rounded-lg border border-gray-300 bg-white hover:bg-gray-50 text-gray-700 text-sm font-semibold shadow-sm transition-colors disabled:opacity-40 disabled:cursor-not-allowed"
+            class="flex-1 sm:flex-none inline-flex items-center justify-center gap-2 whitespace-nowrap px-3 sm:px-5 py-2 rounded-lg border border-gray-300 bg-white hover:bg-gray-50 text-gray-700 text-sm font-semibold shadow-sm transition-colors disabled:opacity-40 disabled:cursor-not-allowed"
             :disabled="selectedItems.size === 0"
           >
             <svg class="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -510,7 +511,7 @@ onMounted(() => {
           </button>
           <button
             @click="printPdf"
-            class="inline-flex items-center gap-2 px-5 py-2 rounded-lg bg-green-600 hover:bg-green-700 text-white text-sm font-semibold shadow transition-colors disabled:opacity-40 disabled:cursor-not-allowed"
+            class="flex-1 sm:flex-none inline-flex items-center justify-center gap-2 whitespace-nowrap px-3 sm:px-5 py-2 rounded-lg bg-green-600 hover:bg-green-700 text-white text-sm font-semibold shadow transition-colors disabled:opacity-40 disabled:cursor-not-allowed"
             :disabled="selectedItems.size === 0"
           >
             <svg class="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -521,13 +522,13 @@ onMounted(() => {
           </button>
           <button
             @click="exportExcel"
-            class="inline-flex items-center gap-2 px-5 py-2 rounded-lg bg-emerald-700 hover:bg-emerald-800 text-white text-sm font-semibold shadow transition-colors disabled:opacity-40 disabled:cursor-not-allowed"
+            class="flex-1 sm:flex-none inline-flex items-center justify-center gap-2 whitespace-nowrap px-3 sm:px-5 py-2 rounded-lg bg-emerald-700 hover:bg-emerald-800 text-white text-sm font-semibold shadow transition-colors disabled:opacity-40 disabled:cursor-not-allowed"
             :disabled="selectedItems.size === 0"
           >
             <svg class="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 10v6m0 0l-3-3m3 3l3-3M3 17V7a2 2 0 012-2h6l2 2h6a2 2 0 012 2v8a2 2 0 01-2 2H5a2 2 0 01-2-2z" />
             </svg>
-            Esporta XLSX
+            <span class="sm:hidden">XLSX</span><span class="hidden sm:inline">Esporta XLSX</span>
             <span v-if="selectedItems.size > 0" class="bg-emerald-900 text-white text-xs rounded-full px-1.5 py-0.5">{{ selectedItems.size }}</span>
           </button>
         </div>
