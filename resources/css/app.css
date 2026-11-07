@@ -12,3 +12,14 @@
   -ms-overflow-style: none;  /* IE e Edge */
   scrollbar-width: none;  /* Firefox */
 }
+
+/*
+ * Stampa: sul foglio deve finire il documento, non l'applicativo.
+ * Sidebar e barra in alto portano `print:!hidden` nel guscio; qui si toglie
+ * il rientro che lascia posto al menu laterale.
+ */
+@media print {
+  .lg\:pl-64 {
+    padding-left: 0 !important;
+  }
+}

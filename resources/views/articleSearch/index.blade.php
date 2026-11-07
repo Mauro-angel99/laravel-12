@@ -7,7 +7,7 @@
 
     @section('content')
         <div class="py-1">
-            <div class="max-w-8xl mx-auto sm:px-0 md:px-0 lg:px-0 xl:px-8">
+            <div class="w-full">
                 <article-search-list></article-search-list>
             </div>
         </div>

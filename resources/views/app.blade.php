@@ -49,13 +49,9 @@
 </head>
 
 <body class="font-sans antialiased">
-    <div class="min-h-screen bg-gray-100">
-        @include('layouts.navigation')
-
-        <main class="pt-3 px-1">
-            @inertia
-        </main>
-    </div>
+    <x-app-shell>
+        @inertia
+    </x-app-shell>
 </body>
 
 </html>

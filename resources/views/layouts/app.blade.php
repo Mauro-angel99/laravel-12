@@ -18,28 +18,14 @@
 </head>
 
 <body class="font-sans antialiased">
-    <div class="min-h-screen bg-gray-100">
-        {{-- Navbar o menù --}}
-        @include('layouts.navigation')
+    {{-- Sidebar, barra in alto e titolo della pagina (slot $header, opzionale) --}}
+    <x-app-shell :header="$header ?? null" id="app">
+        {{-- se la pagina usa slot (Livewire/Breeze) --}}
+        {{ $slot ?? '' }}
 
-        {{-- Page Heading (opzionale) --}}
-        @isset($header)
-            <header class="bg-white shadow">
-                <div class="max-w-8xl mx-auto py-6 px-4 sm:px-6 lg:px-8">
-                    {{ $header }}
-                </div>
-            </header>
-        @endisset
-
-        {{-- Vue + Blade content --}}
-        <main id="app" class="pt-3 px-1">
-            {{-- se la pagina usa slot (Livewire/Breeze) --}}
-            {{ $slot ?? '' }}
-
-            {{-- oppure se vuoi usare @yield per sezioni Blade --}}
-            @yield('content')
-        </main>
-    </div>
+        {{-- oppure se vuoi usare @yield per sezioni Blade --}}
+        @yield('content')
+    </x-app-shell>
 </body>
 
 </html>
